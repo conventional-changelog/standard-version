@@ -86,7 +86,7 @@ function outputChangelog (argv, cb) {
 
 function commit (argv, cb) {
   console.log(chalk.bold('3.') + ' commit ' + chalk.bold('package.json') + ' and ' + chalk.bold(argv.infile))
-  exec('git commit package.json ' + argv.infile + ' -m "' + argv.message + '"', function (err, stdout, stderr) {
+  exec('git add package.json ' + argv.infile + ';git commit package.json ' + argv.infile + ' -m "' + argv.message + '"', function (err, stdout, stderr) {
     var errMessage = null
     if (err) errMessage = err.message
     if (stderr) errMessage = stderr
