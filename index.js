@@ -91,7 +91,6 @@ function outputChangelog (argv, cb) {
   var changelogStream = conventionalChangelog({
     preset: argv.preset,
     outputUnreleased: true,
-    releaseCount: 0,
     pkg: {
       path: path.resolve(process.cwd(), './package.json')
     }
