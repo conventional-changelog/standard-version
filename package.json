@@ -1,0 +1,38 @@
+{
+  "name": "conventional-recommended-workflow",
+  "version": "1.0.0",
+  "description": "apply the recommended workflow outlined in conventional-changelog-cli.",
+  "bin": "index.js",
+  "main": "index.js",
+  "scripts": {
+    "test": "standard"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bcoe/conventional-recommended-workflow.git"
+  },
+  "keywords": [
+    "conventional-changelog",
+    "recommended",
+    "workflow"
+  ],
+  "author": "Ben Coe <ben@npmjs.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bcoe/conventional-recommended-workflow/issues"
+  },
+  "homepage": "https://github.com/bcoe/conventional-recommended-workflow#readme",
+  "dependencies": {
+    "add-stream": "^1.0.0",
+    "chalk": "^1.1.3",
+    "conventional-changelog": "^1.1.0",
+    "conventional-recommended-bump": "^0.2.0",
+    "rimraf": "^2.5.2",
+    "semver": "^5.1.0",
+    "tempfile": "^1.1.1",
+    "yargs": "^4.3.2"
+  },
+  "devDependencies": {
+    "standard": "^6.0.8"
+  }
+}
