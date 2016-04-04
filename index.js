@@ -7,18 +7,42 @@ var argv = require('yargs')
   .option('infile', {
     alias: 'i',
     describe: 'Read the CHANGELOG from this file',
-    default: 'CHANGELOG.md'
+    default: 'CHANGELOG.md',
+    global: true
   })
   .option('preset', {
     alias: 'p',
     describe: 'Name of the preset you want to use. Must be one of the following: angular, atom, codemirror, ember, eslint, express, jquery, jscs or jshint',
-    default: 'angular'
+    default: 'angular',
+    global: true
   })
   .option('message', {
     alias: 'm',
     describe: 'commit message',
     type: 'string',
-    default: 'see changelog for details'
+    default: 'see changelog for details',
+    global: true
+  })
+  .option('first', {
+    alias: 'f',
+    describe: 'is this the first release',
+    type: 'boolean',
+    default: false,
+    global: true
+  })
+  .option('release-count', {
+    alias: 'r',
+    describe: 'how many releases to be generated from the latest',
+    type: 'number',
+    default: 1,
+    global: true
+  })
+  .option('output-unreleased', {
+    alias: 'u',
+    describe: 'output unreleased changelog',
+    type: 'boolean',
+    default: false,
+    global: true
   })
   .help()
   .alias('h', 'help')
@@ -43,10 +67,18 @@ conventionalRecommendedBump({
     return
   }
 
-  var newVersion = semver.inc(pkg.version, release.releaseAs)
-  console.log(chalk.bold('1.') + ' bump version ' + chalk.bold(release.releaseAs) + ' in package.json (' + pkg.version + ' → ' + chalk.green(newVersion) + ')')
-  pkg.version = newVersion
-  fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2), 'utf-8')
+  var newVersion = pkg.version
+  if (!argv.firstRelease) {
+    newVersion = semver.inc(pkg.version, release.releaseAs)
+
+    console.log(chalk.bold('1.') + ' bump version ' + chalk.bold(release.releaseAs) + ' in package.json (' + pkg.version + ' → ' + chalk.green(newVersion) + ')')
+    pkg.version = newVersion
+    fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2), 'utf-8')
+  } else {
+    console.log(chalk.yellow('skip package.json update on first release'))
+    argv.outputUnreleased = true
+    argv.releaseCount = 0
+  }
 
   outputChangelog(argv, function () {
     commit(argv, function () {
@@ -60,11 +92,31 @@ function outputChangelog (argv, cb) {
 
   createIfMissing(argv)
 
+  console.log(argv)
+
   var readStream = fs.createReadStream(argv.infile)
     .on('error', function (err) {
       console.warn(chalk.yellow(err.message))
     })
-  var changelogStream = conventionalChangelog({preset: argv.preset})
+
+  var options = {
+    preset: argv.preset,
+    releaseCount: argv.releaseCount,
+    outputUnreleased: argv.outputUnreleased,
+    pkg: {
+      path: path.resolve(process.cwd(), './package.json')
+    }
+  }
+  console.log(options)
+
+  var changelogStream = conventionalChangelog({
+    preset: argv.preset,
+    outputUnreleased: true,
+    releaseCount: 0,
+    pkg: {
+      path: path.resolve(process.cwd(), './package.json')
+    }
+  })
     .on('error', function (err) {
       console.error(chalk.red(err.message))
       process.exit(1)
@@ -117,6 +169,7 @@ function createIfMissing (argv) {
   } catch (err) {
     if (err.code === 'ENOENT') {
       console.log(chalk.green('creating ') + argv.infile)
+      argv.outputUnreleased = true
       fs.writeFileSync(argv.infile, '', 'utf-8')
     }
   }
