@@ -81,13 +81,6 @@ function outputChangelog (argv, cb) {
       console.warn(chalk.yellow(err.message))
     })
 
-  var options = {
-    preset: argv.preset,
-    pkg: {
-      path: path.resolve(process.cwd(), './package.json')
-    }
-  }
-
   var changelogStream = conventionalChangelog({
     preset: argv.preset,
     outputUnreleased: true,
