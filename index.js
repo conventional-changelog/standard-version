@@ -7,18 +7,28 @@ var argv = require('yargs')
   .option('infile', {
     alias: 'i',
     describe: 'Read the CHANGELOG from this file',
-    default: 'CHANGELOG.md'
+    default: 'CHANGELOG.md',
+    global: true
   })
   .option('preset', {
     alias: 'p',
     describe: 'Name of the preset you want to use. Must be one of the following: angular, atom, codemirror, ember, eslint, express, jquery, jscs or jshint',
-    default: 'angular'
+    default: 'angular',
+    global: true
   })
   .option('message', {
     alias: 'm',
     describe: 'commit message',
     type: 'string',
-    default: 'see changelog for details'
+    default: 'see changelog for details',
+    global: true
+  })
+  .option('first-release', {
+    alias: 'f',
+    describe: 'is this the first release',
+    type: 'boolean',
+    default: false,
+    global: true
   })
   .help()
   .alias('h', 'help')
@@ -43,10 +53,16 @@ conventionalRecommendedBump({
     return
   }
 
-  var newVersion = semver.inc(pkg.version, release.releaseAs)
-  console.log(chalk.bold('1.') + ' bump version ' + chalk.bold(release.releaseAs) + ' in package.json (' + pkg.version + ' → ' + chalk.green(newVersion) + ')')
-  pkg.version = newVersion
-  fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2), 'utf-8')
+  var newVersion = pkg.version
+  if (!argv.firstRelease) {
+    newVersion = semver.inc(pkg.version, release.releaseAs)
+
+    console.log(chalk.bold('1.') + ' bump version ' + chalk.bold(release.releaseAs) + ' in package.json (' + pkg.version + ' → ' + chalk.green(newVersion) + ')')
+    pkg.version = newVersion
+    fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2), 'utf-8')
+  } else {
+    console.log(chalk.yellow('skip package.json update on first release'))
+  }
 
   outputChangelog(argv, function () {
     commit(argv, function () {
@@ -64,7 +80,14 @@ function outputChangelog (argv, cb) {
     .on('error', function (err) {
       console.warn(chalk.yellow(err.message))
     })
-  var changelogStream = conventionalChangelog({preset: argv.preset})
+
+  var changelogStream = conventionalChangelog({
+    preset: argv.preset,
+    outputUnreleased: true,
+    pkg: {
+      path: path.resolve(process.cwd(), './package.json')
+    }
+  })
     .on('error', function (err) {
       console.error(chalk.red(err.message))
       process.exit(1)
@@ -86,7 +109,7 @@ function outputChangelog (argv, cb) {
 
 function commit (argv, cb) {
   console.log(chalk.bold('3.') + ' commit ' + chalk.bold('package.json') + ' and ' + chalk.bold(argv.infile))
-  exec('git commit package.json ' + argv.infile + ' -m "' + argv.message + '"', function (err, stdout, stderr) {
+  exec('git add package.json ' + argv.infile + ';git commit package.json ' + argv.infile + ' -m "' + argv.message + '"', function (err, stdout, stderr) {
     var errMessage = null
     if (err) errMessage = err.message
     if (stderr) errMessage = stderr
@@ -117,6 +140,7 @@ function createIfMissing (argv) {
   } catch (err) {
     if (err.code === 'ENOENT') {
       console.log(chalk.green('creating ') + argv.infile)
+      argv.outputUnreleased = true
       fs.writeFileSync(argv.infile, '', 'utf-8')
     }
   }
