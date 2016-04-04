@@ -1,5 +1,8 @@
 # Conventional Recommended Workflow
 
+[![Build Status](https://travis-ci.org/bcoe/conventional-recommended-workflow.svg)](https://travis-ci.org/bcoe/conventional-recommended-workflow)
+[![NPM version](https://img.shields.io/npm/v/conventional-recommended-workflow.svg)](https://www.npmjs.com/package/conventional-recommended-workflow)
+
 Automatic CHANGELOG.md generation, using GitHub's new squash button and
 the workflow outlined in [conventional-changelog-cli](https://github.com/stevemao/conventional-changelog-cli).
 
