@@ -76,8 +76,6 @@ function outputChangelog (argv, cb) {
 
   createIfMissing(argv)
 
-  console.log(argv)
-
   var readStream = fs.createReadStream(argv.infile)
     .on('error', function (err) {
       console.warn(chalk.yellow(err.message))
@@ -89,7 +87,6 @@ function outputChangelog (argv, cb) {
       path: path.resolve(process.cwd(), './package.json')
     }
   }
-  console.log(options)
 
   var changelogStream = conventionalChangelog({
     preset: argv.preset,
