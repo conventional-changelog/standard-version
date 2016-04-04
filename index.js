@@ -23,23 +23,9 @@ var argv = require('yargs')
     default: 'see changelog for details',
     global: true
   })
-  .option('first', {
+  .option('first-release', {
     alias: 'f',
     describe: 'is this the first release',
-    type: 'boolean',
-    default: false,
-    global: true
-  })
-  .option('release-count', {
-    alias: 'r',
-    describe: 'how many releases to be generated from the latest',
-    type: 'number',
-    default: 1,
-    global: true
-  })
-  .option('output-unreleased', {
-    alias: 'u',
-    describe: 'output unreleased changelog',
     type: 'boolean',
     default: false,
     global: true
@@ -76,8 +62,6 @@ conventionalRecommendedBump({
     fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2), 'utf-8')
   } else {
     console.log(chalk.yellow('skip package.json update on first release'))
-    argv.outputUnreleased = true
-    argv.releaseCount = 0
   }
 
   outputChangelog(argv, function () {
@@ -101,8 +85,6 @@ function outputChangelog (argv, cb) {
 
   var options = {
     preset: argv.preset,
-    releaseCount: argv.releaseCount,
-    outputUnreleased: argv.outputUnreleased,
     pkg: {
       path: path.resolve(process.cwd(), './package.json')
     }

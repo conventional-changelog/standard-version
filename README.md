@@ -22,6 +22,12 @@ the workflow outlined in [conventional-changelog-cli](https://github.com/stevema
 3. commits _package.json_ and _CHANGELOG.md_.
 4. tags a new release.
 
+## Initial CHANGELOG.md Generation
+
+When you're generating your changelog for the first time, simply do:
+
+`conventional-recommended-workflow --first-release`
+
 ## Installation
 
 `npm i conventional-recommended-workflow`
