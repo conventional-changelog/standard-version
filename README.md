@@ -11,7 +11,7 @@ the workflow outlined in [conventional-changelog-cli](https://github.com/stevema
 **how it works:**
 
 1. when you land commits on your `master` branch, select the _Squash and Merge_ option.
-2. add a title and body that follows the [conventional-changelog conventions](https://github.com/stevemao/conventional-changelog-angular/blob/master/convention.md).
+2. add a title and body that follows the [conventional-changelog conventions](https://github.com/conventional-changelog/conventional-changelog-angular/blob/master/convention.md).
 3. when you're ready to release to npm:
   1. checkout `master`.
   2. run `standard-version`.
