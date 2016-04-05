@@ -3,7 +3,7 @@ var conventionalChangelog = require('conventional-changelog')
 var conventionalRecommendedBump = require('conventional-recommended-bump')
 var path = require('path')
 var argv = require('yargs')
-  .usage('$0 [options]')
+  .usage('Usage: $0 [options]')
   .option('infile', {
     alias: 'i',
     describe: 'Read the CHANGELOG from this file',
@@ -12,27 +12,29 @@ var argv = require('yargs')
   })
   .option('preset', {
     alias: 'p',
-    describe: 'Name of the preset you want to use. Must be one of the following: angular, atom, codemirror, ember, eslint, express, jquery, jscs or jshint',
+    describe: 'Name of the preset you want to use. Must be one of the following:\nangular, atom, codemirror, ember, eslint, express, jquery, jscs, or jshint',
     default: 'angular',
     global: true
   })
   .option('message', {
     alias: 'm',
-    describe: 'commit message',
+    describe: 'Commit message, replaces %s with new version',
     type: 'string',
-    default: 'see changelog for details',
+    default: 'chore(release): %s',
     global: true
   })
   .option('first-release', {
     alias: 'f',
-    describe: 'is this the first release',
+    describe: 'Is this the first release?',
     type: 'boolean',
     default: false,
     global: true
   })
   .help()
-  .alias('h', 'help')
-  .example('$0 -m "see changelog for details"', 'update changelog and tag release')
+  .alias('help', 'h')
+  .example('$0', 'Update changelog and tag release')
+  .example('$0 -m "%s: see changelog for details"', 'Update changelog and tag release with custom commit message')
+  .wrap(97)
   .argv
 
 var addStream = require('add-stream')
@@ -44,6 +46,7 @@ var pkg = require(pkgPath)
 var semver = require('semver')
 var tempfile = require('tempfile')
 var rimraf = require('rimraf')
+var util = require('util')
 
 conventionalRecommendedBump({
   preset: argv.preset
@@ -65,7 +68,7 @@ conventionalRecommendedBump({
   }
 
   outputChangelog(argv, function () {
-    commit(argv, function () {
+    commit(argv, newVersion, function () {
       return tag(newVersion, argv)
     })
   })
@@ -107,9 +110,9 @@ function outputChangelog (argv, cb) {
     })
 }
 
-function commit (argv, cb) {
+function commit (argv, newVersion, cb) {
   console.log(chalk.bold('3.') + ' commit ' + chalk.bold('package.json') + ' and ' + chalk.bold(argv.infile))
-  exec('git add package.json ' + argv.infile + ';git commit package.json ' + argv.infile + ' -m "' + argv.message + '"', function (err, stdout, stderr) {
+  exec('git add package.json ' + argv.infile + ';git commit package.json ' + argv.infile + ' -m "' + formatCommitMessage(argv.message, newVersion) + '"', function (err, stdout, stderr) {
     var errMessage = null
     if (err) errMessage = err.message
     if (stderr) errMessage = stderr
@@ -119,6 +122,10 @@ function commit (argv, cb) {
     }
     return cb()
   })
+}
+
+function formatCommitMessage (msg, newVersion) {
+  return String(msg).indexOf('%s') !== -1 ? util.format(msg, newVersion) : msg
 }
 
 function tag (newVersion, argv) {
