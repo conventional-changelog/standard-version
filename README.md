@@ -24,19 +24,17 @@ the workflow outlined in [conventional-changelog-cli](https://github.com/stevema
 3. commits _package.json_ and _CHANGELOG.md_.
 4. tags a new release.
 
-## Initial CHANGELOG.md Generation
-
-When you're generating your changelog for the first time, simply do:
-
-`standard-version --first-release`
-
 ## Installation
 
-`npm i standard-version`
+### As `npm run` script
 
-## Automating
+Install and add to `devDependencies`:
 
-Add this to your _package.json_
+```
+npm i --save-dev standard-version
+```
+
+Add an [`npm run` script](https://docs.npmjs.com/cli/run-script) to your _package.json_:
 
 ```json
 {
@@ -44,6 +42,65 @@ Add this to your _package.json_
     "release": "standard-version"
   }
 }
+```
+
+Now you can use `npm run release` in place of `npm version`.
+
+### As global bin
+
+Install globally (add to your `PATH`):
+
+```
+npm i -g standard-version
+```
+
+Now you can use `standard-version` in place of `npm version`.
+
+## Usage
+
+### Initial CHANGELOG.md Generation
+
+To generate your changelog for the first time, simply do:
+
+```sh
+# npm run script
+npm run release -- --first-release
+# global bin
+standard-version --first-release
+```
+
+### Manual Pre-Publish
+
+If you typically use `npm version` as a manual pre-publish step, do this instead:
+
+```sh
+# npm run script
+npm run release
+# global bin
+standard-version
+```
+
+As long as your git commit messages are conventional and accurate, you no longer need to specify the semver type.
+
+### Automating
+
+You can even run `standard-version` automatically on `npm publish`. Just add the following to _package.json_:
+
+```json
+{
+  "scripts": {
+    "prepublish": "standard-version && git push --follow-tags origin master"
+  }
+}
+```
+
+### CLI Help
+
+```sh
+# npm run script
+npm run release -- --help
+# global bin
+standard-version --help
 ```
 
 ## License
