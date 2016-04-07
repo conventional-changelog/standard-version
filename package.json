@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/bcoe/conventional-version.git"
+    "url": "git+https://github.com/conventional-changelog/standard-verison.git"
   },
   "keywords": [
     "conventional-changelog",
@@ -23,9 +23,9 @@
   "author": "Ben Coe <ben@npmjs.com>",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/bcoe/conventional-version/issues"
+    "url": "https://github.com/conventional-changelog/standard-version/issues"
   },
-  "homepage": "https://github.com/bcoe/conventional-version#readme",
+  "homepage": "https://github.com/conventional-changelog/standard-version#readme",
   "dependencies": {
     "add-stream": "^1.0.0",
     "chalk": "^1.1.3",
