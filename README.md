@@ -1,6 +1,6 @@
 # Standard Version
 
-[![Build Status](https://travis-ci.org/bcoe/standard-version.svg)](https://travis-ci.org/bcoe/standard-version)
+[![Build Status](https://travis-ci.org/conventional-changelog/standard-version.svg)](https://travis-ci.org/conventional-changelog/standard-version)
 [![NPM version](https://img.shields.io/npm/v/standard-version.svg)](https://www.npmjs.com/package/standard-version)
 
 > stop using `npm version`, use `standard-version` it does so much more:
