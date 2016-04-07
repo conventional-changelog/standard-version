@@ -1,7 +1,7 @@
 {
-  "name": "conventional-recommended-workflow",
+  "name": "standard-version",
   "version": "1.0.0",
-  "description": "apply the recommended workflow outlined in conventional-changelog-cli.",
+  "description": "replacement for `npm version` with automatic CHANGELOG generation",
   "bin": "index.js",
   "main": "index.js",
   "scripts": {
@@ -9,19 +9,23 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/bcoe/conventional-recommended-workflow.git"
+    "url": "git+https://github.com/bcoe/conventional-version.git"
   },
   "keywords": [
     "conventional-changelog",
     "recommended",
-    "workflow"
+    "changelog",
+    "automatic",
+    "workflow",
+    "version",
+    "angular"
   ],
   "author": "Ben Coe <ben@npmjs.com>",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/bcoe/conventional-recommended-workflow/issues"
+    "url": "https://github.com/bcoe/conventional-version/issues"
   },
-  "homepage": "https://github.com/bcoe/conventional-recommended-workflow#readme",
+  "homepage": "https://github.com/bcoe/conventional-version#readme",
   "dependencies": {
     "add-stream": "^1.0.0",
     "chalk": "^1.1.3",
