@@ -82,18 +82,6 @@ standard-version
 
 As long as your git commit messages are conventional and accurate, you no longer need to specify the semver type.
 
-### Automating
-
-You can even run `standard-version` automatically on `npm publish`. Just add the following to _package.json_:
-
-```json
-{
-  "scripts": {
-    "prepublish": "standard-version && git push --follow-tags origin master"
-  }
-}
-```
-
 ### CLI Help
 
 ```sh
