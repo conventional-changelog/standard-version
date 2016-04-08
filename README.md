@@ -2,6 +2,8 @@
 
 [![Build Status](https://travis-ci.org/conventional-changelog/standard-version.svg)](https://travis-ci.org/conventional-changelog/standard-version)
 [![NPM version](https://img.shields.io/npm/v/standard-version.svg)](https://www.npmjs.com/package/standard-version)
+[![Coverage Status](https://coveralls.io/repos/conventional-changelog/standard-version/badge.svg?branch=)](https://coveralls.io/r/conventional-changelog/standard-version?branch=master)
+[![Standard Version](https://img.shields.io/badge/standard-version-brightgreen.svg)](https://github.com/conventional-changelog/standard-version)
 
 > stop using `npm version`, use `standard-version` it does so much more:
 
@@ -36,6 +38,10 @@ When you're generating your changelog for the first time, simply do:
 
 ## Automating
 
+Do this:
+
+`npm i standard-version --save-dev`
+
 Add this to your _package.json_
 
 ```json
@@ -44,6 +50,14 @@ Add this to your _package.json_
     "release": "standard-version"
   }
 }
+```
+
+## Badges!
+
+Tell your users that you adhere to the `standard-version` commit guidelines:
+
+```markdown
+[![Standard Version](https://img.shields.io/badge/standard-version-brightgreen.svg)](https://github.com/conventional-changelog/standard-version)
 ```
 
 ## License
