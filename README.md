@@ -46,6 +46,20 @@ Add this to your _package.json_
 }
 ```
 
+## What Is Conventional Changelog
+
+Conventional Changelog is a tool for generating slick looking CHANGELOG.md files
+from your project's git history. There are various standards for how you
+annotate your commits; `conventional-recommended-workflow` defaults to `angular`'s
+commit standard.
+
+**Relationship with Semantic Release:**
+
+[semantic-release](https://github.com/semantic-release/semantic-release) is a tool
+for fully automating the package publication process. `semantic-release` is also
+based around the `angular` commit format, and relies on some libraries in the
+`conventional-changelog` ecosystem.
+
 ## License
 
 ISC
