@@ -4,7 +4,4 @@
 
 ### Features
 
-* **initial-release:** adds flag for generating CHANGELOG.md on the first release. ([b812b44](https://github.com/bcoe/conventional-recommended-workflow/commit/b812b44))
-
-
-
+* **initial-release:** adds flag for generating CHANGELOG.md on the first release. ([b812b44](https://github.com/conventional-changelog/standard-version/commit/b812b44))

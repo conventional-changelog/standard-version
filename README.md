@@ -5,17 +5,17 @@
 
 > stop using `npm version`, use `standard-version` it does so much more:
 
-Automatic release and CHANGELOG management, using GitHub's new squash button and
-the workflow outlined in [conventional-changelog-cli](https://github.com/stevemao/conventional-changelog-cli).
+Automatic versioning and CHANGELOG management, using GitHub's new squash button and
+the [recommended workflow](https://github.com/conventional-changelog/conventional-changelog-cli#recommended-workflow) for `conventional-changelog`.
 
 **how it works:**
 
 1. when you land commits on your `master` branch, select the _Squash and Merge_ option.
-2. add a title and body that follows the [conventional-changelog conventions](https://github.com/stevemao/conventional-changelog-angular/blob/master/convention.md).
+2. add a title and body that follows the [standard-changelog conventions](https://github.com/conventional-changelog/conventional-changelog-angular/blob/master/convention.md).
 3. when you're ready to release to npm:
-  1. checkout `master`.
+  1. `git checkout master; git pull origin master`.
   2. run `standard-version`.
-  3. `git push --tags; git push origin master; npm publish`.
+  3. `git push --follow-tags origin master; npm publish`.
 
 `standard-version` does the following:
 
@@ -24,19 +24,17 @@ the workflow outlined in [conventional-changelog-cli](https://github.com/stevema
 3. commits _package.json_ and _CHANGELOG.md_.
 4. tags a new release.
 
-## Initial CHANGELOG.md Generation
-
-When you're generating your changelog for the first time, simply do:
-
-`standard-version --first-release`
-
 ## Installation
 
-`npm i standard-version`
+### As `npm run` script
 
-## Automating
+Install and add to `devDependencies`:
 
-Add this to your _package.json_
+```
+npm i --save-dev standard-version
+```
+
+Add an [`npm run` script](https://docs.npmjs.com/cli/run-script) to your _package.json_:
 
 ```json
 {
@@ -44,6 +42,53 @@ Add this to your _package.json_
     "release": "standard-version"
   }
 }
+```
+
+Now you can use `npm run release` in place of `npm version`.
+
+### As global bin
+
+Install globally (add to your `PATH`):
+
+```
+npm i -g standard-version
+```
+
+Now you can use `standard-version` in place of `npm version`.
+
+## Usage
+
+### Initial CHANGELOG.md Generation
+
+To generate your changelog for the first time, simply do:
+
+```sh
+# npm run script
+npm run release -- --first-release
+# or global bin
+standard-version --first-release
+```
+
+### Manual Pre-Publish
+
+If you typically use `npm version` as a manual pre-publish step, do this instead:
+
+```sh
+# npm run script
+npm run release
+# or global bin
+standard-version
+```
+
+As long as your git commit messages are conventional and accurate, you no longer need to specify the semver type.
+
+### CLI Help
+
+```sh
+# npm run script
+npm run release -- --help
+# or global bin
+standard-version --help
 ```
 
 ## License
