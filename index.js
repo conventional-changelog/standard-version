@@ -105,7 +105,8 @@ function outputChangelog (argv, cb) {
 }
 
 function commit (argv, newVersion, cb) {
-  var msg = 'committing %s', args = [argv.infile]
+  var msg = 'committing %s'
+  var args = [argv.infile]
   if (!argv.firstRelease) {
     msg += ' and %s'
     args.unshift('package.json')
