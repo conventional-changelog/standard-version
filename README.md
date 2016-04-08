@@ -5,13 +5,13 @@
 
 > stop using `npm version`, use `standard-version` it does so much more:
 
-Automatic release and CHANGELOG management, using GitHub's new squash button and
-the workflow outlined in [conventional-changelog-cli](https://github.com/stevemao/conventional-changelog-cli).
+Automatic versioning and CHANGELOG management, using GitHub's new squash button and
+the [recommended workflow](https://github.com/conventional-changelog/conventional-changelog-cli#recommended-workflow) for `conventional-changelog`.
 
 **how it works:**
 
 1. when you land commits on your `master` branch, select the _Squash and Merge_ option.
-2. add a title and body that follows the [conventional-changelog conventions](https://github.com/conventional-changelog/conventional-changelog-angular/blob/master/convention.md).
+2. add a title and body that follows the [standard-changelog conventions](https://github.com/conventional-changelog/conventional-changelog-angular/blob/master/convention.md).
 3. when you're ready to release to npm:
   1. `git checkout master; git pull origin master`.
   2. run `standard-version`.
@@ -65,7 +65,7 @@ To generate your changelog for the first time, simply do:
 ```sh
 # npm run script
 npm run release -- --first-release
-# global bin
+# or global bin
 standard-version --first-release
 ```
 
@@ -76,7 +76,7 @@ If you typically use `npm version` as a manual pre-publish step, do this instead
 ```sh
 # npm run script
 npm run release
-# global bin
+# or global bin
 standard-version
 ```
 
@@ -87,7 +87,7 @@ As long as your git commit messages are conventional and accurate, you no longer
 ```sh
 # npm run script
 npm run release -- --help
-# global bin
+# or global bin
 standard-version --help
 ```
 
