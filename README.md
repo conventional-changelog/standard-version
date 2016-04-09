@@ -69,8 +69,8 @@ git commit -a -m "feat(parser): we now have a parser \o/"
 _breaking changes:_
 
 ```sh
-git commit -a -m "feat(new-parser):
-BREAKING CHANGE: swapping out our old parser for a new one"
+git commit -a -m "feat(new-parser): introduces a new parsing library
+BREAKING CHANGE: new library does not support foo-construct"
 ```
 
 _other changes:_
