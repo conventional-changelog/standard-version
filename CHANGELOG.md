@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="2.0.0"></a>
+# [2.0.0](https://github.com/conventional-changelog/standard-verison/compare/v1.1.0...v2.0.0) (2016-04-09)
+
+
+* feat(conventional-changelog-standard): ([c7ccadb](https://github.com/conventional-changelog/standard-verison/commit/c7ccadb))
+
+
+### BREAKING CHANGES
+
+* Move to conventional-changelog-standard style. This style lifts the character limit on commit messages, and puts us in a position to make more opinionated decisions in the future.
+
+
+
 <a name="1.1.0"></a>
 # [1.1.0](https://github.com/conventional-changelog/standard-verison/compare/v1.0.0...v1.1.0) (2016-04-08)
 
