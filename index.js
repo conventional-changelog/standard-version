@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-var conventionalChangelog = require('conventional-changelog')
 var conventionalRecommendedBump = require('conventional-recommended-bump')
+var conventionalChangelog = require('conventional-changelog')
 var path = require('path')
 var argv = require('yargs')
   .usage('Usage: $0 [options]')
@@ -8,12 +8,6 @@ var argv = require('yargs')
     alias: 'i',
     describe: 'Read the CHANGELOG from this file',
     default: 'CHANGELOG.md',
-    global: true
-  })
-  .option('preset', {
-    alias: 'p',
-    describe: 'Name of the preset you want to use. Must be one of the following:\nangular, atom, codemirror, ember, eslint, express, jquery, jscs, or jshint',
-    default: 'angular',
     global: true
   })
   .option('message', {
@@ -48,7 +42,7 @@ var semver = require('semver')
 var util = require('util')
 
 conventionalRecommendedBump({
-  preset: argv.preset
+  preset: 'angular'
 }, function (err, release) {
   if (err) {
     console.error(chalk.red(err.message))
@@ -82,7 +76,7 @@ function outputChangelog (argv, cb) {
   }
   var content = ''
   var changelogStream = conventionalChangelog({
-    preset: argv.preset,
+    preset: 'standard',
     outputUnreleased: true,
     pkg: {
       path: path.resolve(process.cwd(), './package.json')

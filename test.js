@@ -78,4 +78,19 @@ describe('cli', function () {
       content.should.not.match(/legacy header format/)
     })
   })
+
+  it('handles commit messages longer than 80 characters', function () {
+    fs.writeFileSync('package.json', JSON.stringify({
+      version: '1.0.0'
+    }), 'utf-8')
+
+    commit('feat: first commit')
+    shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
+    commit('fix: this is my fairly long commit message which is testing whether or not we allow for long commit messages')
+
+    shell.exec(cliPath).code.should.equal(0)
+
+    var content = fs.readFileSync('CHANGELOG.md', 'utf-8')
+    content.should.match(/this is my fairly long commit message which is testing whether or not we allow for long commit messages/)
+  })
 })
