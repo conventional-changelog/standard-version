@@ -6,13 +6,12 @@ All notable changes to this project will be documented in this file. See [standa
 # [2.0.0](https://github.com/conventional-changelog/standard-verison/compare/v1.1.0...v2.0.0) (2016-04-09)
 
 
-* feat(conventional-changelog-standard): ([c7ccadb](https://github.com/conventional-changelog/standard-verison/commit/c7ccadb))
+* feat(conventional-changelog-standard): Move to conventional-changelog-standard style. This style lifts the character limit on commit messages, and puts us in a position to make more opinionated decisions in the future. ([c7ccadb](https://github.com/conventional-changelog/standard-verison/commit/c7ccadb))
 
 
 ### BREAKING CHANGES
 
-* Move to conventional-changelog-standard style. This style lifts the character limit on commit messages, and puts us in a position to make more opinionated decisions in the future.
-
+* we no longer accept the preset configuration option.
 
 
 <a name="1.1.0"></a>
@@ -34,6 +33,3 @@ All notable changes to this project will be documented in this file. See [standa
 ### Features
 
 * **initial-release:** adds flag for generating CHANGELOG.md on the first release. ([b812b44](https://github.com/bcoe/conventional-recommended-workflow/commit/b812b44))
-
-
-
