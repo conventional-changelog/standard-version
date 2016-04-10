@@ -3,20 +3,20 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 <a name="2.1.0"></a>
-# [2.1.0](https://github.com/conventional-changelog/standard-verison/compare/v2.0.0...v2.1.0) (2016-04-10)
+# [2.1.0](https://github.com/conventional-changelog/standard-version/compare/v2.0.0...v2.1.0) (2016-04-10)
 
 
 ### Features
 
-* adds support for GitHub links (see [#13](https://github.com/conventional-changelog/standard-verison/issues/13)), great idea [@bcoe](https://github.com/bcoe)! ([7bf6597](https://github.com/conventional-changelog/standard-verison/commit/7bf6597))
+* adds support for GitHub links (see [#13](https://github.com/conventional-changelog/standard-version/issues/13)), great idea [@bcoe](https://github.com/bcoe)! ([7bf6597](https://github.com/conventional-changelog/standard-version/commit/7bf6597))
 
 
 
 <a name="2.0.0"></a>
-# [2.0.0](https://github.com/conventional-changelog/standard-verison/compare/v1.1.0...v2.0.0) (2016-04-09)
+# [2.0.0](https://github.com/conventional-changelog/standard-version/compare/v1.1.0...v2.0.0) (2016-04-09)
 
 
-* feat(conventional-changelog-standard): Move to conventional-changelog-standard style. This style lifts the character limit on commit messages, and puts us in a position to make more opinionated decisions in the future. ([c7ccadb](https://github.com/conventional-changelog/standard-verison/commit/c7ccadb))
+* feat(conventional-changelog-standard): Move to conventional-changelog-standard style. This style lifts the character limit on commit messages, and puts us in a position to make more opinionated decisions in the future. ([c7ccadb](https://github.com/conventional-changelog/standard-version/commit/c7ccadb))
 
 
 ### BREAKING CHANGES
@@ -25,14 +25,14 @@ All notable changes to this project will be documented in this file. See [standa
 
 
 <a name="1.1.0"></a>
-# [1.1.0](https://github.com/conventional-changelog/standard-verison/compare/v1.0.0...v1.1.0) (2016-04-08)
+# [1.1.0](https://github.com/conventional-changelog/standard-version/compare/v1.0.0...v1.1.0) (2016-04-08)
 
 
 ### Features
 
-* **cli:** use conventional default commit message with version ([9fadc5f](https://github.com/conventional-changelog/standard-verison/commit/9fadc5f))
-* **rebrand:** rebrand recommended-workflow to standard-version (#9) ([1f673c0](https://github.com/conventional-changelog/standard-verison/commit/1f673c0))
-* **tests:** adds test suite, fixed several Node 0.10 issues along the way ([03bd86c](https://github.com/conventional-changelog/standard-verison/commit/03bd86c))
+* **cli:** use conventional default commit message with version ([9fadc5f](https://github.com/conventional-changelog/standard-version/commit/9fadc5f))
+* **rebrand:** rebrand recommended-workflow to standard-version (#9) ([1f673c0](https://github.com/conventional-changelog/standard-version/commit/1f673c0))
+* **tests:** adds test suite, fixed several Node 0.10 issues along the way ([03bd86c](https://github.com/conventional-changelog/standard-version/commit/03bd86c))
 
 
 

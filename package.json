@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/conventional-changelog/standard-verison.git"
+    "url": "git+https://github.com/conventional-changelog/standard-version.git"
   },
   "keywords": [
     "conventional-changelog",
