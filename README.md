@@ -5,7 +5,7 @@
 [![Coverage Status](https://coveralls.io/repos/conventional-changelog/standard-version/badge.svg?branch=)](https://coveralls.io/r/conventional-changelog/standard-version?branch=master)
 [![Standard Version](https://img.shields.io/badge/standard-version-brightgreen.svg)](https://github.com/conventional-changelog/standard-version)
 
-> stop using `npm version`, use `standard-version` it makes your life way easier.
+> stop using `npm version`, use `standard-version` it rocks!
 
 Automatic release and CHANGELOG management, using GitHub's new squash button and
 the workflow outlined in [conventional-changelog-standard](https://github.com/bcoe/conventional-changelog-standard/blob/master/convention.md).
@@ -22,7 +22,7 @@ _how it works:_
 `standard-version` does the following:
 
 1. bumps the version in package.json (based on your commit history).
-2. runs `conventional-changelog` and updates _CHANGELOG.md._
+2. uses [conventional-changelog](https://github.com/conventional-changelog/conventional-changelog) to update _CHANGELOG.md._
 3. commits _package.json_ and _CHANGELOG.md_.
 4. tags a new release.
 
@@ -36,13 +36,11 @@ When you're generating your changelog for the first time, simply do:
 
 `npm i standard-version -g`
 
-## Automating
-
-Do this:
+_Or, add it as a development dependency like so:_
 
 `npm i standard-version --save-dev`
 
-Add this to your _package.json_
+_And add this to your _package.json:_
 
 ```json
 {
@@ -80,6 +78,11 @@ You decide, e.g., docs, chore, etc.
 ```sh
 git commit -a -m "docs: fixed up the docs a bit"
 ```
+
+_but wait, there's more!_
+
+Github usernames (`@bcoe`) and issue references (#133) will be swapped out for the
+appropriate URLs in your CHANGELOG.
 
 ## Badges!
 
