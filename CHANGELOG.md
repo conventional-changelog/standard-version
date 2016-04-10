@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="2.1.0"></a>
+# [2.1.0](https://github.com/conventional-changelog/standard-verison/compare/v2.0.0...v2.1.0) (2016-04-10)
+
+
+### Features
+
+* adds support for GitHub links (see [#13](https://github.com/conventional-changelog/standard-verison/issues/13)), great idea [@bcoe](https://github.com/bcoe)! ([7bf6597](https://github.com/conventional-changelog/standard-verison/commit/7bf6597))
+
+
+
 <a name="2.0.0"></a>
 # [2.0.0](https://github.com/conventional-changelog/standard-verison/compare/v1.1.0...v2.0.0) (2016-04-09)
 
