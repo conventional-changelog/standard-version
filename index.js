@@ -24,6 +24,13 @@ var argv = require('yargs')
     default: false,
     global: true
   })
+  .option('sign-tag', {
+    alias: 's',
+    describe: 'Should the git tag be signed?',
+    type: 'boolean',
+    default: false,
+    global: true
+  })
   .help()
   .alias('help', 'h')
   .example('$0', 'Update changelog and tag release')
@@ -123,8 +130,14 @@ function formatCommitMessage (msg, newVersion) {
 }
 
 function tag (newVersion, argv) {
+  var tagOption
+  if (argv.signTag) {
+    tagOption = '-s '
+  } else {
+    tagOption = '-a '
+  }
   checkpoint('tagging release %s', [newVersion])
-  exec('git tag -a v' + newVersion + ' -m "' + formatCommitMessage(argv.message, newVersion) + '"', function (err, stdout, stderr) {
+  exec('git tag ' + tagOption + 'v' + newVersion + ' -m "' + formatCommitMessage(argv.message, newVersion) + '"', function (err, stdout, stderr) {
     var errMessage = null
     if (err) errMessage = err.message
     if (stderr) errMessage = stderr
