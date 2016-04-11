@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="2.1.2"></a>
+## [2.1.2](https://github.com/conventional-changelog/standard-version/compare/v2.1.1...v2.1.2) (2016-04-11)
+
+
+### Bug Fixes
+
+* we had too many \n characters ([#17](https://github.com/conventional-changelog/standard-version/issues/17)) ([67a01cd](https://github.com/conventional-changelog/standard-version/commit/67a01cd))
+
+
+
 <a name="2.1.1"></a>
 ## [2.1.1](https://github.com/conventional-changelog/standard-version/compare/v2.1.0...v2.1.1) (2016-04-10)
 
