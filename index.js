@@ -93,7 +93,7 @@ function outputChangelog (argv, cb) {
 
   changelogStream.on('end', function () {
     checkpoint('outputting changes to %s', [argv.infile])
-    fs.writeFileSync(argv.infile, header + '\n' + content + oldContent, 'utf-8')
+    fs.writeFileSync(argv.infile, header + '\n' + (content + oldContent).replace(/\n+$/, '\n'), 'utf-8')
     return cb()
   })
 }
