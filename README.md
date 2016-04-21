@@ -17,7 +17,7 @@ _how it works:_
 3. when you're ready to release to npm:
   1. checkout `master`.
   2. run `standard-version`.
-  3. `git push --tags; git push origin master; npm publish`.
+  3. `git push --follow-tags origin master; npm publish`.
 
 `standard-version` does the following:
 
@@ -55,7 +55,7 @@ _And add this to your _package.json:_
 _patches:_
 
 ```sh
--m "fix(parsing): fixed a bug in our parser"
+git commit -a -m "fix(parsing): fixed a bug in our parser"
 ```
 
 _features:_
