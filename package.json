@@ -19,7 +19,8 @@
     "automatic",
     "workflow",
     "version",
-    "angular"
+    "angular",
+    "standard"
   ],
   "author": "Ben Coe <ben@npmjs.com>",
   "license": "ISC",
