@@ -57,7 +57,7 @@ describe('cli', function () {
       var content = fs.readFileSync('CHANGELOG.md', 'utf-8')
       content.should.match(/patch release/)
       content.should.match(/first commit/)
-      shell.exec('git tag').output.should.match(/1\.0\.1/)
+      shell.exec('git tag').stdout.should.match(/1\.0\.1/)
     })
   })
 
