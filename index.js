@@ -24,9 +24,9 @@ var argv = require('yargs')
     default: false,
     global: true
   })
-  .option('sign-tag', {
+  .option('sign', {
     alias: 's',
-    describe: 'Should the git tag be signed?',
+    describe: 'Should the git commit and tag be signed?',
     type: 'boolean',
     default: false,
     global: true
@@ -113,7 +113,7 @@ function commit (argv, newVersion, cb) {
     args.unshift('package.json')
   }
   checkpoint(msg, args)
-  exec('git add package.json ' + argv.infile + ';git commit package.json ' + argv.infile + ' -m "' + formatCommitMessage(argv.message, newVersion) + '"', function (err, stdout, stderr) {
+  exec('git add package.json ' + argv.infile + ';git commit ' + (argv.sign ? '-S ' : '') + 'package.json ' + argv.infile + ' -m "' + formatCommitMessage(argv.message, newVersion) + '"', function (err, stdout, stderr) {
     var errMessage = null
     if (err) errMessage = err.message
     if (stderr) errMessage = stderr
@@ -131,7 +131,7 @@ function formatCommitMessage (msg, newVersion) {
 
 function tag (newVersion, argv) {
   var tagOption
-  if (argv.signTag) {
+  if (argv.sign) {
     tagOption = '-s '
   } else {
     tagOption = '-a '
