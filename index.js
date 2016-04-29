@@ -124,7 +124,7 @@ function formatCommitMessage (msg, newVersion) {
 
 function tag (newVersion, argv) {
   checkpoint('tagging release %s', [newVersion])
-  exec('git tag -a v' + newVersion + ' -m "' + argv.message + '"', function (err, stdout, stderr) {
+  exec('git tag -a v' + newVersion + ' -m "' + formatCommitMessage(argv.message, newVersion) + '"', function (err, stdout, stderr) {
     var errMessage = null
     if (err) errMessage = err.message
     if (stderr) errMessage = stderr

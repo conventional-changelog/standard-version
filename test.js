@@ -93,4 +93,21 @@ describe('cli', function () {
     var content = fs.readFileSync('CHANGELOG.md', 'utf-8')
     content.should.match(/this is my fairly long commit message which is testing whether or not we allow for long commit messages/)
   })
+
+  it('formats the commit and tag messages appropriately', function () {
+    fs.writeFileSync('package.json', JSON.stringify({
+      version: '1.0.0'
+    }), 'utf-8')
+
+    commit('feat: first commit')
+    shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
+    commit('feat: new feature!')
+
+    shell.exec(cliPath).code.should.equal(0)
+
+    // check last commit message
+    shell.exec('git log --oneline -n1').stdout.should.match(/chore\(release\)\: 1\.1\.0/)
+    // check annotated tag message
+    shell.exec('git tag -l -n1 v1.1.0').stdout.should.match(/chore\(release\)\: 1\.1\.0/)
+  })
 })
