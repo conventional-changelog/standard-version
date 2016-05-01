@@ -76,7 +76,7 @@ function outputChangelog (argv, cb) {
   }
   var content = ''
   var changelogStream = conventionalChangelog({
-    preset: 'standard',
+    preset: 'angular',
     outputUnreleased: true,
     pkg: {
       path: path.resolve(process.cwd(), './package.json')
