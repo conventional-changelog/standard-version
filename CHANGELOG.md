@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="2.2.0"></a>
+# [2.2.0](https://github.com/conventional-changelog/standard-version/compare/v2.1.2...v2.2.0) (2016-05-01)
+
+
+### Bug Fixes
+
+* format the annotated tag message ([#28](https://github.com/conventional-changelog/standard-version/issues/28))([8f02736](https://github.com/conventional-changelog/standard-version/commit/8f02736))
+* upgraded dependencies, switched back to angular format (fixes [#27](https://github.com/conventional-changelog/standard-version/issues/27)), pinned shelljs to version that works with nyc ([#30](https://github.com/conventional-changelog/standard-version/issues/30))([3f51e94](https://github.com/conventional-changelog/standard-version/commit/3f51e94)), closes [#27](https://github.com/conventional-changelog/standard-version/issues/27) [(#30](https://github.com/(/issues/30)
+
+
+### Features
+
+* add --sign flag to sign git commit and tag ([#29](https://github.com/conventional-changelog/standard-version/issues/29))([de758bc](https://github.com/conventional-changelog/standard-version/commit/de758bc))
+
+
+
 <a name="2.1.2"></a>
 ## [2.1.2](https://github.com/conventional-changelog/standard-version/compare/v2.1.1...v2.1.2) (2016-04-11)
 
