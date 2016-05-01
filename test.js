@@ -79,6 +79,20 @@ describe('cli', function () {
     })
   })
 
+  it('respects the --sign option', function () {
+    fs.writeFileSync('package.json', JSON.stringify({
+      version: '1.0.0'
+    }), 'utf-8')
+
+    commit('feat: first commit')
+
+    // this should fail without a GPG key
+    var result = shell.exec(cliPath + ' --sign')
+    result.code.should.equal(1)
+    result.stdout.should.match(/gpg\: signing failed\: secret key not available/)
+    result.stdout.should.match(/error\: gpg failed to sign the data/)
+  })
+
   it('handles commit messages longer than 80 characters', function () {
     fs.writeFileSync('package.json', JSON.stringify({
       version: '1.0.0'
