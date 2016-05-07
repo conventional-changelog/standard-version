@@ -150,8 +150,8 @@ describe('cli', function () {
     shell.exec(cliPath).code.should.equal(0)
 
     // check last commit message
-    shell.exec('git log --oneline -n1').stdout.should.match(/chore\(release\)\: 1\.1\.0/)
+    shell.exec('git log --oneline -n1').stdout.should.match(/chore\(release\): 1\.1\.0/)
     // check annotated tag message
-    shell.exec('git tag -l -n1 v1.1.0').stdout.should.match(/chore\(release\)\: 1\.1\.0/)
+    shell.exec('git tag -l -n1 v1.1.0').stdout.should.match(/chore\(release\): 1\.1\.0/)
   })
 })
