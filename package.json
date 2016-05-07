@@ -42,6 +42,7 @@
     "chai": "^3.5.0",
     "coveralls": "^2.11.9",
     "mocha": "^2.4.5",
+    "mock-git": "1.0.0",
     "nyc": "^6.4.2",
     "shelljs": "^0.7.0",
     "standard": "^6.0.8"

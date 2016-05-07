@@ -5,8 +5,8 @@
 var shell = require('shelljs')
 var fs = require('fs')
 var path = require('path')
+var mockGit = require('mock-git')
 var cliPath = path.resolve(__dirname, './index.js')
-var PATH
 
 require('chai').should()
 
@@ -20,13 +20,6 @@ function writePackageJson (version) {
   }), 'utf-8')
 }
 
-function mockGit (logic) {
-  fs.writeFileSync('git', '#!/usr/bin/env node\n' + logic, 'utf8')
-  shell.chmod('+x', 'git')
-  PATH = shell.env.PATH
-  shell.env.PATH = shell.pwd() + ':' + PATH
-}
-
 describe('cli', function () {
   beforeEach(function () {
     shell.rm('-rf', 'tmp')
@@ -38,10 +31,6 @@ describe('cli', function () {
   })
 
   afterEach(function () {
-    if (PATH) {
-      shell.env['PATH'] = PATH
-      PATH = undefined
-    }
     shell.cd('../')
     shell.rm('-rf', 'tmp')
   })
@@ -94,36 +83,48 @@ describe('cli', function () {
   describe('with mocked git', function () {
     it('--sign signs the commit and tag', function () {
       // mock git with file that writes args to gitcapture.log
-      mockGit('require("fs").appendFileSync("gitcapture.log", JSON.stringify(process.argv.splice(2)) + "\\n", "utf8")')
-      writePackageJson('1.0.0')
+      mockGit('require("fs").appendFileSync("gitcapture.log", JSON.stringify(process.argv.splice(2)) + "\\n")')
+        .then(function (unmock) {
+          writePackageJson('1.0.0')
 
-      shell.exec(cliPath + ' --sign').code.should.equal(0)
+          shell.exec(cliPath + ' --sign').code.should.equal(0)
 
-      var captured = shell.cat('gitcapture.log').stdout.split('\n').map(function (line) {
-        return line ? JSON.parse(line) : line
-      })
-      captured[captured.length - 3].should.deep.equal(['commit', '-S', 'package.json', 'CHANGELOG.md', '-m', 'chore(release): 1.0.1'])
-      captured[captured.length - 2].should.deep.equal(['tag', '-s', 'v1.0.1', '-m', 'chore(release): 1.0.1'])
+          var captured = shell.cat('gitcapture.log').stdout.split('\n').map(function (line) {
+            return line ? JSON.parse(line) : line
+          })
+          captured[captured.length - 3].should.deep.equal(['commit', '-S', 'package.json', 'CHANGELOG.md', '-m', 'chore(release): 1.0.1'])
+          captured[captured.length - 2].should.deep.equal(['tag', '-s', 'v1.0.1', '-m', 'chore(release): 1.0.1'])
+
+          unmock()
+        })
     })
 
     it('exits with error code if git commit fails', function () {
       // mock git by throwing on attempt to commit
-      mockGit('if (process.argv[2] === "commit") { console.error("commit yourself"); process.exit(128); }')
-      writePackageJson('1.0.0')
+      mockGit('console.error("commit yourself"); process.exit(128);', 'commit')
+        .then(function (unmock) {
+          writePackageJson('1.0.0')
 
-      var result = shell.exec(cliPath)
-      result.code.should.equal(1)
-      result.stdout.should.match(/commit yourself/)
+          var result = shell.exec(cliPath)
+          result.code.should.equal(1)
+          result.stdout.should.match(/commit yourself/)
+
+          unmock()
+        })
     })
 
     it('exits with error code if git tag fails', function () {
       // mock git by throwing on attempt to commit
-      mockGit('if (process.argv[2] === "tag") { console.error("tag, you\'re it"); process.exit(128); }')
-      writePackageJson('1.0.0')
+      return mockGit('console.error("tag, you\'re it"); process.exit(128);', 'tag')
+        .then(function (unmock) {
+          writePackageJson('1.0.0')
 
-      var result = shell.exec(cliPath)
-      result.code.should.equal(1)
-      result.stdout.should.match(/tag, you're it/)
+          var result = shell.exec(cliPath)
+          result.code.should.equal(1)
+          result.stdout.should.match(/tag, you're it/)
+
+          unmock()
+        })
     })
   })
 
