@@ -62,7 +62,7 @@ conventionalRecommendedBump({
     newVersion = semver.inc(pkg.version, release.releaseAs)
     checkpoint('bumping version in package.json from %s to %s', [pkg.version, newVersion])
     pkg.version = newVersion
-    fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + eol, 'utf-8')
+    fs.writeFileSync(pkgPath, (JSON.stringify(pkg, null, 2) + '\n').replace(/\n/, eol), 'utf-8')
   } else {
     console.log(chalk.red(figures.cross) + ' skip version bump on first release')
   }
@@ -76,7 +76,7 @@ conventionalRecommendedBump({
 
 function outputChangelog (argv, cb) {
   createIfMissing(argv)
-  var header = '# Change Log\n\nAll notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.\n'
+  var header = ['# Change Log', '', 'All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.', ''].join(eol)
   var oldContent = fs.readFileSync(argv.infile, 'utf-8')
   // find the position of the last release and remove header:
   if (oldContent.indexOf('<a name=') !== -1) {
@@ -101,7 +101,7 @@ function outputChangelog (argv, cb) {
 
   changelogStream.on('end', function () {
     checkpoint('outputting changes to %s', [argv.infile])
-    fs.writeFileSync(argv.infile, header + '\n' + (content + oldContent).replace(/\n+$/, '\n'), 'utf-8')
+    fs.writeFileSync(argv.infile, header + eol + (content + oldContent).replace(/\n+$/, eol), 'utf-8')
     return cb()
   })
 }
@@ -156,7 +156,7 @@ function createIfMissing (argv) {
     if (err.code === 'ENOENT') {
       checkpoint('created %s', [argv.infile])
       argv.outputUnreleased = true
-      fs.writeFileSync(argv.infile, '\n', 'utf-8')
+      fs.writeFileSync(argv.infile, eol, 'utf-8')
     }
   }
 }
