@@ -4,6 +4,7 @@
 
 var shell = require('shelljs')
 var fs = require('fs')
+var eol = require('os').EOL
 var path = require('path')
 var mockGit = require('mock-git')
 var cliPath = path.resolve(__dirname, './index.js')
@@ -154,5 +155,14 @@ describe('cli', function () {
     shell.exec('git log --oneline -n1').stdout.should.match(/chore\(release\): 1\.1\.0/)
     // check annotated tag message
     shell.exec('git tag -l -n1 v1.1.0').stdout.should.match(/chore\(release\): 1\.1\.0/)
+  })
+
+  it('appends EOL at end of package.json', function () {
+    writePackageJson('1.0.0')
+
+    shell.exec(cliPath).code.should.equal(0)
+
+    var pkgJson = fs.readFileSync('package.json', 'utf-8')
+    pkgJson.should.equal(['{', '  "version": "1.0.1"', '}', ''].join(eol))
   })
 })

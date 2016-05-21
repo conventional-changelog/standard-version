@@ -47,6 +47,7 @@ var pkgPath = path.resolve(process.cwd(), './package.json')
 var pkg = require(pkgPath)
 var semver = require('semver')
 var util = require('util')
+var eol = require('os').EOL
 
 conventionalRecommendedBump({
   preset: 'angular'
@@ -61,7 +62,7 @@ conventionalRecommendedBump({
     newVersion = semver.inc(pkg.version, release.releaseAs)
     checkpoint('bumping version in package.json from %s to %s', [pkg.version, newVersion])
     pkg.version = newVersion
-    fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2), 'utf-8')
+    fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + eol, 'utf-8')
   } else {
     console.log(chalk.red(figures.cross) + ' skip version bump on first release')
   }
