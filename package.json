@@ -33,6 +33,7 @@
     "conventional-changelog": "^1.1.0",
     "conventional-changelog-angular": "^1.1.0",
     "conventional-recommended-bump": "^0.2.1",
+    "detect-newline": "^2.1.0",
     "figures": "^1.5.0",
     "fs-access": "^1.0.0",
     "semver": "^5.1.0",

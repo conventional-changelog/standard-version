@@ -155,4 +155,22 @@ describe('cli', function () {
     // check annotated tag message
     shell.exec('git tag -l -n1 v1.1.0').stdout.should.match(/chore\(release\): 1\.1\.0/)
   })
+
+  it('appends EOL at end of package.json', function () {
+    writePackageJson('1.0.0')
+
+    shell.exec(cliPath).code.should.equal(0)
+
+    var pkgJson = fs.readFileSync('package.json', 'utf-8')
+    pkgJson.should.equal(['{', '  "version": "1.0.1"', '}', ''].join('\n'))
+  })
+
+  it('preserves existing newline chars in package.json', function () {
+    fs.writeFileSync('package.json', ['{', '  "version": "1.0.0"', '}', ''].join('\r\n'), 'utf-8')
+
+    shell.exec(cliPath).code.should.equal(0)
+
+    var pkgJson = fs.readFileSync('package.json', 'utf-8')
+    pkgJson.should.equal(['{', '  "version": "1.0.1"', '}', ''].join('\r\n'))
+  })
 })

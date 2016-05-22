@@ -44,9 +44,9 @@ var exec = require('child_process').exec
 var fs = require('fs')
 var accessSync = require('fs-access').sync
 var pkgPath = path.resolve(process.cwd(), './package.json')
-var pkg = require(pkgPath)
 var semver = require('semver')
 var util = require('util')
+var detectNewline = require('detect-newline').graceful
 
 conventionalRecommendedBump({
   preset: 'angular'
@@ -56,12 +56,17 @@ conventionalRecommendedBump({
     return
   }
 
+  var pkgContent = fs.readFileSync(pkgPath, 'utf-8')
+  var pkg = JSON.parse(pkgContent)
   var newVersion = pkg.version
   if (!argv.firstRelease) {
+    var oldEol = detectNewline(pkgContent)
     newVersion = semver.inc(pkg.version, release.releaseAs)
     checkpoint('bumping version in package.json from %s to %s', [pkg.version, newVersion])
     pkg.version = newVersion
-    fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2), 'utf-8')
+    pkgContent = JSON.stringify(pkg, null, 2)
+    var newEol = detectNewline(pkgContent)
+    fs.writeFileSync(pkgPath, (newEol !== oldEol ? pkgContent.replace(new RegExp(newEol, 'g'), oldEol) : pkgContent) + oldEol, 'utf-8')
   } else {
     console.log(chalk.red(figures.cross) + ' skip version bump on first release')
   }
@@ -75,8 +80,9 @@ conventionalRecommendedBump({
 
 function outputChangelog (argv, cb) {
   createIfMissing(argv)
-  var header = '# Change Log\n\nAll notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.\n'
   var oldContent = fs.readFileSync(argv.infile, 'utf-8')
+  var eol = detectNewline(oldContent)
+  var header = ['# Change Log', '', 'All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.', ''].join(eol)
   // find the position of the last release and remove header:
   if (oldContent.indexOf('<a name=') !== -1) {
     oldContent = oldContent.substring(oldContent.indexOf('<a name='))
@@ -100,7 +106,7 @@ function outputChangelog (argv, cb) {
 
   changelogStream.on('end', function () {
     checkpoint('outputting changes to %s', [argv.infile])
-    fs.writeFileSync(argv.infile, header + '\n' + (content + oldContent).replace(/\n+$/, '\n'), 'utf-8')
+    fs.writeFileSync(argv.infile, header + eol + (content + oldContent).replace(new RegExp(eol + '+$'), eol), 'utf-8')
     return cb()
   })
 }
@@ -155,7 +161,7 @@ function createIfMissing (argv) {
     if (err.code === 'ENOENT') {
       checkpoint('created %s', [argv.infile])
       argv.outputUnreleased = true
-      fs.writeFileSync(argv.infile, '\n', 'utf-8')
+      fs.writeFileSync(argv.infile, require('os').EOL, 'utf-8')
     }
   }
 }
