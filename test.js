@@ -4,7 +4,6 @@
 
 var shell = require('shelljs')
 var fs = require('fs')
-var eol = require('os').EOL
 var path = require('path')
 var mockGit = require('mock-git')
 var cliPath = path.resolve(__dirname, './index.js')
@@ -163,6 +162,15 @@ describe('cli', function () {
     shell.exec(cliPath).code.should.equal(0)
 
     var pkgJson = fs.readFileSync('package.json', 'utf-8')
-    pkgJson.should.equal(['{', '  "version": "1.0.1"', '}', ''].join(eol))
+    pkgJson.should.equal(['{', '  "version": "1.0.1"', '}', ''].join('\n'))
+  })
+
+  it('preserves existing newline chars in package.json', function () {
+    fs.writeFileSync('package.json', ['{', '  "version": "1.0.0"', '}', ''].join('\r\n'), 'utf-8')
+
+    shell.exec(cliPath).code.should.equal(0)
+
+    var pkgJson = fs.readFileSync('package.json', 'utf-8')
+    pkgJson.should.equal(['{', '  "version": "1.0.1"', '}', ''].join('\r\n'))
   })
 })
