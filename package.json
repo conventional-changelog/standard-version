@@ -6,7 +6,7 @@
   "scripts": {
     "pretest": "standard",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
-    "test": "nyc mocha --timeout=10000 test.js"
+    "test": "nyc mocha --timeout=20000 test.js"
   },
   "repository": {
     "type": "git",
