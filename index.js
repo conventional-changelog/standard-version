@@ -108,12 +108,13 @@ function outputChangelog (argv, cb) {
 function commit (argv, newVersion, cb) {
   var msg = 'committing %s'
   var args = [argv.infile]
+  var verify = argv.verify === false ? '--no-verify ' : ''
   if (!argv.firstRelease) {
     msg += ' and %s'
     args.unshift('package.json')
   }
   checkpoint(msg, args)
-  exec('git add package.json ' + argv.infile + ';git commit ' + (argv.sign ? '-S ' : '') + 'package.json ' + argv.infile + ' -m "' + formatCommitMessage(argv.message, newVersion) + '"', function (err, stdout, stderr) {
+  exec('git add package.json ' + argv.infile + ';git commit ' + verify + (argv.sign ? '-S ' : '') + 'package.json ' + argv.infile + ' -m "' + formatCommitMessage(argv.message, newVersion) + '"', function (err, stdout, stderr) {
     var errMessage = null
     if (err) errMessage = err.message
     if (stderr) errMessage = stderr
