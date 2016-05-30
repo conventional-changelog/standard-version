@@ -144,6 +144,10 @@ function tag (newVersion, argv) {
     if (errMessage) {
       console.log(chalk.red(errMessage))
       process.exit(1)
+    } else {
+      checkpoint('Run `%s` to publish.', [
+        'git push --follow-tags origin master; npm publish'
+      ])
     }
   })
 }
