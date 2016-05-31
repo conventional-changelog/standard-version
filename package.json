@@ -41,7 +41,7 @@
   "devDependencies": {
     "chai": "^3.5.0",
     "coveralls": "^2.11.9",
-    "mocha": "^2.4.5",
+    "mocha": "^2.5.1",
     "mock-git": "^1.0.2",
     "nyc": "^6.4.2",
     "shelljs": "^0.7.0",
