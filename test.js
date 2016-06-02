@@ -176,5 +176,7 @@ describe('cli', function () {
 
     commit('feat: first commit')
     shell.exec(cliPath + ' --no-verify').code.should.equal(0)
+    commit('feat: second commit')
+    shell.exec(cliPath + ' -n').code.should.equal(0)
   })
 })

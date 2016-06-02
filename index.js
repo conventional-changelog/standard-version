@@ -115,7 +115,7 @@ function outputChangelog (argv, cb) {
 function commit (argv, newVersion, cb) {
   var msg = 'committing %s'
   var args = [argv.infile]
-  var verify = argv.verify === false ? '--no-verify ' : ''
+  var verify = argv.verify === false || argv.n ? '--no-verify ' : ''
   if (!argv.firstRelease) {
     msg += ' and %s'
     args.unshift('package.json')
