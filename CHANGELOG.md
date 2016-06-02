@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="2.3.0"></a>
+# [2.3.0](https://github.com/conventional-changelog/standard-version/compare/v2.2.1...v2.3.0) (2016-06-02)
+
+
+### Bug Fixes
+
+* append line feed to end of package.json ([#42](https://github.com/conventional-changelog/standard-version/issues/42))([178e001](https://github.com/conventional-changelog/standard-version/commit/178e001))
+
+
+### Features
+
+* **index.js:** add checkpoint for publish script after tag successfully ([#47](https://github.com/conventional-changelog/standard-version/issues/47))([e414ed7](https://github.com/conventional-changelog/standard-version/commit/e414ed7))
+* add a --no-verify option to prevent git hooks from being verified ([#44](https://github.com/conventional-changelog/standard-version/issues/44))([026d844](https://github.com/conventional-changelog/standard-version/commit/026d844))
+
+
+
 <a name="2.2.1"></a>
 ## [2.2.1](https://github.com/conventional-changelog/standard-version/compare/v2.2.0...v2.2.1) (2016-05-02)
 
