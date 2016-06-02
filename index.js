@@ -31,6 +31,13 @@ var argv = require('yargs')
     default: false,
     global: true
   })
+  .option('no-verify', {
+    alias: 'n',
+    describe: 'Bypass pre-commit or commit-msg git hooks during the commit phase',
+    type: 'boolean',
+    default: false,
+    global: true
+  })
   .help()
   .alias('help', 'h')
   .example('$0', 'Update changelog and tag release')
