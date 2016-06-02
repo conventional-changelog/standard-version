@@ -94,6 +94,17 @@ As long as your git commit messages are conventional and accurate, you no longer
 
 After you cut a release, you can push the new git tag and `npm publish` (or `npm publish --tag next`) when you're ready.
 
+### Prevent Git Hooks
+
+If you use git hooks, like pre-commit, to test your code before committing, you can prevent hooks from being verified during the commit step by passing the `--no-verify` option:
+
+```sh
+# npm run script
+npm run release -- --no-verify
+# or global bin
+standard-version --no-verify
+```
+
 ### CLI Help
 
 ```sh

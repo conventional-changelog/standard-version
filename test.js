@@ -20,6 +20,11 @@ function writePackageJson (version) {
   }), 'utf-8')
 }
 
+function writeGitPreCommitHook () {
+  fs.writeFileSync('.git/hooks/pre-commit', '#!/bin/sh\necho "precommit ran"\nexit 1', 'utf-8')
+  fs.chmodSync('.git/hooks/pre-commit', '755')
+}
+
 describe('cli', function () {
   beforeEach(function () {
     shell.rm('-rf', 'tmp')
@@ -163,5 +168,15 @@ describe('cli', function () {
 
     var pkgJson = fs.readFileSync('package.json', 'utf-8')
     pkgJson.should.equal(['{', '  "version": "1.0.1"', '}', ''].join('\n'))
+  })
+
+  it('does not run git hooks if the --no-verify flag is passed', function () {
+    writePackageJson('1.0.0')
+    writeGitPreCommitHook()
+
+    commit('feat: first commit')
+    shell.exec(cliPath + ' --no-verify').code.should.equal(0)
+    commit('feat: second commit')
+    shell.exec(cliPath + ' -n').code.should.equal(0)
   })
 })

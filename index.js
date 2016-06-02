@@ -31,6 +31,13 @@ var argv = require('yargs')
     default: false,
     global: true
   })
+  .option('no-verify', {
+    alias: 'n',
+    describe: 'Bypass pre-commit or commit-msg git hooks during the commit phase',
+    type: 'boolean',
+    default: false,
+    global: true
+  })
   .help()
   .alias('help', 'h')
   .example('$0', 'Update changelog and tag release')
@@ -108,12 +115,13 @@ function outputChangelog (argv, cb) {
 function commit (argv, newVersion, cb) {
   var msg = 'committing %s'
   var args = [argv.infile]
+  var verify = argv.verify === false || argv.n ? '--no-verify ' : ''
   if (!argv.firstRelease) {
     msg += ' and %s'
     args.unshift('package.json')
   }
   checkpoint(msg, args)
-  exec('git add package.json ' + argv.infile + ';git commit ' + (argv.sign ? '-S ' : '') + 'package.json ' + argv.infile + ' -m "' + formatCommitMessage(argv.message, newVersion) + '"', function (err, stdout, stderr) {
+  exec('git add package.json ' + argv.infile + ';git commit ' + verify + (argv.sign ? '-S ' : '') + 'package.json ' + argv.infile + ' -m "' + formatCommitMessage(argv.message, newVersion) + '"', function (err, stdout, stderr) {
     var errMessage = null
     if (err) errMessage = err.message
     if (stderr) errMessage = stderr
