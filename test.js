@@ -118,6 +118,20 @@ describe('cli', function () {
         })
     })
 
+    it('exits with error code if git add fails', function () {
+      // mock git by throwing on attempt to add
+      return mockGit('console.error("addition is hard"); process.exit(128);', 'add')
+        .then(function (unmock) {
+          writePackageJson('1.0.0')
+
+          var result = shell.exec(cliPath)
+          result.code.should.equal(1)
+          result.stdout.should.match(/addition is hard/)
+
+          unmock()
+        })
+    })
+
     it('exits with error code if git tag fails', function () {
       // mock git by throwing on attempt to commit
       return mockGit('console.error("tag, you\'re it"); process.exit(128);', 'tag')

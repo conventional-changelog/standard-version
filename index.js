@@ -121,15 +121,21 @@ function commit (argv, newVersion, cb) {
     args.unshift('package.json')
   }
   checkpoint(msg, args)
-  exec('git add package.json ' + argv.infile + ';git commit ' + verify + (argv.sign ? '-S ' : '') + 'package.json ' + argv.infile + ' -m "' + formatCommitMessage(argv.message, newVersion) + '"', function (err, stdout, stderr) {
-    var errMessage = null
-    if (err) errMessage = err.message
-    if (stderr) errMessage = stderr
+
+  function handleExecError (err, stderr) {
+    // If exec returns an error or content in stderr, log it and exit with return code 1
+    var errMessage = stderr || (err && err.message)
     if (errMessage) {
       console.log(chalk.red(errMessage))
       process.exit(1)
     }
-    return cb()
+  }
+  exec('git add package.json ' + argv.infile, function (err, stdout, stderr) {
+    handleExecError(err, stderr)
+    exec('git commit ' + verify + (argv.sign ? '-S ' : '') + 'package.json ' + argv.infile + ' -m "' + formatCommitMessage(argv.message, newVersion) + '"', function (err, stdout, stderr) {
+      handleExecError(err, stderr)
+      return cb()
+    })
   })
 }
 
