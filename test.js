@@ -14,6 +14,10 @@ function commit (msg) {
   shell.exec('git commit --allow-empty -m"' + msg + '"')
 }
 
+function execCli (argString) {
+  return shell.exec('node ' + cliPath + (argString != null ? ' ' + argString : ''))
+}
+
 function writePackageJson (version) {
   fs.writeFileSync('package.json', JSON.stringify({
     version: version
@@ -48,7 +52,7 @@ describe('cli', function () {
       shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
       commit('fix: patch release')
 
-      shell.exec(cliPath).code.should.equal(0)
+      execCli().code.should.equal(0)
 
       var content = fs.readFileSync('CHANGELOG.md', 'utf-8')
       content.should.match(/patch release/)
@@ -60,7 +64,7 @@ describe('cli', function () {
 
       commit('feat: first commit')
       commit('fix: patch release')
-      shell.exec(cliPath + ' --first-release').code.should.equal(0)
+      execCli('--first-release').code.should.equal(0)
 
       var content = fs.readFileSync('CHANGELOG.md', 'utf-8')
       content.should.match(/patch release/)
@@ -78,7 +82,7 @@ describe('cli', function () {
       shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
       commit('fix: patch release')
 
-      shell.exec(cliPath).code.should.equal(0)
+      execCli().code.should.equal(0)
       var content = fs.readFileSync('CHANGELOG.md', 'utf-8')
       content.should.match(/1\.0\.1/)
       content.should.not.match(/legacy header format/)
@@ -92,7 +96,7 @@ describe('cli', function () {
         .then(function (unmock) {
           writePackageJson('1.0.0')
 
-          shell.exec(cliPath + ' --sign').code.should.equal(0)
+          execCli('--sign').code.should.equal(0)
 
           var captured = shell.cat('gitcapture.log').stdout.split('\n').map(function (line) {
             return line ? JSON.parse(line) : line
@@ -110,7 +114,7 @@ describe('cli', function () {
         .then(function (unmock) {
           writePackageJson('1.0.0')
 
-          var result = shell.exec(cliPath)
+          var result = execCli()
           result.code.should.equal(1)
           result.stdout.should.match(/commit yourself/)
 
@@ -124,7 +128,7 @@ describe('cli', function () {
         .then(function (unmock) {
           writePackageJson('1.0.0')
 
-          var result = shell.exec(cliPath)
+          var result = execCli()
           result.code.should.equal(1)
           result.stdout.should.match(/addition is hard/)
 
@@ -138,7 +142,7 @@ describe('cli', function () {
         .then(function (unmock) {
           writePackageJson('1.0.0')
 
-          var result = shell.exec(cliPath)
+          var result = execCli()
           result.code.should.equal(1)
           result.stdout.should.match(/tag, you're it/)
 
@@ -154,7 +158,7 @@ describe('cli', function () {
     shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
     commit('fix: this is my fairly long commit message which is testing whether or not we allow for long commit messages')
 
-    shell.exec(cliPath).code.should.equal(0)
+    execCli().code.should.equal(0)
 
     var content = fs.readFileSync('CHANGELOG.md', 'utf-8')
     content.should.match(/this is my fairly long commit message which is testing whether or not we allow for long commit messages/)
@@ -167,7 +171,7 @@ describe('cli', function () {
     shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
     commit('feat: new feature!')
 
-    shell.exec(cliPath).code.should.equal(0)
+    execCli().code.should.equal(0)
 
     // check last commit message
     shell.exec('git log --oneline -n1').stdout.should.match(/chore\(release\): 1\.1\.0/)
@@ -178,7 +182,7 @@ describe('cli', function () {
   it('appends line feed at end of package.json', function () {
     writePackageJson('1.0.0')
 
-    shell.exec(cliPath).code.should.equal(0)
+    execCli().code.should.equal(0)
 
     var pkgJson = fs.readFileSync('package.json', 'utf-8')
     pkgJson.should.equal(['{', '  "version": "1.0.1"', '}', ''].join('\n'))
@@ -189,8 +193,8 @@ describe('cli', function () {
     writeGitPreCommitHook()
 
     commit('feat: first commit')
-    shell.exec(cliPath + ' --no-verify').code.should.equal(0)
+    execCli('--no-verify').code.should.equal(0)
     commit('feat: second commit')
-    shell.exec(cliPath + ' -n').code.should.equal(0)
+    execCli('-n').code.should.equal(0)
   })
 })
