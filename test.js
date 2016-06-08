@@ -88,7 +88,7 @@ describe('cli', function () {
   describe('with mocked git', function () {
     it('--sign signs the commit and tag', function () {
       // mock git with file that writes args to gitcapture.log
-      mockGit('require("fs").appendFileSync("gitcapture.log", JSON.stringify(process.argv.splice(2)) + "\\n")')
+      return mockGit('require("fs").appendFileSync("gitcapture.log", JSON.stringify(process.argv.splice(2)) + "\\n")')
         .then(function (unmock) {
           writePackageJson('1.0.0')
 
@@ -106,7 +106,7 @@ describe('cli', function () {
 
     it('exits with error code if git commit fails', function () {
       // mock git by throwing on attempt to commit
-      mockGit('console.error("commit yourself"); process.exit(128);', 'commit')
+      return mockGit('console.error("commit yourself"); process.exit(128);', 'commit')
         .then(function (unmock) {
           writePackageJson('1.0.0')
 
