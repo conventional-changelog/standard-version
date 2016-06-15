@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="2.3.1"></a>
+## [2.3.1](https://github.com/conventional-changelog/standard-version/compare/v2.3.0...v2.3.1) (2016-06-15)
+
+
+### Bug Fixes
+
+* **commit:** fix windows by separating add and commit exec ([#55](https://github.com/conventional-changelog/standard-version/issues/55)) ([f361c46](https://github.com/conventional-changelog/standard-version/commit/f361c46)), closes [#55](https://github.com/conventional-changelog/standard-version/issues/55) [#49](https://github.com/conventional-changelog/standard-version/issues/49)
+
+
+
 <a name="2.3.0"></a>
 # [2.3.0](https://github.com/conventional-changelog/standard-version/compare/v2.2.1...v2.3.0) (2016-06-02)
 
