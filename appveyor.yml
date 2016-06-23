@@ -18,6 +18,7 @@ version: '{build}'
 test_script:
   - set GIT_COMMITTER_DATE='Wed Feb 16 14:00 2037 +0100'
   - set GIT_AUTHOR_DATE='Wed Feb 16 14:00 2037 +0100'
+  - set CI='Wed Feb 16 14:00 2037 +0100'
   - node --version
   - npm --version
   - npm test
