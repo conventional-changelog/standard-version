@@ -172,6 +172,8 @@ describe('cli', function () {
     shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
     commit('feat: new feature!')
 
+    shell.exec("git log --format='%ci-%cd' --date='iso'")
+
     console.log(process.env)
     execCli().code.should.equal(0)
 
@@ -184,7 +186,7 @@ describe('cli', function () {
   it('appends line feed at end of package.json', function () {
     writePackageJson('1.0.0')
 
-    console.log(execCli())
+    console.log(process.env)
     execCli().code.should.equal(0)
 
     var pkgJson = fs.readFileSync('package.json', 'utf-8')
