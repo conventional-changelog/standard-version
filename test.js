@@ -184,6 +184,7 @@ describe('cli', function () {
   it('appends line feed at end of package.json', function () {
     writePackageJson('1.0.0')
 
+    console.log(execCli())
     execCli().code.should.equal(0)
 
     var pkgJson = fs.readFileSync('package.json', 'utf-8')
