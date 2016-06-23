@@ -172,9 +172,9 @@ describe('cli', function () {
     shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
     commit('feat: new feature!')
 
-    console.log('BLERG:', shell.exec("git version"))
+    console.log('BLERG:', shell.exec('git version'))
     console.log('BLARG:', shell.exec("git log --format='%ci-%cd' --date='iso'"))
-    console.log('SNUH:', shell.exec("git log --help"))
+    console.log('SNUH:', shell.exec('git log --help'))
 
     console.log(process.env)
     execCli().code.should.equal(0)
