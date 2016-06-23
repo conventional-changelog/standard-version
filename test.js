@@ -10,10 +10,11 @@ var cliPath = path.resolve(__dirname, './index.js')
 
 require('chai').should()
 
-process.env.CI = 'Wed Feb 16 14:00 2037 +0100' // fix for AppVeyor.
+process.env.GIT_COMMITTER_DATE = 'Wed Feb 16 14:00 2037 +0100'
+process.env.GIT_AUTHOR_DATE = 'Wed Feb 16 14:00 2037 +0100'
 
 function commit (msg) {
-  shell.exec('git commit --allow-empty -m"' + msg + '"')
+  shell.exec('GIT_COMMITTER_DATE="Wed Feb 16 14:00 2037 +0100" GIT_AUTHOR_DATE="Wed Feb 16 14:00 2037 +0100" git commit --allow-empty -m"' + msg + '"')
 }
 
 function execCli (argString) {
