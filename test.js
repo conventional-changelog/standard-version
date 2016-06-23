@@ -158,6 +158,7 @@ describe('cli', function () {
     shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
     commit('fix: this is my fairly long commit message which is testing whether or not we allow for long commit messages')
 
+    console.log(execCli())
     execCli().code.should.equal(0)
 
     var content = fs.readFileSync('CHANGELOG.md', 'utf-8')
@@ -171,6 +172,11 @@ describe('cli', function () {
     shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
     commit('feat: new feature!')
 
+    console.log('BLERG:', shell.exec('git version'))
+    console.log('BLARG:', shell.exec("git log --format='%ci-%cd' --date='iso'"))
+    console.log('SNUH:', shell.exec('git log --help'))
+
+    console.log(process.env)
     execCli().code.should.equal(0)
 
     // check last commit message
@@ -182,6 +188,7 @@ describe('cli', function () {
   it('appends line feed at end of package.json', function () {
     writePackageJson('1.0.0')
 
+    console.log(process.env)
     execCli().code.should.equal(0)
 
     var pkgJson = fs.readFileSync('package.json', 'utf-8')

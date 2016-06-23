@@ -16,6 +16,9 @@ matrix:
 build: off
 version: '{build}'
 test_script:
+  - set GIT_COMMITTER_DATE=2016-04-21 08:24:17 -0700
+  - set GIT_AUTHOR_DATE=2016-04-21 08:24:17 -0700
+  - set CI=2016-04-21 08:24:17 -0700
   - node --version
   - npm --version
   - npm test
