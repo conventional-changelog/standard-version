@@ -158,6 +158,7 @@ describe('cli', function () {
     shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
     commit('fix: this is my fairly long commit message which is testing whether or not we allow for long commit messages')
 
+    console.log(execCli())
     execCli().code.should.equal(0)
 
     var content = fs.readFileSync('CHANGELOG.md', 'utf-8')
@@ -171,6 +172,7 @@ describe('cli', function () {
     shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
     commit('feat: new feature!')
 
+    console.log(execCli())
     execCli().code.should.equal(0)
 
     // check last commit message
