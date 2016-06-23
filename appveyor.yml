@@ -15,6 +15,7 @@ init:
   - git config --global core.autocrlf true
   - git config --global user.name 'Appveyor'
   - git config --global user.email 'dummy@example.org'
+  - ps: Remove-Item Env:\CI
 matrix:
   fast_finish: true
 build: off
