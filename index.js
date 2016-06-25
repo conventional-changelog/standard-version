@@ -90,11 +90,7 @@ function outputChangelog (argv, cb) {
   }
   var content = ''
   var changelogStream = conventionalChangelog({
-    preset: 'angular',
-    outputUnreleased: true,
-    pkg: {
-      path: path.resolve(process.cwd(), './package.json')
-    }
+    preset: 'angular'
   })
   .on('error', function (err) {
     console.error(chalk.red(err.message))
