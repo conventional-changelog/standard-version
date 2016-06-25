@@ -70,7 +70,7 @@ conventionalRecommendedBump({
     pkg.version = newVersion
     fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + '\n', 'utf-8')
   } else {
-    console.log(chalk.red(figures.cross) + ' skip version bump on first release')
+    checkpoint('skip version bump on first release', [], chalk.red(figures.cross))
   }
 
   outputChangelog(argv, function () {
@@ -159,9 +159,9 @@ function tag (newVersion, argv) {
       console.log(chalk.red(errMessage))
       process.exit(1)
     } else {
-      checkpoint('Run `%s` to publish.', [
+      checkpoint('Run `%s` to publish', [
         'git push --follow-tags origin master; npm publish'
-      ])
+      ], chalk.blue(figures.info))
     }
   })
 }
@@ -178,8 +178,8 @@ function createIfMissing (argv) {
   }
 }
 
-function checkpoint (msg, args) {
-  console.info(chalk.green(figures.tick) + ' ' + util.format.apply(util, [msg].concat(args.map(function (arg) {
+function checkpoint (msg, args, figure) {
+  console.info((figure || chalk.green(figures.tick)) + ' ' + util.format.apply(util, [msg].concat(args.map(function (arg) {
     return chalk.bold(arg)
   }))))
 };
