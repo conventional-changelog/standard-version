@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="2.4.0"></a>
+# [2.4.0](https://github.com/conventional-changelog/standard-version/compare/v2.3.1...v2.4.0) (2016-07-13)
+
+
+### Bug Fixes
+
+* **index.js:** use blue figures.info for last checkpoint ([#64](https://github.com/conventional-changelog/standard-version/issues/64)) ([e600b42](https://github.com/conventional-changelog/standard-version/commit/e600b42))
+
+
+### Features
+
+* **changelogStream:** use more default opts ([#67](https://github.com/conventional-changelog/standard-version/issues/67)) ([3e0aa84](https://github.com/conventional-changelog/standard-version/commit/3e0aa84))
+
+
+
 <a name="2.3.1"></a>
 ## [2.3.1](https://github.com/conventional-changelog/standard-version/compare/v2.3.0...v2.3.1) (2016-06-15)
 
