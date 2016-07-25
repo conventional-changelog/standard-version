@@ -24,6 +24,13 @@ var argv = require('yargs')
     default: false,
     global: true
   })
+  .option('preset', {
+    alias: 'p',
+    describe: 'Which commit message format do you use?',
+    type: 'string',
+    default: 'angular',
+    global: true
+  })
   .option('sign', {
     alias: 's',
     describe: 'Should the git commit and tag be signed?',
@@ -55,8 +62,10 @@ var pkg = require(pkgPath)
 var semver = require('semver')
 var util = require('util')
 
+checkpoint('Using preset %s', [argv.preset])
+
 conventionalRecommendedBump({
-  preset: 'angular'
+  preset: argv.preset
 }, function (err, release) {
   if (err) {
     console.error(chalk.red(err.message))
@@ -90,7 +99,7 @@ function outputChangelog (argv, cb) {
   }
   var content = ''
   var changelogStream = conventionalChangelog({
-    preset: 'angular'
+    preset: argv.preset
   })
   .on('error', function (err) {
     console.error(chalk.red(err.message))

@@ -148,6 +148,17 @@ _but wait, there's more!_
 Github usernames (`@bcoe`) and issue references (#133) will be swapped out for the
 appropriate URLs in your CHANGELOG.
 
+### Preset
+
+To generate your changelog with a different message format preset, simply use:
+
+```sh
+standard-version --preset atom
+```
+
+You can use as the same preset names as in
+[conventional-changelog](https://github.com/conventional-changelog/conventional-changelog)
+
 ## Badges!
 
 Tell your users that you adhere to the `standard-version` commit guidelines:
