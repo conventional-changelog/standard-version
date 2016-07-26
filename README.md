@@ -7,7 +7,7 @@
 
 > stop using `npm version`, use `standard-version` it rocks!
 
-Automatic versioning and CHANGELOG management, using GitHub's new squash button and
+NPM and Cordova Automatic versioning and CHANGELOG management, using GitHub's new squash button and
 the [recommended workflow](https://github.com/conventional-changelog/conventional-changelog-cli#recommended-workflow) for `conventional-changelog`.
 
 _how it works:_
@@ -22,9 +22,10 @@ _how it works:_
 `standard-version` does the following:
 
 1. bumps the version in _package.json_ (based on your commit history)
-2. uses [conventional-changelog](https://github.com/conventional-changelog/conventional-changelog) to update _CHANGELOG.md_
-3. commits _package.json_ and _CHANGELOG.md_
-4. tags a new release
+2. bumps the _version_ and _android-versionCode_ in _config.xml_ (based on your commit history)
+3. uses [conventional-changelog](https://github.com/conventional-changelog/conventional-changelog) to update _CHANGELOG.md_
+4. commits _package.json_ and _CHANGELOG.md_ and optionally _config.xml_
+5. tags a new release
 
 ## Installation
 
@@ -33,7 +34,7 @@ _how it works:_
 Install and add to `devDependencies`:
 
 ```
-npm i --save-dev standard-version
+npm i --save-dev azachar/standard-version
 ```
 
 Add an [`npm run` script](https://docs.npmjs.com/cli/run-script) to your _package.json_:
@@ -55,7 +56,7 @@ This has the benefit of making your repo/package more portable, so that other de
 Install globally (add to your `PATH`):
 
 ```
-npm i -g standard-version
+npm i -g azachar/standard-version
 ```
 
 Now you can use `standard-version` in place of `npm version`.
