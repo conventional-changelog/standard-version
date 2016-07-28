@@ -23,6 +23,9 @@
     "standard"
   ],
   "author": "Ben Coe <ben@npmjs.com>",
+  "contributors": [
+    {"name":"Andrej Zachar <andrej@chocolatejar.eu>"}
+  ],
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/conventional-changelog/standard-version/issues"

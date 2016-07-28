@@ -71,6 +71,19 @@ describe('cli', function () {
       content.should.match(/first commit/)
       shell.exec('git tag').stdout.should.match(/1\.0\.1/)
     })
+
+    it('can use atom present', function () {
+      writePackageJson('1.0.2')
+
+      commit(':bug: atom message')
+      commit(':fix: critical bug')
+      commit(':fix: critical bug')
+      execCli('--preset atom').code.should.equal(0)
+
+      var content = fs.readFileSync('CHANGELOG.md', 'utf-8')
+      content.should.match(/atom message/)
+      shell.exec('git tag').stdout.should.match(/1\.0\.2/)
+    })
   })
 
   describe('CHANGELOG.md exists', function () {
