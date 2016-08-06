@@ -23,6 +23,11 @@
     "standard"
   ],
   "author": "Ben Coe <ben@npmjs.com>",
+  "contributors": [
+    {
+      "name": "Andrej Zachar <andrej@chocolatejar.eu>"
+    }
+  ],
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/conventional-changelog/standard-version/issues"
@@ -39,6 +44,7 @@
   },
   "devDependencies": {
     "chai": "^3.5.0",
+    "chai-files": "^1.4.0",
     "coveralls": "^2.11.9",
     "mocha": "^3.0.1",
     "mock-git": "^1.0.2",

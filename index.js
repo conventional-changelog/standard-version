@@ -51,9 +51,40 @@ var exec = require('child_process').exec
 var fs = require('fs')
 var accessSync = require('fs-access').sync
 var pkgPath = path.resolve(process.cwd(), './package.json')
+var cordovaPath = path.resolve(process.cwd(), './config.xml')
 var pkg = require(pkgPath)
 var semver = require('semver')
 var util = require('util')
+
+function isCordovaProject () {
+  return !!fs.existsSync(cordovaPath)
+}
+
+function androidVersionCode (version) {
+  var major = semver.major(version)
+  var minor = semver.minor(version)
+  var patch = semver.patch(version)
+  return major * 1000000 + minor * 10000 + patch * 10
+}
+
+function bumpCordova (oldVersion, newVersion) {
+  var newAndroidVersionCode = androidVersionCode(newVersion)
+  checkpoint('bumping version in config.xml from %s to %s (%s)', [oldVersion, newVersion, newAndroidVersionCode])
+
+  var cordovaVersionRegExp = /(<widget.*version=("|'))(v?(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?:-[\da-z\-]+(?:\.[\da-z\-]+)*)?(?:\+[\da-z\-]+(?:\.[\da-z\-]+)*)?)("|')/
+  var androidVersionCodeRegExp = /(<widget.*android-versionCode=("|'))(\d+)("|')/
+
+  fs.readFile(cordovaPath, 'utf8', function (err, data) {
+    if (err) return console.log(chalk.red(err))
+
+    var result = data.replace(cordovaVersionRegExp, '$1' + newVersion + '$4')
+    result = result.replace(androidVersionCodeRegExp, '$1' + newAndroidVersionCode + '$4')
+
+    fs.writeFile(cordovaPath, result, 'utf8', function (err) {
+      if (err) return console.log(chalk.red(err))
+    })
+  })
+}
 
 conventionalRecommendedBump({
   preset: 'angular'
@@ -66,6 +97,11 @@ conventionalRecommendedBump({
   var newVersion = pkg.version
   if (!argv.firstRelease) {
     newVersion = semver.inc(pkg.version, release.releaseAs)
+
+    if (isCordovaProject()) {
+      bumpCordova(pkg.version, newVersion)
+    }
+
     checkpoint('bumping version in package.json from %s to %s', [pkg.version, newVersion])
     pkg.version = newVersion
     fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + '\n', 'utf-8')
@@ -92,10 +128,10 @@ function outputChangelog (argv, cb) {
   var changelogStream = conventionalChangelog({
     preset: 'angular'
   })
-  .on('error', function (err) {
-    console.error(chalk.red(err.message))
-    process.exit(1)
-  })
+    .on('error', function (err) {
+      console.error(chalk.red(err.message))
+      process.exit(1)
+    })
 
   changelogStream.on('data', function (buffer) {
     content += buffer.toString()
@@ -126,9 +162,11 @@ function commit (argv, newVersion, cb) {
       process.exit(1)
     }
   }
-  exec('git add package.json ' + argv.infile, function (err, stdout, stderr) {
+
+  var filesToComit = 'package.json ' + (isCordovaProject() ? 'config.xml ' : '') + argv.infile
+  exec('git add ' + filesToComit, function (err, stdout, stderr) {
     handleExecError(err, stderr)
-    exec('git commit ' + verify + (argv.sign ? '-S ' : '') + 'package.json ' + argv.infile + ' -m "' + formatCommitMessage(argv.message, newVersion) + '"', function (err, stdout, stderr) {
+    exec('git commit ' + verify + (argv.sign ? '-S ' : '') + filesToComit + ' -m "' + formatCommitMessage(argv.message, newVersion) + '"', function (err, stdout, stderr) {
       handleExecError(err, stderr)
       return cb()
     })
@@ -178,4 +216,4 @@ function checkpoint (msg, args, figure) {
   console.info((figure || chalk.green(figures.tick)) + ' ' + util.format.apply(util, [msg].concat(args.map(function (arg) {
     return chalk.bold(arg)
   }))))
-};
+}

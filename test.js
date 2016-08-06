@@ -8,7 +8,14 @@ var path = require('path')
 var mockGit = require('mock-git')
 var cliPath = path.resolve(__dirname, './index.js')
 
-require('chai').should()
+var chai = require('chai')
+chai.should()
+
+var chaiFiles = require('chai-files')
+chai.use(chaiFiles)
+
+var expect = chai.expect
+var file = chaiFiles.file
 
 function commit (msg) {
   shell.exec('git commit --allow-empty -m"' + msg + '"')
@@ -22,6 +29,11 @@ function writePackageJson (version) {
   fs.writeFileSync('package.json', JSON.stringify({
     version: version
   }), 'utf-8')
+}
+
+function writeCordovaConfig (version, androidVersionCode) {
+  var content = '\x3C?xml version=\'1.0\' encoding=\'utf-8\'?\x3E\n\x3Cwidget id="com.app.cordova" version="' + version + '" android-versionCode="' + androidVersionCode + '" xmlns="http:\x2F\x2Fwww.w3.org\x2Fns\x2Fwidgets" xmlns:cdv="http:\x2F\x2Fcordova.apache.org\x2Fns\x2F1.0" xmlns:gap="http:\x2F\x2Fphonegap.com\x2Fns\x2F1.0" xmlns:android="http:\x2F\x2Fschemas.android.com\x2Fapk\x2Fres\x2Fandroid"\x3E\n\x3C\x2Fwidget\x3E'
+  fs.writeFileSync('config.xml', content, 'utf-8')
 }
 
 function writeGitPreCommitHook () {
@@ -86,6 +98,60 @@ describe('cli', function () {
       var content = fs.readFileSync('CHANGELOG.md', 'utf-8')
       content.should.match(/1\.0\.1/)
       content.should.not.match(/legacy header format/)
+    })
+  })
+
+  describe('cordova', function () {
+    it("config.xml doesn't exits", function () {
+      writePackageJson('1.2.9')
+      execCli().code.should.equal(0)
+      expect(file('config.xml')).to.not.exist
+    })
+
+    describe('config.xml exits', function () {
+      it('increase cordova version', function () {
+        writeCordovaConfig('1.2.15', '1020150')
+        writePackageJson('1.2.15')
+        execCli().code.should.equal(0)
+        var content = fs.readFileSync('config.xml', 'utf-8')
+        content.should.match(/version="1.2.16"/)
+      })
+
+      it('config.xml increase android-versionCode', function () {
+        writeCordovaConfig('1.2.15', '1020150')
+        writePackageJson('1.2.15')
+        execCli().code.should.equal(0)
+        var content = fs.readFileSync('config.xml', 'utf-8')
+        content.should.match(/android-versionCode="1020160"/)
+      })
+
+      it('ignore android version code', function () {
+        writePackageJson('1.2.3')
+        writeCordovaConfig('1.2.3', '1234567')
+        execCli().code.should.equal(0)
+        var content = fs.readFileSync('config.xml', 'utf-8')
+        content.should.match(/version="1.2.4"/)
+        content.should.match(/android-versionCode="1020040"/)
+      })
+
+      it('--sign signs the commit and tag', function () {
+        // mock git with file that writes args to gitcapture.log
+        return mockGit('require("fs").appendFileSync("gitcapture.log", JSON.stringify(process.argv.splice(2)) + "\\n")')
+          .then(function (unmock) {
+            writePackageJson('1.0.0')
+            writeCordovaConfig('1.0.0', '100000')
+
+            execCli('--sign').code.should.equal(0)
+
+            var captured = shell.cat('gitcapture.log').stdout.split('\n').map(function (line) {
+              return line ? JSON.parse(line) : line
+            })
+            captured[captured.length - 3].should.deep.equal(['commit', '-S', 'package.json', 'config.xml', 'CHANGELOG.md', '-m', 'chore(release): 1.0.1'])
+            captured[captured.length - 2].should.deep.equal(['tag', '-s', 'v1.0.1', '-m', 'chore(release): 1.0.1'])
+
+            unmock()
+          })
+      })
     })
   })
 
