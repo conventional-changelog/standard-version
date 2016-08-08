@@ -107,8 +107,8 @@ standard-version --no-verify
 
 ### Create a Prerelease
 ```sh
-# chanel: alpha, beta, etc
-standard-version -p --pre-id="<channel>"
+# identifier: alpha, beta, etc
+standard-version -p --pre-id="<identifier>"
 ```
 
 ### CLI Help
