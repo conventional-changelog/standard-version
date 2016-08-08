@@ -105,6 +105,12 @@ npm run release -- --no-verify
 standard-version --no-verify
 ```
 
+### Create a Prerelease
+```sh
+# chanel: alpha, beta, etc
+standard-version -p --pre-id="<channel>"
+```
+
 ### CLI Help
 
 ```sh
