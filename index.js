@@ -38,6 +38,19 @@ var argv = require('yargs')
     default: false,
     global: true
   })
+  .option('pre-release', {
+    alias: 'p',
+    describe: 'Should the release be a pre-release?',
+    type: 'boolean',
+    default: false,
+    global: true
+  })
+  .option('pre-id', {
+    describe: 'Your pre-release id: e.g. alpha, beta',
+    type: 'string',
+    default: "beta",
+    global: true
+  })
   .help()
   .alias('help', 'h')
   .example('$0', 'Update changelog and tag release')
@@ -65,7 +78,11 @@ conventionalRecommendedBump({
 
   var newVersion = pkg.version
   if (!argv.firstRelease) {
-    newVersion = semver.inc(pkg.version, release.releaseAs)
+    if (!argv.preRelease) {
+      newVersion = semver.inc(pkg.version, release.releaseAs)
+    } else {
+      newVersion = semver.inc(pkg.version, "prerelease", argv.preId)
+    }
     checkpoint('bumping version in package.json from %s to %s', [pkg.version, newVersion])
     pkg.version = newVersion
     fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + '\n', 'utf-8')
