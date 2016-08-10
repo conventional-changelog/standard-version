@@ -3,60 +3,75 @@ var conventionalRecommendedBump = require('conventional-recommended-bump')
 var conventionalChangelog = require('conventional-changelog')
 var path = require('path')
 var argv = require('yargs')
-  .usage('Usage: $0 [options]')
-  .option('infile', {
-    alias: 'i',
-    describe: 'Read the CHANGELOG from this file',
-    default: 'CHANGELOG.md',
-    global: true
-  })
-  .option('message', {
-    alias: 'm',
-    describe: 'Commit message, replaces %s with new version',
-    type: 'string',
-    default: 'chore(release): %s',
-    global: true
-  })
-  .option('first-release', {
-    alias: 'f',
-    describe: 'Is this the first release?',
-    type: 'boolean',
-    default: false,
-    global: true
-  })
-  .option('sign', {
-    alias: 's',
-    describe: 'Should the git commit and tag be signed?',
-    type: 'boolean',
-    default: false,
-    global: true
-  })
-  .option('no-verify', {
-    alias: 'n',
-    describe: 'Bypass pre-commit or commit-msg git hooks during the commit phase',
-    type: 'boolean',
-    default: false,
-    global: true
-  })
-  .option('pre-release', {
-    alias: 'p',
-    describe: 'Should the release be a pre-release?',
-    type: 'boolean',
-    default: false,
-    global: true
-  })
-  .option('pre-id', {
-    describe: 'Your pre-release id: e.g. alpha, beta',
-    type: 'string',
-    default: "beta",
-    global: true
-  })
-  .help()
-  .alias('help', 'h')
-  .example('$0', 'Update changelog and tag release')
-  .example('$0 -m "%s: see changelog for details"', 'Update changelog and tag release with custom commit message')
-  .wrap(97)
-  .argv
+    .usage('Usage: $0 [options]')
+    .option('infile', {
+      alias: 'i',
+      describe: 'Read the CHANGELOG from this file',
+      default: 'CHANGELOG.md',
+      global: true
+    })
+    .option('message', {
+      alias: 'm',
+      describe: 'Commit message, replaces %s with new version',
+      type: 'string',
+      default: 'chore(release): %s',
+      global: true
+    })
+    .option('first-release', {
+      alias: 'f',
+      describe: 'Is this the first release?',
+      type: 'boolean',
+      default: false,
+      global: true
+    })
+    .option('sign', {
+      alias: 's',
+      describe: 'Should the git commit and tag be signed?',
+      type: 'boolean',
+      default: false,
+      global: true
+    })
+    .option('no-verify', {
+      alias: 'n',
+      describe: 'Bypass pre-commit or commit-msg git hooks during the commit phase',
+      type: 'boolean',
+      default: false,
+      global: true
+    })
+    .option('pre-release', {
+      alias: 'p',
+      describe: 'Should the release be a pre-release?',
+      type: 'boolean',
+      default: false,
+      global: true
+    })
+    .option('tag', {
+      alias: 't',
+      describe: 'Your pre-release id: e.g. beta, dev',
+      type: 'string',
+      default: 'beta',
+      global: true
+    })
+    .option('actual', {
+      alias: 'a',
+      describe: 'get the actual version',
+      type: 'boolean',
+      default: false,
+      global: true
+    })
+    .option('next', {
+      alias: 'x',
+      describe: 'get the next version',
+      type: 'boolean',
+      default: false,
+      global: true
+    })
+    .help()
+    .alias('help', 'h')
+    .example('$0', 'Update changelog and tag release')
+    .example('$0 -m "%s: see changelog for details"', 'Update changelog and tag release with custom commit message')
+    .wrap(97)
+    .argv
 
 var chalk = require('chalk')
 var figures = require('figures')
@@ -75,26 +90,36 @@ conventionalRecommendedBump({
     console.error(chalk.red(err.message))
     return
   }
+  if (argv.actual) {
+    console.log(pkg.version);
+    return
+  }
+  if (argv.next) {
 
+    console.log(getNextVersion(release));
+    return
+  }
   var newVersion = pkg.version
   if (!argv.firstRelease) {
-    if (!argv.preRelease) {
-      newVersion = semver.inc(pkg.version, release.releaseAs)
-    } else {
-      newVersion = semver.inc(pkg.version, "prerelease", argv.preId)
-    }
+    newVersion = getNextVersion(release)
     checkpoint('bumping version in package.json from %s to %s', [pkg.version, newVersion])
     pkg.version = newVersion
     fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + '\n', 'utf-8')
   } else {
     checkpoint('skip version bump on first release', [], chalk.red(figures.cross))
   }
-
-  outputChangelog(argv, function () {
+  // only commit the package.json on prerelease
+  if (argv.preRelease) {
     commit(argv, newVersion, function () {
       return tag(newVersion, argv)
     })
-  })
+  } else {
+    outputChangelog(argv, function () {
+      commit(argv, newVersion, function () {
+        return tag(newVersion, argv)
+      })
+    })
+  }
 })
 
 function outputChangelog (argv, cb) {
@@ -109,10 +134,10 @@ function outputChangelog (argv, cb) {
   var changelogStream = conventionalChangelog({
     preset: 'angular'
   })
-  .on('error', function (err) {
-    console.error(chalk.red(err.message))
-    process.exit(1)
-  })
+      .on('error', function (err) {
+        console.error(chalk.red(err.message))
+        process.exit(1)
+      })
 
   changelogStream.on('data', function (buffer) {
     content += buffer.toString()
@@ -123,6 +148,33 @@ function outputChangelog (argv, cb) {
     fs.writeFileSync(argv.infile, header + '\n' + (content + oldContent).replace(/\n+$/, '\n'), 'utf-8')
     return cb()
   })
+}
+
+function getNextVersion (release) {
+  var newVersion = semver.inc(pkg.version, release.releaseAs)
+
+  if (argv.preRelease) {
+    // hack: if a feat is commited after two patches it wants to increase
+    // the prerelease tag instead of the minor and start from 0
+    // the next 2 lines and the if statement should fix this
+    realVersion = semver.inc(pkg.version, release.releaseAs)
+    prereleaseVersion = semver.inc(pkg.version, "prerelease", argv.tag)
+
+    if (semver.gt(realVersion, prereleaseVersion)) {
+
+      newVersion = semver.inc(pkg.version, release.releaseAs)
+      check = newVersion
+      newVersion = newVersion + "-" + argv.tag + ".0"
+
+      if (semver.gt(prereleaseVersion, newVersion)) {
+        newVersion = prereleaseVersion
+      }
+    } else {
+      newVersion = semver.inc(newVersion, "prerelease", argv.tag)
+      console.log('normal: ' + newVersion)
+    }
+  }
+  return newVersion
 }
 
 function commit (argv, newVersion, cb) {
@@ -193,6 +245,6 @@ function createIfMissing (argv) {
 
 function checkpoint (msg, args, figure) {
   console.info((figure || chalk.green(figures.tick)) + ' ' + util.format.apply(util, [msg].concat(args.map(function (arg) {
-    return chalk.bold(arg)
-  }))))
+        return chalk.bold(arg)
+      }))))
 };
