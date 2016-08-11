@@ -2,16 +2,6 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-<a name="2.5.0"></a>
-# [2.5.0](https://github.com/conventional-changelog/standard-version/compare/v2.4.0...v2.5.0) (2016-08-08)
-
-
-### Features
-
-* added support for prereleases ([3461c44](https://github.com/conventional-changelog/standard-version/commit/3461c44))
-
-
-
 <a name="2.4.0"></a>
 # [2.4.0](https://github.com/conventional-changelog/standard-version/compare/v2.3.1...v2.4.0) (2016-07-13)
 
