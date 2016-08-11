@@ -91,12 +91,11 @@ conventionalRecommendedBump({
     return
   }
   if (argv.actual) {
-    console.log(pkg.version);
+    console.log(pkg.version)
     return
   }
   if (argv.next) {
-
-    console.log(getNextVersion(release));
+    console.log(getNextVersion(release))
     return
   }
   var newVersion = pkg.version
@@ -122,7 +121,7 @@ conventionalRecommendedBump({
   }
 })
 
-function outputChangelog(argv, cb) {
+function outputChangelog (argv, cb) {
   createIfMissing(argv)
   var header = '# Change Log\n\nAll notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.\n'
   var oldContent = fs.readFileSync(argv.infile, 'utf-8')
@@ -150,34 +149,32 @@ function outputChangelog(argv, cb) {
   })
 }
 
-function getNextVersion(release) {
+function getNextVersion (release) {
   var newVersion = semver.inc(pkg.version, release.releaseAs)
 
   if (argv.preRelease) {
     // hack: if a feat is commited after two patches it wants to increase
     // the prerelease tag instead of the minor and start from 0
     // the next 2 lines and the if statement should fix this
-    realVersion = semver.inc(pkg.version, release.releaseAs)
-    prereleaseVersion = semver.inc(pkg.version, "prerelease", argv.tag)
+    var realVersion = semver.inc(pkg.version, release.releaseAs)
+    var prereleaseVersion = semver.inc(pkg.version, 'prerelease', argv.tag)
 
     if (semver.gt(realVersion, prereleaseVersion)) {
-
       newVersion = semver.inc(pkg.version, release.releaseAs)
-      check = newVersion
-      newVersion = newVersion + "-" + argv.tag + ".0"
+      newVersion = newVersion + '-' + argv.tag + '.0'
 
       if (semver.gt(prereleaseVersion, newVersion)) {
         newVersion = prereleaseVersion
       }
     } else {
-      newVersion = semver.inc(newVersion, "prerelease", argv.tag)
+      newVersion = semver.inc(newVersion, 'prerelease', argv.tag)
       console.log('normal: ' + newVersion)
     }
   }
   return newVersion
 }
 
-function commit(argv, newVersion, cb) {
+function commit (argv, newVersion, cb) {
   var msg = 'committing %s'
   var args = [argv.infile]
   var verify = argv.verify === false || argv.n ? '--no-verify ' : ''
@@ -187,7 +184,7 @@ function commit(argv, newVersion, cb) {
   }
   checkpoint(msg, args)
 
-  function handleExecError(err, stderr) {
+  function handleExecError (err, stderr) {
     // If exec returns an error or content in stderr, log it and exit with return code 1
     var errMessage = stderr || (err && err.message)
     if (errMessage) {
@@ -205,11 +202,11 @@ function commit(argv, newVersion, cb) {
   })
 }
 
-function formatCommitMessage(msg, newVersion) {
+function formatCommitMessage (msg, newVersion) {
   return String(msg).indexOf('%s') !== -1 ? util.format(msg, newVersion) : msg
 }
 
-function tag(newVersion, argv) {
+function tag (newVersion, argv) {
   var tagOption
   if (argv.sign) {
     tagOption = '-s '
@@ -232,7 +229,7 @@ function tag(newVersion, argv) {
   })
 }
 
-function createIfMissing(argv) {
+function createIfMissing (argv) {
   try {
     accessSync(argv.infile, fs.F_OK)
   } catch (err) {
@@ -244,8 +241,8 @@ function createIfMissing(argv) {
   }
 }
 
-function checkpoint(msg, args, figure) {
+function checkpoint (msg, args, figure) {
   console.info((figure || chalk.green(figures.tick)) + ' ' + util.format.apply(util, [msg].concat(args.map(function (arg) {
-      return chalk.bold(arg)
-    }))))
+    return chalk.bold(arg)
+  }))))
 };
