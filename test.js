@@ -151,6 +151,78 @@ describe('cli', function () {
     })
   })
 
+  describe('dry runs', function () {
+    it('returns the current version when executed with -a', function () {
+      writePackageJson('1.0.0')
+      execCli('-a').stdout.should.equal('1.0.0\n')
+    })
+
+    it('returns the current version when executed with -a', function () {
+      writePackageJson('1.0.0')
+      commit('feat: first commit')
+      execCli('-x').stdout.should.equal('1.1.0\n')
+    })
+  })
+
+  describe('prerelease', function () {
+    it('creates a prerelease when executed with --pre-release and default tag', function () {
+      writePackageJson('1.0.0')
+      fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
+
+      commit('fix: first commit')
+      execCli('--pre-release').code.should.equal(0, 'command returned wrong exit code')
+
+      var pkgJson = fs.readFileSync('package.json', 'utf-8')
+      pkgJson.should.equal(['{', '  "version": "1.0.1-beta.0"', '}', ''].join('\n'))
+    })
+
+    it('creates a prerelease when executed with --pre-release and a self defined tag', function () {
+      writePackageJson('1.0.0')
+      fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
+
+      commit('feat: first commit')
+      execCli('--pre-release --tag="my-own-tag"').code.should.equal(0, 'command returned wrong exit code')
+
+      var pkgJson = fs.readFileSync('package.json', 'utf-8')
+      pkgJson.should.equal(['{', '  "version": "1.1.0-my-own-tag.0"', '}', ''].join('\n'))
+    })
+
+    it('creates a prerelease with a new minor version after two prerelease patches', function () {
+      writePackageJson('1.0.0')
+      fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
+
+      commit('fix: first patch')
+      execCli('--pre-release --tag="dev"').code.should.equal(0, 'command returned wrong exit code')
+      var pkgJson = fs.readFileSync('package.json', 'utf-8')
+      pkgJson.should.equal(['{', '  "version": "1.0.1-dev.0"', '}', ''].join('\n'))
+
+      commit('fix: second patch')
+      execCli('--pre-release --tag="dev"').code.should.equal(0, 'command returned wrong exit code')
+      pkgJson = fs.readFileSync('package.json', 'utf-8')
+      pkgJson.should.equal(['{', '  "version": "1.0.1-dev.1"', '}', ''].join('\n'))
+
+      commit('feat: first new feat')
+      execCli('--pre-release --tag="dev"').code.should.equal(0, 'command returned wrong exit code')
+      pkgJson = fs.readFileSync('package.json', 'utf-8')
+      pkgJson.should.equal(['{', '  "version": "1.1.0-dev.0"', '}', ''].join('\n'))
+      // additional check because of the + '-' + argv.tag + '.0' bump
+      commit('fix: third patch')
+      execCli('--pre-release --tag="dev"').code.should.equal(0, 'command returned wrong exit code')
+      pkgJson = fs.readFileSync('package.json', 'utf-8')
+      pkgJson.should.equal(['{', '  "version": "1.1.0-dev.1"', '}', ''].join('\n'))
+    })
+
+    it('does not change CHANGELOG.md for prereleases', function () {
+      writePackageJson('1.0.0')
+      fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
+
+      commit('fix: first commit')
+      execCli('--pre-release').code.should.equal(0, 'command returned wrong exit code')
+      var content = fs.readFileSync('CHANGELOG.md', 'utf-8')
+      content.should.not.match(/1\.0\.1-beta\.0/)
+    })
+  })
+
   it('handles commit messages longer than 80 characters', function () {
     writePackageJson('1.0.0')
 
@@ -198,3 +270,4 @@ describe('cli', function () {
     execCli('-n').code.should.equal(0)
   })
 })
+
