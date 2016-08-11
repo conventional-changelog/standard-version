@@ -52,20 +52,6 @@ var argv = require('yargs')
     default: 'beta',
     global: true
   })
-  .option('actual', {
-    alias: 'a',
-    describe: 'get the actual version',
-    type: 'boolean',
-    default: false,
-    global: true
-  })
-  .option('next', {
-    alias: 'x',
-    describe: 'get the next version',
-    type: 'boolean',
-    default: false,
-    global: true
-  })
   .help()
   .alias('help', 'h')
   .example('$0', 'Update changelog and tag release')
@@ -88,14 +74,6 @@ conventionalRecommendedBump({
 }, function (err, release) {
   if (err) {
     console.error(chalk.red(err.message))
-    return
-  }
-  if (argv.actual) {
-    console.log(pkg.version)
-    return
-  }
-  if (argv.next) {
-    console.log(getNextVersion(release))
     return
   }
   var newVersion = pkg.version
@@ -133,10 +111,10 @@ function outputChangelog (argv, cb) {
   var changelogStream = conventionalChangelog({
     preset: 'angular'
   })
-    .on('error', function (err) {
-      console.error(chalk.red(err.message))
-      process.exit(1)
-    })
+  .on('error', function (err) {
+    console.error(chalk.red(err.message))
+    process.exit(1)
+  })
 
   changelogStream.on('data', function (buffer) {
     content += buffer.toString()

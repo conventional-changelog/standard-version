@@ -151,19 +151,6 @@ describe('cli', function () {
     })
   })
 
-  describe('dry runs', function () {
-    it('returns the current version when executed with -a', function () {
-      writePackageJson('1.0.0')
-      execCli('-a').stdout.should.equal('1.0.0\n')
-    })
-
-    it('returns the current version when executed with -a', function () {
-      writePackageJson('1.0.0')
-      commit('feat: first commit')
-      execCli('-x').stdout.should.equal('1.1.0\n')
-    })
-  })
-
   describe('prerelease', function () {
     it('creates a prerelease when executed with --pre-release and default tag', function () {
       writePackageJson('1.0.0')
