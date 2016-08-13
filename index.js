@@ -65,7 +65,7 @@ conventionalRecommendedBump({
 
   var newVersion = pkg.version
   if (!argv.firstRelease) {
-    newVersion = semver.inc(pkg.version, release.releaseAs)
+    newVersion = semver.inc(pkg.version, release.releaseType)
     checkpoint('bumping version in package.json from %s to %s', [pkg.version, newVersion])
     pkg.version = newVersion
     fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + '\n', 'utf-8')
