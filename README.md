@@ -105,6 +105,20 @@ npm run release -- --no-verify
 standard-version --no-verify
 ```
 
+### Create a Prerelease
+```sh
+# identifier: alpha, beta, etc
+standard-version -p --tag="<identifier>"
+```
+
+### Dry run
+If you only want to get the actual version or the next version that would be built:
+```sh
+standard-version -a
+standard-version -x
+standard-version -p --tag="<identifier>" -p
+```
+
 ### CLI Help
 
 ```sh

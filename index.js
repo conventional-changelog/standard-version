@@ -38,6 +38,20 @@ var argv = require('yargs')
     default: false,
     global: true
   })
+  .option('pre-release', {
+    alias: 'p',
+    describe: 'Should the release be a pre-release?',
+    type: 'boolean',
+    default: false,
+    global: true
+  })
+  .option('tag', {
+    alias: 't',
+    describe: 'Your pre-release id: e.g. beta, dev',
+    type: 'string',
+    default: 'beta',
+    global: true
+  })
   .help()
   .alias('help', 'h')
   .example('$0', 'Update changelog and tag release')
@@ -62,22 +76,27 @@ conventionalRecommendedBump({
     console.error(chalk.red(err.message))
     return
   }
-
   var newVersion = pkg.version
   if (!argv.firstRelease) {
-    newVersion = semver.inc(pkg.version, release.releaseAs)
+    newVersion = getNextVersion(release)
     checkpoint('bumping version in package.json from %s to %s', [pkg.version, newVersion])
     pkg.version = newVersion
     fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + '\n', 'utf-8')
   } else {
     checkpoint('skip version bump on first release', [], chalk.red(figures.cross))
   }
-
-  outputChangelog(argv, function () {
+  // only commit the package.json on prerelease
+  if (argv.preRelease) {
     commit(argv, newVersion, function () {
       return tag(newVersion, argv)
     })
-  })
+  } else {
+    outputChangelog(argv, function () {
+      commit(argv, newVersion, function () {
+        return tag(newVersion, argv)
+      })
+    })
+  }
 })
 
 function outputChangelog (argv, cb) {
@@ -108,6 +127,31 @@ function outputChangelog (argv, cb) {
   })
 }
 
+function getNextVersion (release) {
+  var newVersion = semver.inc(pkg.version, release.releaseAs)
+
+  if (argv.preRelease) {
+    // hack: if a feat is commited after two patches it wants to increase
+    // the prerelease tag instead of the minor and start from 0
+    // the next 2 lines and the if statement should fix this
+    var realVersion = semver.inc(pkg.version, release.releaseAs)
+    var prereleaseVersion = semver.inc(pkg.version, 'prerelease', argv.tag)
+
+    if (semver.gt(realVersion, prereleaseVersion)) {
+      newVersion = semver.inc(pkg.version, release.releaseAs)
+      newVersion = newVersion + '-' + argv.tag + '.0'
+
+      if (semver.gt(prereleaseVersion, newVersion)) {
+        newVersion = prereleaseVersion
+      }
+    } else {
+      newVersion = semver.inc(newVersion, 'prerelease', argv.tag)
+      console.log('normal: ' + newVersion)
+    }
+  }
+  return newVersion
+}
+
 function commit (argv, newVersion, cb) {
   var msg = 'committing %s'
   var args = [argv.infile]
@@ -126,6 +170,7 @@ function commit (argv, newVersion, cb) {
       process.exit(1)
     }
   }
+
   exec('git add package.json ' + argv.infile, function (err, stdout, stderr) {
     handleExecError(err, stderr)
     exec('git commit ' + verify + (argv.sign ? '-S ' : '') + 'package.json ' + argv.infile + ' -m "' + formatCommitMessage(argv.message, newVersion) + '"', function (err, stdout, stderr) {
