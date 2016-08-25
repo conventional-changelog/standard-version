@@ -107,6 +107,10 @@ npm run release -- --no-verify
 standard-version --no-verify
 ```
 
+### Signing commits and tags
+
+If you have your GPG key set up, add the `--sign` or `-s` flag to your `standard-version` command.
+
 ### CLI Help
 
 ```sh
