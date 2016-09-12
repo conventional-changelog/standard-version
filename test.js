@@ -2,6 +2,7 @@
 
 'use strict'
 
+var extend = Object.assign || require('util')._extend
 var shell = require('shelljs')
 var fs = require('fs')
 var path = require('path')
@@ -18,10 +19,10 @@ function execCli (argString) {
   return shell.exec('node ' + cliPath + (argString != null ? ' ' + argString : ''))
 }
 
-function writePackageJson (version) {
-  fs.writeFileSync('package.json', JSON.stringify({
-    version: version
-  }), 'utf-8')
+function writePackageJson (version, option) {
+  option = option || {}
+  var pkg = extend(option, {version: version})
+  fs.writeFileSync('package.json', JSON.stringify(pkg), 'utf-8')
 }
 
 function writeGitPreCommitHook () {
@@ -196,5 +197,13 @@ describe('cli', function () {
     execCli('--no-verify').code.should.equal(0)
     commit('feat: second commit')
     execCli('-n').code.should.equal(0)
+  })
+
+  it('does not display `npm publish` if the package is private', function () {
+    writePackageJson('1.0.0', {private: true})
+
+    var result = execCli()
+    result.code.should.equal(0)
+    result.stdout.should.not.match(/npm publish/)
   })
 })
