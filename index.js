@@ -148,16 +148,16 @@ function tag (newVersion, argv) {
   }
   checkpoint('tagging release %s', [newVersion])
   exec('git tag ' + tagOption + 'v' + newVersion + ' -m "' + formatCommitMessage(argv.message, newVersion) + '"', function (err, stdout, stderr) {
+    var message = 'git push --follow-tags origin master'
     var errMessage = null
     if (err) errMessage = err.message
     if (stderr) errMessage = stderr
+    if (pkg.private !== true) message += '; npm publish'
     if (errMessage) {
       console.log(chalk.red(errMessage))
       process.exit(1)
     } else {
-      checkpoint('Run `%s` to publish', [
-        'git push --follow-tags origin master; npm publish'
-      ], chalk.blue(figures.info))
+      checkpoint('Run `%s` to publish', [message], chalk.blue(figures.info))
     }
   })
 }
