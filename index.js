@@ -111,12 +111,11 @@ function outputChangelog (argv, cb) {
 function handleExecError (err, stderr) {
   // If exec returns content in stderr, but no error, print it as a warning
   // If exec returns an error, print it and exit with return code 1
-  var errMessage = stderr || (err && err.message)
-  if (errMessage) {
-    console.error(err ? chalk.red(errMessage) : chalk.yellow(errMessage))
-    if (err) {
-      process.exit(1)
-    }
+  if (err) {
+    console.error(chalk.red(stderr || err.message))
+    process.exit(1)
+  } else if (stderr) {
+    console.warn(chalk.yellow(stderr))
   }
 }
 
