@@ -117,7 +117,7 @@ describe('cli', function () {
 
           var result = execCli()
           result.code.should.equal(1)
-          result.stdout.should.match(/commit yourself/)
+          result.stderr.should.match(/commit yourself/)
 
           unmock()
         })
@@ -131,7 +131,7 @@ describe('cli', function () {
 
           var result = execCli()
           result.code.should.equal(1)
-          result.stdout.should.match(/addition is hard/)
+          result.stderr.should.match(/addition is hard/)
 
           unmock()
         })
@@ -145,7 +145,21 @@ describe('cli', function () {
 
           var result = execCli()
           result.code.should.equal(1)
-          result.stdout.should.match(/tag, you're it/)
+          result.stderr.should.match(/tag, you're it/)
+
+          unmock()
+        })
+    })
+
+    it('doesn\'t fail fast on stderr output from git', function () {
+      // mock git by throwing on attempt to commit
+      return mockGit('console.error("haha, kidding, this is just a warning"); process.exit(0);', 'add')
+        .then(function (unmock) {
+          writePackageJson('1.0.0')
+
+          var result = execCli()
+          result.code.should.equal(0)
+          result.stderr.should.match(/haha, kidding, this is just a warning/)
 
           unmock()
         })

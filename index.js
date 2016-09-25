@@ -108,6 +108,17 @@ function outputChangelog (argv, cb) {
   })
 }
 
+function handleExecError (err, stderr) {
+  // If exec returns content in stderr, but no error, print it as a warning
+  // If exec returns an error, print it and exit with return code 1
+  if (err) {
+    console.error(chalk.red(stderr || err.message))
+    process.exit(1)
+  } else if (stderr) {
+    console.warn(chalk.yellow(stderr))
+  }
+}
+
 function commit (argv, newVersion, cb) {
   var msg = 'committing %s'
   var args = [argv.infile]
@@ -118,14 +129,6 @@ function commit (argv, newVersion, cb) {
   }
   checkpoint(msg, args)
 
-  function handleExecError (err, stderr) {
-    // If exec returns an error or content in stderr, log it and exit with return code 1
-    var errMessage = stderr || (err && err.message)
-    if (errMessage) {
-      console.log(chalk.red(errMessage))
-      process.exit(1)
-    }
-  }
   exec('git add package.json ' + argv.infile, function (err, stdout, stderr) {
     handleExecError(err, stderr)
     exec('git commit ' + verify + (argv.sign ? '-S ' : '') + 'package.json ' + argv.infile + ' -m "' + formatCommitMessage(argv.message, newVersion) + '"', function (err, stdout, stderr) {
@@ -148,17 +151,11 @@ function tag (newVersion, argv) {
   }
   checkpoint('tagging release %s', [newVersion])
   exec('git tag ' + tagOption + 'v' + newVersion + ' -m "' + formatCommitMessage(argv.message, newVersion) + '"', function (err, stdout, stderr) {
+    handleExecError(err, stderr)
     var message = 'git push --follow-tags origin master'
-    var errMessage = null
-    if (err) errMessage = err.message
-    if (stderr) errMessage = stderr
     if (pkg.private !== true) message += '; npm publish'
-    if (errMessage) {
-      console.log(chalk.red(errMessage))
-      process.exit(1)
-    } else {
-      checkpoint('Run `%s` to publish', [message], chalk.blue(figures.info))
-    }
+
+    checkpoint('Run `%s` to publish', [message], chalk.blue(figures.info))
   })
 }
 
