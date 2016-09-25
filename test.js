@@ -88,6 +88,32 @@ describe('cli', function () {
       content.should.match(/1\.0\.1/)
       content.should.not.match(/legacy header format/)
     })
+
+    it('should not make any changes with the test option', function () {
+      writePackageJson('1.0.0')
+      fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
+
+      commit('feat: first commit')
+      shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
+      commit('fix: patch release')
+
+      execCli('--test').code.should.equal(0)
+      var content = fs.readFileSync('CHANGELOG.md', 'utf-8')
+      content.should.match(/1\.0\.0/)
+    })
+
+    it('should not make any changes with the test option for the first release', function () {
+      writePackageJson('1.0.0')
+      fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
+
+      commit('feat: first commit')
+      shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
+      commit('fix: patch release')
+
+      execCli('--test --first-release').code.should.equal(0)
+      var content = fs.readFileSync('CHANGELOG.md', 'utf-8')
+      content.should.match(/1\.0\.0/)
+    })
   })
 
   describe('with mocked git', function () {
@@ -201,6 +227,18 @@ describe('cli', function () {
 
     var pkgJson = fs.readFileSync('package.json', 'utf-8')
     pkgJson.should.equal(['{', '  "version": "1.0.1"', '}', ''].join('\n'))
+  })
+
+  it('should not make any changes with the test option', function () {
+    writePackageJson('1.0.0')
+
+    commit('feat: first commit')
+    shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
+    commit('feat: new feature!')
+
+    execCli('--test').code.should.equal(0)
+    var pkgJson = fs.readFileSync('package.json', 'utf-8')
+    pkgJson.should.equal('{"version":"1.0.0"}')
   })
 
   it('does not run git hooks if the --no-verify flag is passed', function () {

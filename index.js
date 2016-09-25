@@ -38,6 +38,13 @@ var argv = require('yargs')
     default: false,
     global: true
   })
+  .option('test', {
+    alias: 't',
+    describe: 'Dry run, display a new next version',
+    type: 'boolean',
+    default: false,
+    global: true
+  })
   .help()
   .alias('help', 'h')
   .example('$0', 'Update changelog and tag release')
@@ -66,11 +73,20 @@ conventionalRecommendedBump({
   var newVersion = pkg.version
   if (!argv.firstRelease) {
     newVersion = semver.inc(pkg.version, release.releaseType)
+
+    if (argv.test) {
+      checkpoint('A new version will be from %s to %s', [pkg.version, newVersion])
+      return
+    }
+
     checkpoint('bumping version in package.json from %s to %s', [pkg.version, newVersion])
     pkg.version = newVersion
     fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + '\n', 'utf-8')
   } else {
     checkpoint('skip version bump on first release', [], chalk.red(figures.cross))
+    if (argv.test) {
+      return
+    }
   }
 
   outputChangelog(argv, function () {
