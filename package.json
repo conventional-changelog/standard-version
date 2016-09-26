@@ -46,6 +46,7 @@
     "coveralls": "^2.11.9",
     "mocha": "^3.0.1",
     "mock-git": "^1.0.2",
+    "mockery": "^1.7.0",
     "nyc": "^8.1.0",
     "shelljs": "^0.7.3",
     "standard": "^8.0.0"

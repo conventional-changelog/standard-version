@@ -6,10 +6,13 @@ var extend = Object.assign || require('util')._extend
 var shell = require('shelljs')
 var fs = require('fs')
 var path = require('path')
+var stream = require('stream')
 var mockGit = require('mock-git')
-var cliPath = path.resolve(__dirname, './cli.js')
+var mockery = require('mockery')
 
-require('chai').should()
+var should = require('chai').should()
+
+var cliPath = path.resolve(__dirname, './cli.js')
 
 function commit (msg) {
   shell.exec('git commit --allow-empty -m"' + msg + '"')
@@ -212,5 +215,82 @@ describe('cli', function () {
     var result = execCli()
     result.code.should.equal(0)
     result.stdout.should.not.match(/npm publish/)
+  })
+})
+
+describe('standard-version', function () {
+  beforeEach(initInTempFolder)
+  afterEach(finishTemp)
+
+  describe('with mocked conventionalRecommendedBump', function () {
+    beforeEach(function () {
+      mockery.enable({warnOnUnregistered: false, useCleanCache: true})
+      mockery.registerMock('conventional-recommended-bump', function (_, cb) {
+        cb(new Error('bump err'))
+      })
+    })
+
+    afterEach(function () {
+      mockery.deregisterMock('conventional-recommended-bump')
+      mockery.disable()
+    })
+
+    it('should exit on bump error', function (done) {
+      commit('feat: first commit')
+      shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
+      commit('feat: new feature!')
+
+      require('./index')({silent: true}, function (err) {
+        should.exist(err)
+        err.message.should.match(/bump err/)
+        done()
+      })
+    })
+  })
+
+  describe('with mocked conventionalChangelog', function () {
+    beforeEach(function () {
+      mockery.enable({warnOnUnregistered: false, useCleanCache: true})
+      mockery.registerMock('conventional-changelog', function () {
+        var readable = new stream.Readable({objectMode: true})
+        readable._read = function () {
+        }
+        setImmediate(readable.emit.bind(readable), 'error', new Error('changelog err'))
+        return readable
+      })
+    })
+
+    afterEach(function () {
+      mockery.deregisterMock('conventional-changelog')
+      mockery.disable()
+    })
+
+    it('should exit on changelog error', function (done) {
+      commit('feat: first commit')
+      shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
+      commit('feat: new feature!')
+
+      require('./index')({silent: true}, function (err) {
+        should.exist(err)
+        err.message.should.match(/changelog err/)
+        done()
+      })
+    })
+  })
+
+  it('formats the commit and tag messages appropriately', function (done) {
+    commit('feat: first commit')
+    shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
+    commit('feat: new feature!')
+
+    require('./index')({silent: true}, function (err) {
+      should.not.exist(err)
+
+      // check last commit message
+      shell.exec('git log --oneline -n1').stdout.should.match(/chore\(release\): 1\.1\.0/)
+      // check annotated tag message
+      shell.exec('git tag -l -n1 v1.1.0').stdout.should.match(/chore\(release\): 1\.1\.0/)
+      done()
+    })
   })
 })
