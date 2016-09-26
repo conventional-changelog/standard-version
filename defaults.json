@@ -4,4 +4,5 @@
   "firstRelease": false,
   "sign": false,
   "noVerify": false,
+  "silent": false
 }

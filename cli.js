@@ -38,6 +38,12 @@ var argv = require('yargs')
     default: defaults.noVerify,
     global: true
   })
+  .option('silent', {
+    describe: 'Don\'t print logs and errors',
+    type: 'boolean',
+    default: defaults.silent,
+    global: true
+  })
   .help()
   .alias('help', 'h')
   .example('$0', 'Update changelog and tag release')

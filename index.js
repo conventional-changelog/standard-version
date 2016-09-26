@@ -143,16 +143,20 @@ function createIfMissing (argv) {
 }
 
 function checkpoint (argv, msg, args, figure) {
-  console.info((figure || chalk.green(figures.tick)) + ' ' + util.format.apply(util, [msg].concat(args.map(function (arg) {
-    return chalk.bold(arg)
-  }))))
+  if (!argv.silent) {
+    console.info((figure || chalk.green(figures.tick)) + ' ' + util.format.apply(util, [msg].concat(args.map(function (arg) {
+      return chalk.bold(arg)
+    }))))
+  }
 }
 
 function printError (argv, msg, opts) {
-  opts = objectAssign({
-    level: 'error',
-    color: 'red'
-  }, opts)
+  if (!argv.silent) {
+    opts = objectAssign({
+      level: 'error',
+      color: 'red'
+    }, opts)
 
-  console[opts.level](chalk[opts.color](msg))
+    console[opts.level](chalk[opts.color](msg))
+  }
 }
