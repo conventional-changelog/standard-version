@@ -199,6 +199,13 @@ describe('cli', function () {
     execCli('-n').code.should.equal(0)
   })
 
+  it('does not print output when the --silent flag is passed', function () {
+    var result = execCli('--silent')
+    result.code.should.equal(0)
+    result.stdout.should.equal('')
+    result.stderr.should.equal('')
+  })
+
   it('does not display `npm publish` if the package is private', function () {
     writePackageJson('1.0.0', {private: true})
 
