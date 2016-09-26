@@ -7,7 +7,7 @@ var shell = require('shelljs')
 var fs = require('fs')
 var path = require('path')
 var mockGit = require('mock-git')
-var cliPath = path.resolve(__dirname, './index.js')
+var cliPath = path.resolve(__dirname, './cli.js')
 
 require('chai').should()
 
@@ -30,25 +30,27 @@ function writeGitPreCommitHook () {
   fs.chmodSync('.git/hooks/pre-commit', '755')
 }
 
-describe('cli', function () {
-  beforeEach(function () {
-    shell.rm('-rf', 'tmp')
-    shell.config.silent = true
-    shell.mkdir('tmp')
-    shell.cd('tmp')
-    shell.exec('git init')
-    commit('root-commit')
-  })
+function initInTempFolder () {
+  shell.rm('-rf', 'tmp')
+  shell.config.silent = true
+  shell.mkdir('tmp')
+  shell.cd('tmp')
+  shell.exec('git init')
+  commit('root-commit')
+  writePackageJson('1.0.0')
+}
 
-  afterEach(function () {
-    shell.cd('../')
-    shell.rm('-rf', 'tmp')
-  })
+function finishTemp () {
+  shell.cd('../')
+  shell.rm('-rf', 'tmp')
+}
+
+describe('cli', function () {
+  beforeEach(initInTempFolder)
+  afterEach(finishTemp)
 
   describe('CHANGELOG.md does not exist', function () {
     it('populates changelog with commits since last tag by default', function () {
-      writePackageJson('1.0.0')
-
       commit('feat: first commit')
       shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
       commit('fix: patch release')
@@ -76,7 +78,6 @@ describe('cli', function () {
 
   describe('CHANGELOG.md exists', function () {
     it('appends the new release above the last release, removing the old header', function () {
-      writePackageJson('1.0.0')
       fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
 
       commit('feat: first commit')
@@ -95,8 +96,6 @@ describe('cli', function () {
       // mock git with file that writes args to gitcapture.log
       return mockGit('require("fs").appendFileSync("gitcapture.log", JSON.stringify(process.argv.splice(2)) + "\\n")')
         .then(function (unmock) {
-          writePackageJson('1.0.0')
-
           execCli('--sign').code.should.equal(0)
 
           var captured = shell.cat('gitcapture.log').stdout.split('\n').map(function (line) {
@@ -113,8 +112,6 @@ describe('cli', function () {
       // mock git by throwing on attempt to commit
       return mockGit('console.error("commit yourself"); process.exit(128);', 'commit')
         .then(function (unmock) {
-          writePackageJson('1.0.0')
-
           var result = execCli()
           result.code.should.equal(1)
           result.stderr.should.match(/commit yourself/)
@@ -127,8 +124,6 @@ describe('cli', function () {
       // mock git by throwing on attempt to add
       return mockGit('console.error("addition is hard"); process.exit(128);', 'add')
         .then(function (unmock) {
-          writePackageJson('1.0.0')
-
           var result = execCli()
           result.code.should.equal(1)
           result.stderr.should.match(/addition is hard/)
@@ -141,8 +136,6 @@ describe('cli', function () {
       // mock git by throwing on attempt to commit
       return mockGit('console.error("tag, you\'re it"); process.exit(128);', 'tag')
         .then(function (unmock) {
-          writePackageJson('1.0.0')
-
           var result = execCli()
           result.code.should.equal(1)
           result.stderr.should.match(/tag, you're it/)
@@ -167,8 +160,6 @@ describe('cli', function () {
   })
 
   it('handles commit messages longer than 80 characters', function () {
-    writePackageJson('1.0.0')
-
     commit('feat: first commit')
     shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
     commit('fix: this is my fairly long commit message which is testing whether or not we allow for long commit messages')
@@ -180,8 +171,6 @@ describe('cli', function () {
   })
 
   it('formats the commit and tag messages appropriately', function () {
-    writePackageJson('1.0.0')
-
     commit('feat: first commit')
     shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
     commit('feat: new feature!')
@@ -195,8 +184,6 @@ describe('cli', function () {
   })
 
   it('appends line feed at end of package.json', function () {
-    writePackageJson('1.0.0')
-
     execCli().code.should.equal(0)
 
     var pkgJson = fs.readFileSync('package.json', 'utf-8')
@@ -204,7 +191,6 @@ describe('cli', function () {
   })
 
   it('does not run git hooks if the --no-verify flag is passed', function () {
-    writePackageJson('1.0.0')
     writeGitPreCommitHook()
 
     commit('feat: first commit')

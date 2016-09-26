@@ -1,84 +1,54 @@
-#!/usr/bin/env node
 var conventionalRecommendedBump = require('conventional-recommended-bump')
 var conventionalChangelog = require('conventional-changelog')
 var path = require('path')
-var argv = require('yargs')
-  .usage('Usage: $0 [options]')
-  .option('infile', {
-    alias: 'i',
-    describe: 'Read the CHANGELOG from this file',
-    default: 'CHANGELOG.md',
-    global: true
-  })
-  .option('message', {
-    alias: 'm',
-    describe: 'Commit message, replaces %s with new version',
-    type: 'string',
-    default: 'chore(release): %s',
-    global: true
-  })
-  .option('first-release', {
-    alias: 'f',
-    describe: 'Is this the first release?',
-    type: 'boolean',
-    default: false,
-    global: true
-  })
-  .option('sign', {
-    alias: 's',
-    describe: 'Should the git commit and tag be signed?',
-    type: 'boolean',
-    default: false,
-    global: true
-  })
-  .option('no-verify', {
-    alias: 'n',
-    describe: 'Bypass pre-commit or commit-msg git hooks during the commit phase',
-    type: 'boolean',
-    default: false,
-    global: true
-  })
-  .help()
-  .alias('help', 'h')
-  .example('$0', 'Update changelog and tag release')
-  .example('$0 -m "%s: see changelog for details"', 'Update changelog and tag release with custom commit message')
-  .wrap(97)
-  .argv
 
 var chalk = require('chalk')
 var figures = require('figures')
 var exec = require('child_process').exec
 var fs = require('fs')
 var accessSync = require('fs-access').sync
-var pkgPath = path.resolve(process.cwd(), './package.json')
-var pkg = require(pkgPath)
 var semver = require('semver')
 var util = require('util')
+var objectAssign = require('object-assign')
 
-conventionalRecommendedBump({
-  preset: 'angular'
-}, function (err, release) {
-  if (err) {
-    console.error(chalk.red(err.message))
-    return
-  }
+module.exports = function standardVersion (argv, done) {
+  var pkgPath = path.resolve(process.cwd(), './package.json')
+  var pkg = require(pkgPath)
+  var defaults = require('./defaults')
 
-  var newVersion = pkg.version
-  if (!argv.firstRelease) {
-    newVersion = semver.inc(pkg.version, release.releaseType)
-    checkpoint('bumping version in package.json from %s to %s', [pkg.version, newVersion])
-    pkg.version = newVersion
-    fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + '\n', 'utf-8')
-  } else {
-    checkpoint('skip version bump on first release', [], chalk.red(figures.cross))
-  }
+  argv = objectAssign(defaults, argv)
 
-  outputChangelog(argv, function () {
-    commit(argv, newVersion, function () {
-      return tag(newVersion, argv)
+  conventionalRecommendedBump({
+    preset: 'angular'
+  }, function (err, release) {
+    if (err) {
+      printError(argv, err.message)
+      return done(err)
+    }
+
+    var newVersion = pkg.version
+    if (!argv.firstRelease) {
+      newVersion = semver.inc(pkg.version, release.releaseType)
+      checkpoint(argv, 'bumping version in package.json from %s to %s', [pkg.version, newVersion])
+      pkg.version = newVersion
+      fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + '\n', 'utf-8')
+    } else {
+      checkpoint(argv, 'skip version bump on first release', [], chalk.red(figures.cross))
+    }
+
+    outputChangelog(argv, function (err) {
+      if (err) {
+        return done(err)
+      }
+      commit(argv, newVersion, function (err) {
+        if (err) {
+          return done(err)
+        }
+        return tag(newVersion, pkg.private, argv, done)
+      })
     })
   })
-})
+}
 
 function outputChangelog (argv, cb) {
   createIfMissing(argv)
@@ -92,31 +62,34 @@ function outputChangelog (argv, cb) {
   var changelogStream = conventionalChangelog({
     preset: 'angular'
   })
-  .on('error', function (err) {
-    console.error(chalk.red(err.message))
-    process.exit(1)
-  })
+    .on('error', function (err) {
+      return cb(err)
+    })
 
   changelogStream.on('data', function (buffer) {
     content += buffer.toString()
   })
 
   changelogStream.on('end', function () {
-    checkpoint('outputting changes to %s', [argv.infile])
+    checkpoint(argv, 'outputting changes to %s', [argv.infile])
     fs.writeFileSync(argv.infile, header + '\n' + (content + oldContent).replace(/\n+$/, '\n'), 'utf-8')
     return cb()
   })
 }
 
-function handleExecError (err, stderr) {
-  // If exec returns content in stderr, but no error, print it as a warning
-  // If exec returns an error, print it and exit with return code 1
-  if (err) {
-    console.error(chalk.red(stderr || err.message))
-    process.exit(1)
-  } else if (stderr) {
-    console.warn(chalk.yellow(stderr))
-  }
+function handledExec (argv, cmd, errorCb, successCb) {
+  // Exec given cmd and handle possible errors
+  exec(cmd, function (err, stdout, stderr) {
+    // If exec returns content in stderr, but no error, print it as a warning
+    // If exec returns an error, print it and exit with return code 1
+    if (err) {
+      printError(argv, stderr || err.message)
+      return errorCb(err)
+    } else if (stderr) {
+      printError(argv, stderr, {level: 'warn', color: 'yellow'})
+    }
+    successCb()
+  })
 }
 
 function commit (argv, newVersion, cb) {
@@ -127,13 +100,11 @@ function commit (argv, newVersion, cb) {
     msg += ' and %s'
     args.unshift('package.json')
   }
-  checkpoint(msg, args)
+  checkpoint(argv, msg, args)
 
-  exec('git add package.json ' + argv.infile, function (err, stdout, stderr) {
-    handleExecError(err, stderr)
-    exec('git commit ' + verify + (argv.sign ? '-S ' : '') + 'package.json ' + argv.infile + ' -m "' + formatCommitMessage(argv.message, newVersion) + '"', function (err, stdout, stderr) {
-      handleExecError(err, stderr)
-      return cb()
+  handledExec(argv, 'git add package.json ' + argv.infile, cb, function () {
+    handledExec(argv, 'git commit ' + verify + (argv.sign ? '-S ' : '') + 'package.json ' + argv.infile + ' -m "' + formatCommitMessage(argv.message, newVersion) + '"', cb, function () {
+      cb()
     })
   })
 }
@@ -142,20 +113,20 @@ function formatCommitMessage (msg, newVersion) {
   return String(msg).indexOf('%s') !== -1 ? util.format(msg, newVersion) : msg
 }
 
-function tag (newVersion, argv) {
+function tag (newVersion, pkgPrivate, argv, cb) {
   var tagOption
   if (argv.sign) {
     tagOption = '-s '
   } else {
     tagOption = '-a '
   }
-  checkpoint('tagging release %s', [newVersion])
-  exec('git tag ' + tagOption + 'v' + newVersion + ' -m "' + formatCommitMessage(argv.message, newVersion) + '"', function (err, stdout, stderr) {
-    handleExecError(err, stderr)
+  checkpoint(argv, 'tagging release %s', [newVersion])
+  handledExec(argv, 'git tag ' + tagOption + 'v' + newVersion + ' -m "' + formatCommitMessage(argv.message, newVersion) + '"', cb, function () {
     var message = 'git push --follow-tags origin master'
-    if (pkg.private !== true) message += '; npm publish'
+    if (pkgPrivate !== true) message += '; npm publish'
 
-    checkpoint('Run `%s` to publish', [message], chalk.blue(figures.info))
+    checkpoint(argv, 'Run `%s` to publish', [message], chalk.blue(figures.info))
+    cb()
   })
 }
 
@@ -164,15 +135,24 @@ function createIfMissing (argv) {
     accessSync(argv.infile, fs.F_OK)
   } catch (err) {
     if (err.code === 'ENOENT') {
-      checkpoint('created %s', [argv.infile])
+      checkpoint(argv, 'created %s', [argv.infile])
       argv.outputUnreleased = true
       fs.writeFileSync(argv.infile, '\n', 'utf-8')
     }
   }
 }
 
-function checkpoint (msg, args, figure) {
+function checkpoint (argv, msg, args, figure) {
   console.info((figure || chalk.green(figures.tick)) + ' ' + util.format.apply(util, [msg].concat(args.map(function (arg) {
     return chalk.bold(arg)
   }))))
-};
+}
+
+function printError (argv, msg, opts) {
+  opts = objectAssign({
+    level: 'error',
+    color: 'red'
+  }, opts)
+
+  console[opts.level](chalk[opts.color](msg))
+}

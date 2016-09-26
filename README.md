@@ -64,7 +64,7 @@ Now you can use `standard-version` in place of `npm version`.
 
 This has the benefit of allowing you to use `standard-version` on any repo/package without adding a dev dependency to each one.
 
-## Usage
+## CLI Usage
 
 ### First Release
 
@@ -118,6 +118,23 @@ If you have your GPG key set up, add the `--sign` or `-s` flag to your `standard
 npm run release -- --help
 # or global bin
 standard-version --help
+```
+
+## Code usage
+
+```js
+var standardVersion = require('standard-version')
+
+// Options are the same as command line, except camelCase
+standardVersion({
+  noVerify: true,
+  infile: 'docs/CHANGELOG.md'
+}, function (err) {
+  if (err) {
+    console.error(`standard-version failed with message: ${err.message}`)
+  }
+  // standard-version is done
+})
 ```
 
 ## Commit Message Convention, at a Glance
