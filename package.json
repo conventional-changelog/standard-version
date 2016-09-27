@@ -12,6 +12,9 @@
     "type": "git",
     "url": "git+https://github.com/conventional-changelog/standard-version.git"
   },
+  "engines": {
+    "node" : ">=4.0"
+  },
   "keywords": [
     "conventional-changelog",
     "recommended",
