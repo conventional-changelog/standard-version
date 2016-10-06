@@ -8,7 +8,6 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### Bug Fixes
 
-([f361c46](https://github.com/conventional-changelog/standard-version/commit/f361c46)), closes [#49](https://github.com/conventional-changelog/standard-version/issues/49)
 * check the private field in package.json([#102](https://github.com/conventional-changelog/standard-version/issues/102)) ([#103](https://github.com/conventional-changelog/standard-version/issues/103)) ([2ce4160](https://github.com/conventional-changelog/standard-version/commit/2ce4160))
 * **err:** don't fail on stderr output, but print the output to stderr ([#110](https://github.com/conventional-changelog/standard-version/issues/110)) ([f7a4915](https://github.com/conventional-changelog/standard-version/commit/f7a4915)), closes [#91](https://github.com/conventional-changelog/standard-version/issues/91)
 
@@ -20,7 +19,6 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### Features
 
-([3e0aa84](https://github.com/conventional-changelog/standard-version/commit/3e0aa84))
 * **options:** add --silent flag and option for squelching output ([2a3fa61](https://github.com/conventional-changelog/standard-version/commit/2a3fa61))
 * added support for commitAll option in CLI ([#121](https://github.com/conventional-changelog/standard-version/issues/121)) ([a903f4d](https://github.com/conventional-changelog/standard-version/commit/a903f4d))
 * separate cli and defaults from base functionality ([34a6a4e](https://github.com/conventional-changelog/standard-version/commit/34a6a4e))
