@@ -38,6 +38,13 @@ var argv = require('yargs')
     default: defaults.noVerify,
     global: true
   })
+  .option('commit-all', {
+    alias: 'a',
+    describe: 'Commit all staged changes, not just files affected by standard-version',
+    type: 'boolean',
+    default: defaults.commitAll,
+    global: true
+  })
   .option('silent', {
     describe: 'Don\'t print logs and errors',
     type: 'boolean',

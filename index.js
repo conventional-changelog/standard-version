@@ -79,6 +79,7 @@ function outputChangelog (argv, cb) {
 
 function handledExec (argv, cmd, errorCb, successCb) {
   // Exec given cmd and handle possible errors
+
   exec(cmd, function (err, stdout, stderr) {
     // If exec returns content in stderr, but no error, print it as a warning
     // If exec returns an error, print it and exit with return code 1
@@ -103,7 +104,7 @@ function commit (argv, newVersion, cb) {
   checkpoint(argv, msg, args)
 
   handledExec(argv, 'git add package.json ' + argv.infile, cb, function () {
-    handledExec(argv, 'git commit ' + verify + (argv.sign ? '-S ' : '') + 'package.json ' + argv.infile + ' -m "' + formatCommitMessage(argv.message, newVersion) + '"', cb, function () {
+    handledExec(argv, 'git commit ' + verify + (argv.sign ? '-S ' : '') + (argv.commitAll ? '' : ('package.json ' + argv.infile)) + ' -m "' + formatCommitMessage(argv.message, newVersion) + '"', cb, function () {
       cb()
     })
   })

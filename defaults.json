@@ -4,5 +4,6 @@
   "firstRelease": false,
   "sign": false,
   "noVerify": false,
+  "commitAll": false,
   "silent": false
 }

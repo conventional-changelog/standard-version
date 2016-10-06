@@ -92,6 +92,29 @@ describe('cli', function () {
       content.should.match(/1\.0\.1/)
       content.should.not.match(/legacy header format/)
     })
+
+    it('commits all staged files', function () {
+      fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
+
+      commit('feat: first commit')
+      shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
+      commit('fix: patch release')
+
+      fs.writeFileSync('STUFF.md', 'stuff\n', 'utf-8')
+
+      shell.exec('git add STUFF.md')
+
+      execCli('--commit-all').code.should.equal(0)
+
+      var content = fs.readFileSync('CHANGELOG.md', 'utf-8')
+      var status = shell.exec('git status')
+
+      status.should.match(/On branch master\nnothing to commit, working directory clean\n/)
+      status.should.not.match(/STUFF.md/)
+
+      content.should.match(/1\.0\.1/)
+      content.should.not.match(/legacy header format/)
+    })
   })
 
   describe('with mocked git', function () {
