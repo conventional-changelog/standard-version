@@ -101,6 +101,7 @@ function commit (argv, newVersion, cb) {
     msg += ' and %s'
     args.unshift('package.json')
   }
+  
   checkpoint(argv, msg, args)
   handledExec(argv, 'git add package.json ' + argv.infile, cb, function () {
     handledExec(argv, 'git commit ' + verify + (argv.sign ? '-S ' : '') + (argv.commitAll ? '' : ('package.json ' + argv.infile)) + ' -m "' + formatCommitMessage(argv.message, newVersion) + '"', cb, function () {
