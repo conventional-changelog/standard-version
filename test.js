@@ -2,7 +2,7 @@
 
 'use strict'
 
-var extend = Object.assign || require('util')._extend
+var extend = require('object-assign')
 var shell = require('shelljs')
 var fs = require('fs')
 var path = require('path')
