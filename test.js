@@ -2,7 +2,7 @@
 
 'use strict'
 
-var extend = require('object-assign')
+var objectAssign = require('object-assign')
 var shell = require('shelljs')
 var fs = require('fs')
 var path = require('path')
@@ -24,7 +24,7 @@ function execCli (argString) {
 
 function writePackageJson (version, option) {
   option = option || {}
-  var pkg = extend(option, {version: version})
+  var pkg = objectAssign(option, {version: version})
   fs.writeFileSync('package.json', JSON.stringify(pkg), 'utf-8')
 }
 
