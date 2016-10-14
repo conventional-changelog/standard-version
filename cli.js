@@ -4,6 +4,21 @@ var defaults = require('./defaults')
 
 var argv = require('yargs')
   .usage('Usage: $0 [options]')
+  .option('manual', {
+    alias: 'u',
+    describe: 'Specify the bump approach manually. Same npm version xxx except `from-git`',
+    requiresArg: true,
+    string: true,
+    choices: ['major', 'premajor', 'minor', 'preminor', 'patch', 'prepatch', 'prerelease'],
+    global: true
+  })
+  .option('tag-id', {
+    alias: 't',
+    describe: 'Your identifier in the tag, like "1.0.0-pre.1". Only works for pre-releases',
+    requiresArg: true,
+    string: true,
+    global: true
+  })
   .option('infile', {
     alias: 'i',
     describe: 'Read the CHANGELOG from this file',
@@ -51,6 +66,8 @@ var argv = require('yargs')
     default: defaults.silent,
     global: true
   })
+  .version()
+  .alias('version', 'v')
   .help()
   .alias('help', 'h')
   .example('$0', 'Update changelog and tag release')

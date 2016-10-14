@@ -11,16 +11,14 @@ var semver = require('semver')
 var util = require('util')
 var objectAssign = require('object-assign')
 
-module.exports = function standardVersion (argv, done) {
+module.exports = function standardVersion(argv, done) {
   var pkgPath = path.resolve(process.cwd(), './package.json')
   var pkg = require(pkgPath)
   var defaults = require('./defaults')
 
   argv = objectAssign(defaults, argv)
 
-  conventionalRecommendedBump({
-    preset: 'angular'
-  }, function (err, release) {
+  bumpVersion(argv.manual, function (err, release) {
     if (err) {
       printError(argv, err.message)
       return done(err)
@@ -28,7 +26,7 @@ module.exports = function standardVersion (argv, done) {
 
     var newVersion = pkg.version
     if (!argv.firstRelease) {
-      newVersion = semver.inc(pkg.version, release.releaseType)
+      newVersion = semver.inc(pkg.version, release.releaseType, argv.tagId)
       checkpoint(argv, 'bumping version in package.json from %s to %s', [pkg.version, newVersion])
       pkg.version = newVersion
       fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + '\n', 'utf-8')
@@ -50,7 +48,21 @@ module.exports = function standardVersion (argv, done) {
   })
 }
 
-function outputChangelog (argv, cb) {
+function bumpVersion(manual, callback) {
+  if (!manual) {
+    conventionalRecommendedBump({
+      preset: 'angular'
+    }, function (err, release) {
+      callback(err, release)
+    })
+  } else {
+    callback(null, {
+      releaseType: manual
+    })
+  }
+}
+
+function outputChangelog(argv, cb) {
   createIfMissing(argv)
   var header = '# Change Log\n\nAll notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.\n'
   var oldContent = fs.readFileSync(argv.infile, 'utf-8')
