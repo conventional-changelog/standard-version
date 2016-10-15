@@ -9,6 +9,7 @@ var path = require('path')
 var stream = require('stream')
 var mockGit = require('mock-git')
 var mockery = require('mockery')
+var semver = require('semver')
 
 var should = require('chai').should()
 
@@ -182,6 +183,99 @@ describe('cli', function () {
 
           unmock()
         })
+    })
+  })
+
+  describe('manual-release', function () {
+    it('throws error when not specifying a release type', function () {
+      writePackageJson('1.0.0')
+      fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
+
+      commit('fix: first commit')
+      execCli('--manual').code.should.above(0)
+    })
+
+    it('throws error when not specifying a tag id', function () {
+      writePackageJson('1.0.0')
+      fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
+
+      commit('feat: first commit')
+      execCli('--manual major --tag-id').code.should.above(0)
+    })
+
+    describe('release-types', function () {
+      var regularTypes = ['major', 'minor', 'patch']
+      var preTypes = ['premajor', 'preminor', 'prepatch']
+
+      regularTypes.forEach(function (type) {
+        it('creates a ' + type + ' release', function () {
+          var originVer = '1.0.0'
+          writePackageJson(originVer)
+          fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
+
+          commit('fix: first commit')
+          execCli('--manual ' + type).code.should.equal(0)
+
+          var version = {
+            major: semver.major(originVer),
+            minor: semver.minor(originVer),
+            patch: semver.patch(originVer)
+          }
+
+          version[type] += 1
+
+          var content = fs.readFileSync('CHANGELOG.md', 'utf-8')
+          content.should.match(new RegExp(version.major + '.' + version.minor + '.' + version.patch))
+        })
+      })
+
+      preTypes.forEach(function (type) {
+        it('creates a ' + type + ' release', function () {
+          var originVer = '1.0.0'
+          writePackageJson(originVer)
+          fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
+
+          commit('fix: first commit')
+          execCli('--manual ' + type + ' --tag-id ' + type).code.should.equal(0)
+
+          var version = {
+            major: semver.major(originVer),
+            minor: semver.minor(originVer),
+            patch: semver.patch(originVer)
+          }
+
+          version[type.slice(3)] += 1
+
+          var content = fs.readFileSync('CHANGELOG.md', 'utf-8')
+          content.should.match(new RegExp(version.major + '.' + version.minor + '.' + version.patch + '-' + type + '.0'))
+        })
+      })
+    })
+
+    it('creates a prerelease with a new minor version after two prerelease patches', function () {
+      writePackageJson('1.0.0')
+      fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
+
+      commit('fix: first patch')
+      execCli('--manual prepatch --tag-id dev').code.should.equal(0)
+      var pkgJson = fs.readFileSync('package.json', 'utf-8')
+      pkgJson.should.equal(['{', '  "version": "1.0.1-dev.0"', '}', ''].join('\n'))
+
+      commit('fix: second patch')
+      execCli('--manual prerelease --tag-id dev').code.should.equal(0)
+      pkgJson = fs.readFileSync('package.json', 'utf-8')
+      pkgJson.should.equal(['{', '  "version": "1.0.1-dev.1"', '}', ''].join('\n'))
+
+      commit('feat: first new feat')
+      execCli('--manual preminor --tag-id dev').code.should.equal(0)
+      pkgJson = fs.readFileSync('package.json', 'utf-8')
+      pkgJson.should.equal(['{', '  "version": "1.1.0-dev.0"', '}', ''].join('\n'))
+
+      // additional check because of the + '-' + argv.tag + '.0' bump
+      commit('fix: third patch')
+      execCli('--manual prerelease --tag-id dev').code.should.equal(0)
+      pkgJson = fs.readFileSync('package.json', 'utf-8')
+      pkgJson.should.equal(['{', '  "version": "1.1.0-dev.1"', '}', ''].join('\n'))
     })
   })
 
