@@ -1,21 +1,18 @@
-#!/usr/bin/env node
-var standardVersion = require('./index')
 var defaults = require('./defaults')
 
-var argv = require('yargs')
+module.exports = require('yargs')
   .usage('Usage: $0 [options]')
-  .option('manual', {
-    alias: 'u',
-    describe: 'Specify the bump approach manually. Same npm version xxx except `from-git`',
+  .option('release-as', {
+    alias: 'r',
+    describe: 'Specify the release type manually. like npm version xxx with limited choices',
     requiresArg: true,
     string: true,
-    choices: ['major', 'premajor', 'minor', 'preminor', 'patch', 'prepatch', 'prerelease'],
+    choices: ['major', 'minor', 'patch'],
     global: true
   })
-  .option('tag-id', {
-    alias: 't',
-    describe: 'Your identifier in the tag, like "1.0.0-pre.1". Only works for pre-releases',
-    requiresArg: true,
+  .option('prerelease', {
+    alias: 'p',
+    describe: 'make a pre-release with optional option value to specify a tag id',
     string: true,
     global: true
   })
@@ -73,10 +70,3 @@ var argv = require('yargs')
   .example('$0', 'Update changelog and tag release')
   .example('$0 -m "%s: see changelog for details"', 'Update changelog and tag release with custom commit message')
   .wrap(97)
-  .argv
-
-standardVersion(argv, function (err) {
-  if (err) {
-    process.exit(1)
-  }
-})

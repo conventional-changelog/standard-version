@@ -2,12 +2,12 @@
   "name": "standard-version",
   "version": "3.0.0",
   "description": "replacement for `npm version` with automatic CHANGELOG generation",
-  "bin": "cli.js",
+  "bin": "bin/standard-version.js",
   "scripts": {
     "pretest": "standard",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "test": "nyc mocha --timeout=20000 test.js",
-    "release": "./cli.js"
+    "release": "bin/standard-version.js"
   },
   "repository": {
     "type": "git",
