@@ -11,3 +11,6 @@ npm-debug.log
 /.settings
 /.idea
 /.vscode
+
+# coverage
+coverage
