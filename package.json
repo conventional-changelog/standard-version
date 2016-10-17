@@ -43,6 +43,7 @@
     "yargs": "^6.0.0"
   },
   "devDependencies": {
+    "bluebird": "^3.4.6",
     "chai": "^3.5.0",
     "coveralls": "^2.11.9",
     "mocha": "^3.1.0",

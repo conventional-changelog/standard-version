@@ -10,10 +10,13 @@ var stream = require('stream')
 var mockGit = require('mock-git')
 var mockery = require('mockery')
 var semver = require('semver')
+var Promise = require('bluebird')
+var cli = require('./cli')
+var standardVersion = require('./index')
 
 var should = require('chai').should()
 
-var cliPath = path.resolve(__dirname, './cli.js')
+var cliPath = path.resolve(__dirname, './bin/standard-version.js')
 
 function commit (msg) {
   shell.exec('git commit --allow-empty -m"' + msg + '"')
@@ -23,10 +26,15 @@ function execCli (argString) {
   return shell.exec('node ' + cliPath + (argString != null ? ' ' + argString : ''))
 }
 
+function execCliAsync (argString) {
+  return Promise.promisify(standardVersion)(cli.parse('standard-version ' + argString + ' --silent'))
+}
+
 function writePackageJson (version, option) {
   option = option || {}
   var pkg = objectAssign(option, {version: version})
   fs.writeFileSync('package.json', JSON.stringify(pkg), 'utf-8')
+  delete require.cache[require.resolve(path.join(process.cwd(), 'package.json'))]
 }
 
 function writeGitPreCommitHook () {
@@ -47,6 +55,10 @@ function initInTempFolder () {
 function finishTemp () {
   shell.cd('../')
   shell.rm('-rf', 'tmp')
+}
+
+function getPackageVersion () {
+  return JSON.parse(fs.readFileSync('package.json', 'utf-8')).version
 }
 
 describe('cli', function () {
@@ -108,9 +120,9 @@ describe('cli', function () {
       execCli('--commit-all').code.should.equal(0)
 
       var content = fs.readFileSync('CHANGELOG.md', 'utf-8')
-      var status = shell.exec('git status')
+      var status = shell.exec('git status --porcelain') // see http://unix.stackexchange.com/questions/155046/determine-if-git-working-directory-is-clean-from-a-script
 
-      status.should.match(/On branch master\nnothing to commit, working (directory|tree) clean\n/)
+      status.should.equal('')
       status.should.not.match(/STUFF.md/)
 
       content.should.match(/1\.0\.1/)
@@ -186,26 +198,31 @@ describe('cli', function () {
     })
   })
 
+  describe('pre-release', function () {
+    it('works fine without specifying a tag id when prereleasing', function () {
+      writePackageJson('1.0.0')
+      fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
+
+      commit('feat: first commit')
+      return execCliAsync('--prerelease')
+        .then(function () {
+          // it's a feature commit, so it's minor type
+          getPackageVersion().should.equal('1.1.0-0')
+        })
+    })
+  })
+
   describe('manual-release', function () {
     it('throws error when not specifying a release type', function () {
       writePackageJson('1.0.0')
       fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
 
       commit('fix: first commit')
-      execCli('--manual').code.should.above(0)
-    })
-
-    it('throws error when not specifying a tag id', function () {
-      writePackageJson('1.0.0')
-      fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
-
-      commit('feat: first commit')
-      execCli('--manual major --tag-id').code.should.above(0)
+      execCli('--release-as').code.should.above(0)
     })
 
     describe('release-types', function () {
       var regularTypes = ['major', 'minor', 'patch']
-      var preTypes = ['premajor', 'preminor', 'prepatch']
 
       regularTypes.forEach(function (type) {
         it('creates a ' + type + ' release', function () {
@@ -214,40 +231,43 @@ describe('cli', function () {
           fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
 
           commit('fix: first commit')
-          execCli('--manual ' + type).code.should.equal(0)
 
-          var version = {
-            major: semver.major(originVer),
-            minor: semver.minor(originVer),
-            patch: semver.patch(originVer)
-          }
+          return execCliAsync('--release-as ' + type)
+            .then(function () {
+              var version = {
+                major: semver.major(originVer),
+                minor: semver.minor(originVer),
+                patch: semver.patch(originVer)
+              }
 
-          version[type] += 1
+              version[type] += 1
 
-          var content = fs.readFileSync('CHANGELOG.md', 'utf-8')
-          content.should.match(new RegExp(version.major + '.' + version.minor + '.' + version.patch))
+              getPackageVersion().should.equal(version.major + '.' + version.minor + '.' + version.patch)
+            })
         })
       })
 
-      preTypes.forEach(function (type) {
-        it('creates a ' + type + ' release', function () {
+      // this is for pre-releases
+      regularTypes.forEach(function (type) {
+        it('creates a pre' + type + ' release', function () {
           var originVer = '1.0.0'
           writePackageJson(originVer)
           fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
 
           commit('fix: first commit')
-          execCli('--manual ' + type + ' --tag-id ' + type).code.should.equal(0)
 
-          var version = {
-            major: semver.major(originVer),
-            minor: semver.minor(originVer),
-            patch: semver.patch(originVer)
-          }
+          return execCliAsync('--release-as ' + type + ' --prerelease ' + type)
+            .then(function () {
+              var version = {
+                major: semver.major(originVer),
+                minor: semver.minor(originVer),
+                patch: semver.patch(originVer)
+              }
 
-          version[type.slice(3)] += 1
+              version[type] += 1
 
-          var content = fs.readFileSync('CHANGELOG.md', 'utf-8')
-          content.should.match(new RegExp(version.major + '.' + version.minor + '.' + version.patch + '-' + type + '.0'))
+              getPackageVersion().should.equal(version.major + '.' + version.minor + '.' + version.patch + '-' + type + '.0')
+            })
         })
       })
     })
@@ -257,25 +277,44 @@ describe('cli', function () {
       fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
 
       commit('fix: first patch')
-      execCli('--manual prepatch --tag-id dev').code.should.equal(0)
-      var pkgJson = fs.readFileSync('package.json', 'utf-8')
-      pkgJson.should.equal(['{', '  "version": "1.0.1-dev.0"', '}', ''].join('\n'))
+      return execCliAsync('--release-as patch --prerelease dev')
+        .then(function () {
+          getPackageVersion().should.equal('1.0.1-dev.0')
+        })
 
-      commit('fix: second patch')
-      execCli('--manual prerelease --tag-id dev').code.should.equal(0)
-      pkgJson = fs.readFileSync('package.json', 'utf-8')
-      pkgJson.should.equal(['{', '  "version": "1.0.1-dev.1"', '}', ''].join('\n'))
+        // second
+        .then(function () {
+          commit('fix: second patch')
+          return execCliAsync('--prerelease dev')
+        })
+        .then(function () {
+          getPackageVersion().should.equal('1.0.1-dev.1')
+        })
 
-      commit('feat: first new feat')
-      execCli('--manual preminor --tag-id dev').code.should.equal(0)
-      pkgJson = fs.readFileSync('package.json', 'utf-8')
-      pkgJson.should.equal(['{', '  "version": "1.1.0-dev.0"', '}', ''].join('\n'))
+        // third
+        .then(function () {
+          commit('feat: first new feat')
+          return execCliAsync('--release-as minor --prerelease dev')
+        })
+        .then(function () {
+          getPackageVersion().should.equal('1.1.0-dev.0')
+        })
 
-      // additional check because of the + '-' + argv.tag + '.0' bump
-      commit('fix: third patch')
-      execCli('--manual prerelease --tag-id dev').code.should.equal(0)
-      pkgJson = fs.readFileSync('package.json', 'utf-8')
-      pkgJson.should.equal(['{', '  "version": "1.1.0-dev.1"', '}', ''].join('\n'))
+        .then(function () {
+          commit('fix: third patch')
+          return execCliAsync('--release-as minor --prerelease dev')
+        })
+        .then(function () {
+          getPackageVersion().should.equal('1.1.0-dev.1')
+        })
+
+        .then(function () {
+          commit('fix: forth patch')
+          return execCliAsync('--prerelease dev')
+        })
+        .then(function () {
+          getPackageVersion().should.equal('1.1.0-dev.2')
+        })
     })
   })
 
