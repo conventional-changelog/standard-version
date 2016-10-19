@@ -11,12 +11,12 @@ var mockGit = require('mock-git')
 var mockery = require('mockery')
 var semver = require('semver')
 var Promise = require('bluebird')
-var cli = require('./cli')
+var cli = require('./command')
 var standardVersion = require('./index')
 
 var should = require('chai').should()
 
-var cliPath = path.resolve(__dirname, './bin/standard-version.js')
+var cliPath = path.resolve(__dirname, './bin/cli.js')
 
 function commit (msg) {
   shell.exec('git commit --allow-empty -m"' + msg + '"')

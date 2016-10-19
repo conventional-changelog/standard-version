@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 var standardVersion = require('../index')
-var cmdParser = require('../cli')
+var cmdParser = require('../command')
 
 standardVersion(cmdParser.argv, function (err) {
   if (err) {
