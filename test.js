@@ -49,6 +49,12 @@ function writePackageJson (version, option) {
   delete require.cache[require.resolve(path.join(process.cwd(), 'package.json'))]
 }
 
+function writeBowerJson (version, option) {
+  option = option || {}
+  var bower = objectAssign(option, { version: version })
+  fs.writeFileSync('bower.json', JSON.stringify(bower), 'utf-8')
+}
+
 function writeGitPreCommitHook () {
   fs.writeFileSync('.git/hooks/pre-commit', '#!/bin/sh\necho "precommit ran"\nexit 1', 'utf-8')
   fs.chmodSync('.git/hooks/pre-commit', '755')
@@ -460,6 +466,24 @@ describe('standard-version', function () {
       require('./index')({silent: true}, function (err) {
         should.exist(err)
         err.message.should.match(/changelog err/)
+        done()
+      })
+    })
+  })
+
+  describe('with bower.json', function () {
+    beforeEach(function () {
+      writeBowerJson('1.0.0')
+    })
+
+    it('check with bower.json', function (done) {
+      commit('feat: first commit')
+      shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
+      commit('feat: new feature!')
+      require('./index')({silent: true}, function (err) {
+        should.not.exist(err)
+        var bower = fs.readFileSync('bower.json', 'utf-8')
+        bower.should.match(/"version": "1\.2\.0"/)
         done()
       })
     })
