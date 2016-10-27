@@ -13,6 +13,7 @@ var objectAssign = require('object-assign')
 
 module.exports = function standardVersion (argv, done) {
   var pkgPath = path.resolve(process.cwd(), './package.json')
+  var bowerPath = path.resolve(process.cwd(), './bower.json')
   var pkg = require(pkgPath)
   var defaults = require('./defaults')
 
@@ -32,6 +33,15 @@ module.exports = function standardVersion (argv, done) {
       checkpoint(argv, 'bumping version in package.json from %s to %s', [pkg.version, newVersion])
       pkg.version = newVersion
       fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + '\n', 'utf-8')
+      try {
+        var stat = fs.lstatSync(bowerPath)
+        if (stat.isFile()) {
+          var bower = require(bowerPath)
+          bower.version = newVersion
+          fs.writeFileSync(bowerPath, JSON.stringify(bower, null, 2) + '\n', 'utf-8')
+          argv.bower = true
+        }
+      } catch (e) {}
     } else {
       checkpoint(argv, 'skip version bump on first release', [], chalk.red(figures.cross))
     }
@@ -97,14 +107,19 @@ function commit (argv, newVersion, cb) {
   var msg = 'committing %s'
   var args = [argv.infile]
   var verify = argv.verify === false || argv.n ? '--no-verify ' : ''
+  var bower = ''
   if (!argv.firstRelease) {
     msg += ' and %s'
     args.unshift('package.json')
   }
+  if (argv.bower) {
+    msg += ' and %s'
+    args.unshift('bower.json')
+    bower = ' bower.json'
+  }
   checkpoint(argv, msg, args)
-
-  handledExec(argv, 'git add package.json ' + argv.infile, cb, function () {
-    handledExec(argv, 'git commit ' + verify + (argv.sign ? '-S ' : '') + (argv.commitAll ? '' : ('package.json ' + argv.infile)) + ' -m "' + formatCommitMessage(argv.message, newVersion) + '"', cb, function () {
+  handledExec(argv, 'git add package.json ' + argv.infile + bower, cb, function () {
+    handledExec(argv, 'git commit ' + verify + (argv.sign ? '-S ' : '') + (argv.commitAll ? '' : ('package.json ' + argv.infile + bower)) + ' -m "' + formatCommitMessage(argv.message, newVersion) + '"', cb, function () {
       cb()
     })
   })
