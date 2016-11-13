@@ -109,7 +109,7 @@ describe('cli', function () {
       var content = fs.readFileSync('CHANGELOG.md', 'utf-8')
       var status = shell.exec('git status')
 
-      status.should.match(/On branch master\nnothing to commit, working directory clean\n/)
+      status.should.match(/On branch master\nnothing to commit, working (directory|tree) clean\n/)
       status.should.not.match(/STUFF.md/)
 
       content.should.match(/1\.0\.1/)
