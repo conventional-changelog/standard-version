@@ -203,7 +203,7 @@ function tag (newVersion, pkgPrivate, argv, cb) {
     tagOption = '-a '
   }
   checkpoint(argv, 'tagging release %s', [newVersion])
-  handledExec(argv, 'git tag ' + tagOption + 'v' + newVersion + ' -m "' + formatCommitMessage(argv.message, newVersion) + '"', cb, function () {
+  handledExec(argv, 'git tag ' + tagOption + argv.tagPrefix + newVersion + ' -m "' + formatCommitMessage(argv.message, newVersion) + '"', cb, function () {
     var message = 'git push --follow-tags origin master'
     if (pkgPrivate !== true) message += '; npm publish'
 
