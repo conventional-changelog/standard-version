@@ -98,9 +98,10 @@ After you cut a release, you can push the new git tag and `npm publish` (or `npm
 
 ### Release as a pre-release
 
-Use `--prerelease`, you can generate a pre-release.
+Use the flag `--prerelease` to generate pre-releases:
 
-Suppose the last version of your code is `1.0.0`, and your code to be committed has patched changes. Run
+Suppose the last version of your code is `1.0.0`, and your code to be committed has patched changes. Run:
+
 ```bash
 # npm run script
 npm run release -- --prerelease
@@ -109,26 +110,30 @@ you will get version `1.0.1-0`.
 
 If you want to name the pre-release, you specify the name via `--prerelease <name>`.
 
-For example, the wanted name is `alpha`
-. Use the example above:
+For example, suppose your pre-release should contain the `alpha` prefix:
+
 ```bash
 # npm run script
 npm run release -- --prerelease alpha
 ```
-you will get version `1.0.1-alpha.0`
+
+this will tag the version `1.0.1-alpha.0`
 
 ### Release as a target type imperatively like `npm version`
 
-You can use `--release-as` to generate a `major`, `minor` or `patch` release imperatively.
+To forgo the automated version bump use `--release-as` with the argument `major`, `minor` or `patch`:
 
-Suppose the last version of your code is `1.0.0`, and your code to be committed has patched changes. Run
+Suppose the last version of your code is `1.0.0`, you've only landed `fix:` commits, but
+you would like your next release to be a `minor`. Simply do:
+
 ```bash
 # npm run script
 npm run release -- --release-as minor
 ```
-you will get version `1.1.0` rather than the smartly generated version `1.0.1`.
 
-**NOTE:** you can combine `--release-as` and `--prerelease` to generate a release. That's useful when publishing experimental feature(s).
+you will get version `1.1.0` rather than the auto generated version `1.0.1`.
+
+> **NOTE:** you can combine `--release-as` and `--prerelease` to generate a release. This is useful when publishing experimental feature(s).
 
 ### Prevent Git Hooks
 
