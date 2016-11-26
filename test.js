@@ -158,7 +158,7 @@ describe('cli', function () {
           var captured = shell.cat('gitcapture.log').stdout.split('\n').map(function (line) {
             return line ? JSON.parse(line) : line
           })
-          captured[captured.length - 3].should.deep.equal(['commit', '-S', 'package.json', 'CHANGELOG.md', '-m', 'chore(release): 1.0.1'])
+          captured[captured.length - 3].should.deep.equal(['commit', '-S', 'CHANGELOG.md', 'package.json', '-m', 'chore(release): 1.0.1'])
           captured[captured.length - 2].should.deep.equal(['tag', '-s', 'v1.0.1', '-m', 'chore(release): 1.0.1'])
 
           unmock()
@@ -481,9 +481,9 @@ describe('standard-version', function () {
       shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
       commit('feat: new feature!')
       require('./index')({silent: true}, function (err) {
-        should.not.exist(err)
-        var bower = fs.readFileSync('bower.json', 'utf-8')
-        bower.should.match(/"version": "1\.2\.0"/)
+        if (err) return done(err)
+        JSON.parse(fs.readFileSync('package.json', 'utf-8')).version.should.equal('1.1.0')
+        getPackageVersion().should.equal('1.1.0')
         done()
       })
     })

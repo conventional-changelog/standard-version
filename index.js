@@ -13,10 +13,8 @@ var objectAssign = require('object-assign')
 
 module.exports = function standardVersion (argv, done) {
   var pkgPath = path.resolve(process.cwd(), './package.json')
-  var bowerPath = path.resolve(process.cwd(), './bower.json')
   var pkg = require(pkgPath)
   var defaults = require('./defaults')
-
   var args = objectAssign({}, defaults, argv)
 
   bumpVersion(args.releaseAs, function (err, release) {
@@ -30,20 +28,7 @@ module.exports = function standardVersion (argv, done) {
     if (!args.firstRelease) {
       var releaseType = getReleaseType(args.prerelease, release.releaseType, pkg.version)
       newVersion = semver.inc(pkg.version, releaseType, args.prerelease)
-
-      checkpoint(args, 'bumping version in package.json from %s to %s', [pkg.version, newVersion])
-
-      pkg.version = newVersion
-      fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + '\n', 'utf-8')
-      try {
-        var stat = fs.lstatSync(bowerPath)
-        if (stat.isFile()) {
-          var bower = require(bowerPath)
-          bower.version = newVersion
-          fs.writeFileSync(bowerPath, JSON.stringify(bower, null, 2) + '\n', 'utf-8')
-          argv.bower = true
-        }
-      } catch (e) {}
+      updateConfigs(args, newVersion)
     } else {
       checkpoint(args, 'skip version bump on first release', [], chalk.red(figures.cross))
     }
@@ -59,6 +44,37 @@ module.exports = function standardVersion (argv, done) {
         return tag(newVersion, pkg.private, args, done)
       })
     })
+  })
+}
+
+/**
+ * attempt to update the version # in a collection of common config
+ * files, e.g., package.json, bower.json.
+ *
+ * @param argv config object
+ * @param newVersion version # to update to.
+ * @return {string}
+ */
+var configsToUpdate = {}
+function updateConfigs (args, newVersion) {
+  configsToUpdate[path.resolve(process.cwd(), './package.json')] = false
+  configsToUpdate[path.resolve(process.cwd(), './bower.json')] = false
+  Object.keys(configsToUpdate).forEach(function (configPath) {
+    try {
+      var stat = fs.lstatSync(configPath)
+      if (stat.isFile()) {
+        var config = require(configPath)
+        var filename = path.basename(configPath)
+        config.version = newVersion
+        fs.writeFileSync(configPath, JSON.stringify(config, null, 2) + '\n', 'utf-8')
+        checkpoint(args, 'bumping version in ' + filename + ' from %s to %s', [config.version, newVersion])
+        // flag any config files that we modify the version # for
+        // as having been updated.
+        configsToUpdate[configPath] = true
+      }
+    } catch (err) {
+      if (err.code !== 'ENOENT') console.warn(err.message)
+    }
   })
 }
 
@@ -170,7 +186,6 @@ function outputChangelog (argv, cb) {
 
 function handledExec (argv, cmd, errorCb, successCb) {
   // Exec given cmd and handle possible errors
-
   exec(cmd, function (err, stdout, stderr) {
     // If exec returns content in stderr, but no error, print it as a warning
     // If exec returns an error, print it and exit with return code 1
@@ -188,19 +203,19 @@ function commit (argv, newVersion, cb) {
   var msg = 'committing %s'
   var args = [argv.infile]
   var verify = argv.verify === false || argv.n ? '--no-verify ' : ''
-  var bower = ''
-  if (!argv.firstRelease) {
-    msg += ' and %s'
-    args.unshift('package.json')
-  }
-  if (argv.bower) {
-    msg += ' and %s'
-    args.unshift('bower.json')
-    bower = ' bower.json'
-  }
+  var toAdd = ''
+  // commit any of the config files that we've updated
+  // the version # for.
+  Object.keys(configsToUpdate).forEach(function (p) {
+    if (configsToUpdate[p]) {
+      msg += ' and %s'
+      args.unshift(path.basename(p))
+      toAdd += ' ' + path.relative(process.cwd(), p)
+    }
+  })
   checkpoint(argv, msg, args)
-  handledExec(argv, 'git add package.json ' + argv.infile + bower, cb, function () {
-    handledExec(argv, 'git commit ' + verify + (argv.sign ? '-S ' : '') + (argv.commitAll ? '' : ('package.json ' + argv.infile + bower)) + ' -m "' + formatCommitMessage(argv.message, newVersion) + '"', cb, function () {
+  handledExec(argv, 'git add' + toAdd + ' ' + argv.infile, cb, function () {
+    handledExec(argv, 'git commit ' + verify + (argv.sign ? '-S ' : '') + (argv.commitAll ? '' : (argv.infile + toAdd)) + ' -m "' + formatCommitMessage(argv.message, newVersion) + '"', cb, function () {
       cb()
     })
   })
