@@ -16,38 +16,119 @@ module.exports = function standardVersion (argv, done) {
   var pkg = require(pkgPath)
   var defaults = require('./defaults')
 
-  argv = objectAssign(defaults, argv)
+  var args = objectAssign({}, defaults, argv)
 
-  conventionalRecommendedBump({
-    preset: 'angular'
-  }, function (err, release) {
+  bumpVersion(args.releaseAs, function (err, release) {
     if (err) {
-      printError(argv, err.message)
+      printError(args, err.message)
       return done(err)
     }
 
     var newVersion = pkg.version
-    if (!argv.firstRelease) {
-      newVersion = semver.inc(pkg.version, release.releaseType)
-      checkpoint(argv, 'bumping version in package.json from %s to %s', [pkg.version, newVersion])
+
+    if (!args.firstRelease) {
+      var releaseType = getReleaseType(args.prerelease, release.releaseType, pkg.version)
+      newVersion = semver.inc(pkg.version, releaseType, args.prerelease)
+
+      checkpoint(args, 'bumping version in package.json from %s to %s', [pkg.version, newVersion])
+
       pkg.version = newVersion
       fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + '\n', 'utf-8')
     } else {
-      checkpoint(argv, 'skip version bump on first release', [], chalk.red(figures.cross))
+      checkpoint(args, 'skip version bump on first release', [], chalk.red(figures.cross))
     }
 
-    outputChangelog(argv, function (err) {
+    outputChangelog(args, function (err) {
       if (err) {
         return done(err)
       }
-      commit(argv, newVersion, function (err) {
+      commit(args, newVersion, function (err) {
         if (err) {
           return done(err)
         }
-        return tag(newVersion, pkg.private, argv, done)
+        return tag(newVersion, pkg.private, args, done)
       })
     })
   })
+}
+
+function getReleaseType (prerelease, expectedReleaseType, currentVersion) {
+  if (isString(prerelease)) {
+    if (isInPrerelease(currentVersion)) {
+      if (shouldContinuePrerelease(currentVersion, expectedReleaseType) ||
+        getTypePriority(getCurrentActiveType(currentVersion)) > getTypePriority(expectedReleaseType)
+      ) {
+        return 'prerelease'
+      }
+    }
+
+    return 'pre' + expectedReleaseType
+  } else {
+    return expectedReleaseType
+  }
+}
+
+function isString (val) {
+  return typeof val === 'string'
+}
+
+/**
+ * if a version is currently in pre-release state,
+ * and if it current in-pre-release type is same as expect type,
+ * it should continue the pre-release with the same type
+ *
+ * @param version
+ * @param expectType
+ * @return {boolean}
+ */
+function shouldContinuePrerelease (version, expectType) {
+  return getCurrentActiveType(version) === expectType
+}
+
+function isInPrerelease (version) {
+  return Array.isArray(semver.prerelease(version))
+}
+
+var TypeList = ['major', 'minor', 'patch'].reverse()
+
+/**
+ * extract the in-pre-release type in target version
+ *
+ * @param version
+ * @return {string}
+ */
+function getCurrentActiveType (version) {
+  var typelist = TypeList
+  for (var i = 0; i < typelist.length; i++) {
+    if (semver[typelist[i]](version)) {
+      return typelist[i]
+    }
+  }
+}
+
+/**
+ * calculate the priority of release type,
+ * major - 2, minor - 1, patch - 0
+ *
+ * @param type
+ * @return {number}
+ */
+function getTypePriority (type) {
+  return TypeList.indexOf(type)
+}
+
+function bumpVersion (releaseAs, callback) {
+  if (releaseAs) {
+    callback(null, {
+      releaseType: releaseAs
+    })
+  } else {
+    conventionalRecommendedBump({
+      preset: 'angular'
+    }, function (err, release) {
+      callback(err, release)
+    })
+  }
 }
 
 function outputChangelog (argv, cb) {

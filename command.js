@@ -1,9 +1,21 @@
-#!/usr/bin/env node
-var standardVersion = require('./index')
 var defaults = require('./defaults')
 
-var argv = require('yargs')
+module.exports = require('yargs')
   .usage('Usage: $0 [options]')
+  .option('release-as', {
+    alias: 'r',
+    describe: 'Specify the release type manually. like npm version xxx with limited choices',
+    requiresArg: true,
+    string: true,
+    choices: ['major', 'minor', 'patch'],
+    global: true
+  })
+  .option('prerelease', {
+    alias: 'p',
+    describe: 'make a pre-release with optional option value to specify a tag id',
+    string: true,
+    global: true
+  })
   .option('infile', {
     alias: 'i',
     describe: 'Read the CHANGELOG from this file',
@@ -51,15 +63,10 @@ var argv = require('yargs')
     default: defaults.silent,
     global: true
   })
+  .version()
+  .alias('version', 'v')
   .help()
   .alias('help', 'h')
   .example('$0', 'Update changelog and tag release')
   .example('$0 -m "%s: see changelog for details"', 'Update changelog and tag release with custom commit message')
   .wrap(97)
-  .argv
-
-standardVersion(argv, function (err) {
-  if (err) {
-    process.exit(1)
-  }
-})
