@@ -14,8 +14,20 @@ var should = require('chai').should()
 
 var cliPath = path.resolve(__dirname, './cli.js')
 
+function branch (branch) {
+  shell.exec('git branch ' + branch)
+}
+
+function checkout (branch) {
+  shell.exec('git checkout ' + branch)
+}
+
 function commit (msg) {
   shell.exec('git commit --allow-empty -m"' + msg + '"')
+}
+
+function merge (msg, branch) {
+  shell.exec('git merge --no-ff -m"' + msg + '" ' + branch)
 }
 
 function execCli (argString) {
@@ -238,6 +250,25 @@ describe('cli', function () {
     var result = execCli()
     result.code.should.equal(0)
     result.stdout.should.not.match(/npm publish/)
+  })
+
+  it('includes merge commits', function () {
+    var branchName = 'new-feature'
+    commit('feat: first commit')
+    shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
+    branch(branchName)
+    checkout(branchName)
+    commit('Implementing new feature')
+    checkout('master')
+    merge('feat: new feature from branch', branchName)
+
+    execCli().code.should.equal(0)
+
+    var content = fs.readFileSync('CHANGELOG.md', 'utf-8')
+    content.should.match(/new feature from branch/)
+
+    var pkgJson = fs.readFileSync('package.json', 'utf-8')
+    pkgJson.should.equal(['{', '  "version": "1.1.0"', '}', ''].join('\n'))
   })
 })
 

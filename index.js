@@ -61,7 +61,7 @@ function outputChangelog (argv, cb) {
   var content = ''
   var changelogStream = conventionalChangelog({
     preset: 'angular'
-  })
+  }, undefined, {merges: null})
     .on('error', function (err) {
       return cb(err)
     })
