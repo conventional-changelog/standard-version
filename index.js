@@ -65,9 +65,9 @@ function updateConfigs (args, newVersion) {
       if (stat.isFile()) {
         var config = require(configPath)
         var filename = path.basename(configPath)
+        checkpoint(args, 'bumping version in ' + filename + ' from %s to %s', [config.version, newVersion])
         config.version = newVersion
         fs.writeFileSync(configPath, JSON.stringify(config, null, 2) + '\n', 'utf-8')
-        checkpoint(args, 'bumping version in ' + filename + ' from %s to %s', [config.version, newVersion])
         // flag any config files that we modify the version # for
         // as having been updated.
         configsToUpdate[configPath] = true
