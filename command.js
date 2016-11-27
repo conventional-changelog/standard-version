@@ -63,6 +63,13 @@ module.exports = require('yargs')
     default: defaults.silent,
     global: true
   })
+  .option('tag-prefix', {
+    alias: 't',
+    describe: 'Set a custom prefix for the git tag to be created',
+    type: 'string',
+    default: defaults.tagPrefix,
+    global: true
+  })
   .version()
   .alias('version', 'v')
   .help()
