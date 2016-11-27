@@ -471,24 +471,6 @@ describe('standard-version', function () {
     })
   })
 
-  describe('with bower.json', function () {
-    beforeEach(function () {
-      writeBowerJson('1.0.0')
-    })
-
-    it('check with bower.json', function (done) {
-      commit('feat: first commit')
-      shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
-      commit('feat: new feature!')
-      require('./index')({silent: true}, function (err) {
-        if (err) return done(err)
-        JSON.parse(fs.readFileSync('package.json', 'utf-8')).version.should.equal('1.1.0')
-        getPackageVersion().should.equal('1.1.0')
-        done()
-      })
-    })
-  })
-
   it('formats the commit and tag messages appropriately', function (done) {
     commit('feat: first commit')
     shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
@@ -502,6 +484,24 @@ describe('standard-version', function () {
       // check annotated tag message
       shell.exec('git tag -l -n1 v1.1.0').stdout.should.match(/chore\(release\): 1\.1\.0/)
       done()
+    })
+  })
+
+  describe('bower.json support', function () {
+    beforeEach(function () {
+      writeBowerJson('1.0.0')
+    })
+
+    it('bumps verson # in bower.json', function (done) {
+      commit('feat: first commit')
+      shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
+      commit('feat: new feature!')
+      require('./index')({silent: true}, function (err) {
+        if (err) return done(err)
+        JSON.parse(fs.readFileSync('package.json', 'utf-8')).version.should.equal('1.1.0')
+        getPackageVersion().should.equal('1.1.0')
+        done()
+      })
     })
   })
 })
