@@ -23,9 +23,9 @@ _how it works:_
 
 `standard-version` does the following:
 
-1. bumps the version in _package.json_ (based on your commit history)
+1. bumps the version in _package.json/bower.json_ (based on your commit history)
 2. uses [conventional-changelog](https://github.com/conventional-changelog/conventional-changelog) to update _CHANGELOG.md_
-3. commits _package.json_ and _CHANGELOG.md_
+3. commits _package.json (et al.)_ and _CHANGELOG.md_
 4. tags a new release
 
 ## Installation
@@ -77,7 +77,7 @@ npm run release -- --first-release
 standard-version --first-release
 ```
 
-This will tag a release **without bumping the version in package.json**.
+This will tag a release **without bumping the version in package.json (_et al._)**.
 
 When ready, push the git tag and `npm publish` your first release. \o/
 

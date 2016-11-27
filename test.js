@@ -49,6 +49,12 @@ function writePackageJson (version, option) {
   delete require.cache[require.resolve(path.join(process.cwd(), 'package.json'))]
 }
 
+function writeBowerJson (version, option) {
+  option = option || {}
+  var bower = objectAssign(option, { version: version })
+  fs.writeFileSync('bower.json', JSON.stringify(bower), 'utf-8')
+}
+
 function writeGitPreCommitHook () {
   fs.writeFileSync('.git/hooks/pre-commit', '#!/bin/sh\necho "precommit ran"\nexit 1', 'utf-8')
   fs.chmodSync('.git/hooks/pre-commit', '755')
@@ -152,7 +158,7 @@ describe('cli', function () {
           var captured = shell.cat('gitcapture.log').stdout.split('\n').map(function (line) {
             return line ? JSON.parse(line) : line
           })
-          captured[captured.length - 3].should.deep.equal(['commit', '-S', 'package.json', 'CHANGELOG.md', '-m', 'chore(release): 1.0.1'])
+          captured[captured.length - 3].should.deep.equal(['commit', '-S', 'CHANGELOG.md', 'package.json', '-m', 'chore(release): 1.0.1'])
           captured[captured.length - 2].should.deep.equal(['tag', '-s', 'v1.0.1', '-m', 'chore(release): 1.0.1'])
 
           unmock()
@@ -478,6 +484,24 @@ describe('standard-version', function () {
       // check annotated tag message
       shell.exec('git tag -l -n1 v1.1.0').stdout.should.match(/chore\(release\): 1\.1\.0/)
       done()
+    })
+  })
+
+  describe('bower.json support', function () {
+    beforeEach(function () {
+      writeBowerJson('1.0.0')
+    })
+
+    it('bumps verson # in bower.json', function (done) {
+      commit('feat: first commit')
+      shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
+      commit('feat: new feature!')
+      require('./index')({silent: true}, function (err) {
+        if (err) return done(err)
+        JSON.parse(fs.readFileSync('package.json', 'utf-8')).version.should.equal('1.1.0')
+        getPackageVersion().should.equal('1.1.0')
+        done()
+      })
     })
   })
 })
