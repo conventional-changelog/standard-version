@@ -4,7 +4,7 @@ module.exports = require('yargs')
   .usage('Usage: $0 [options]')
   .option('release-as', {
     alias: 'r',
-    describe: 'Specify the release type manually. like npm version xxx with limited choices',
+    describe: 'Specify the release type manually (like npm version <major|minor|patch>)',
     requiresArg: true,
     string: true,
     choices: ['major', 'minor', 'patch'],
