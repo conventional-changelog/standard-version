@@ -2,6 +2,30 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="4.0.0-1"></a>
+# [4.0.0-1](https://github.com/conventional-changelog/standard-version/compare/v3.0.0...v4.0.0-1) (2016-11-27)
+
+
+### Bug Fixes
+
+* include merge commits in the changelog ([#139](https://github.com/conventional-changelog/standard-version/issues/139)) ([b6e1562](https://github.com/conventional-changelog/standard-version/commit/b6e1562))
+* should print message before we bump version ([2894bbc](https://github.com/conventional-changelog/standard-version/commit/2894bbc))
+* support a wording change made to git status in git v2.9.1 ([#140](https://github.com/conventional-changelog/standard-version/issues/140)) ([80004ec](https://github.com/conventional-changelog/standard-version/commit/80004ec))
+
+
+### Features
+
+* add support for bumping version # in bower.json ([#148](https://github.com/conventional-changelog/standard-version/issues/148)) ([b788c5f](https://github.com/conventional-changelog/standard-version/commit/b788c5f))
+* make tag prefix configurable ([#143](https://github.com/conventional-changelog/standard-version/issues/143)) ([70b20c8](https://github.com/conventional-changelog/standard-version/commit/70b20c8))
+* support releasing a custom version, including pre-releases ([#129](https://github.com/conventional-changelog/standard-version/issues/129)) ([068008d](https://github.com/conventional-changelog/standard-version/commit/068008d))
+
+
+### BREAKING CHANGES
+
+* merge commits are now included in the CHANGELOG.
+
+
+
 <a name="4.0.0-0"></a>
 # [4.0.0-0](https://github.com/conventional-changelog/standard-version/compare/v3.0.0...v4.0.0-0) (2016-11-26)
 
