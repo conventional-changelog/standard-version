@@ -6,11 +6,6 @@ All notable changes to this project will be documented in this file. See [standa
 # [4.0.0](https://github.com/conventional-changelog/standard-version/compare/v4.0.0-1...v4.0.0) (2016-12-02)
 
 
-
-<a name="4.0.0-1"></a>
-# [4.0.0-1](https://github.com/conventional-changelog/standard-version/compare/v3.0.0...v4.0.0-1) (2016-11-27)
-
-
 ### Bug Fixes
 
 * include merge commits in the changelog ([#139](https://github.com/conventional-changelog/standard-version/issues/139)) ([b6e1562](https://github.com/conventional-changelog/standard-version/commit/b6e1562))
