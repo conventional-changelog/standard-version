@@ -70,6 +70,18 @@ module.exports = require('yargs')
     default: defaults.tagPrefix,
     global: true
   })
+  .option('skip-commit', {
+    describe: 'Bypass the commit, tag and push to git phase. In another words just bump the version and create the changelog.',
+    type: 'boolean',
+    default: defaults.skipCommit,
+    global: true
+  })
+  .option('skip-bump-and-changelog', {
+    describe: 'Bypass the bump and changelog generation phase. In another words, just commit, create the tag, and push to git.',
+    type: 'boolean',
+    default: defaults.skipBumpAndChangelog,
+    global: true
+  })
   .version()
   .alias('version', 'v')
   .help()
