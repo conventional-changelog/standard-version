@@ -40,7 +40,7 @@
     "fs-access": "^1.0.0",
     "object-assign": "^4.1.0",
     "semver": "^5.1.0",
-    "yargs": "^6.0.0"
+    "yargs": "^7.0.1"
   },
   "devDependencies": {
     "bluebird": "^3.4.6",
