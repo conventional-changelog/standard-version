@@ -5,17 +5,17 @@
 [![Build Status](https://travis-ci.org/conventional-changelog/standard-version.svg?branch=master)](https://travis-ci.org/conventional-changelog/standard-version)
 [![NPM version](https://img.shields.io/npm/v/standard-version.svg)](https://www.npmjs.com/package/standard-version)
 [![Coverage Status](https://coveralls.io/repos/conventional-changelog/standard-version/badge.svg?branch=)](https://coveralls.io/r/conventional-changelog/standard-version?branch=master)
-[![Standard Version](https://img.shields.io/badge/release-standard%20version-brightgreen.svg)](https://github.com/conventional-changelog/standard-version)
+[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 
 > stop using `npm version`, use `standard-version` it rocks!
 
-Automatic versioning and CHANGELOG management, using GitHub's new squash button and
-the [recommended workflow](https://github.com/conventional-changelog/conventional-changelog-cli#recommended-workflow) for `conventional-changelog`.
+Automatic versioning and CHANGELOG generation, using GitHub's squash button and
+[conventional commit messages](https://conventionalcommits.org).
 
 _how it works:_
 
 1. when you land commits on your `master` branch, select the _Squash and Merge_ option.
-2. add a title and body that follows the [conventional-changelog-standard conventions](https://github.com/bcoe/conventional-changelog-standard/blob/master/convention.md).
+2. add a title and body that follows the [Conventional Commits Specification](https://conventionalcommits.org).
 3. when you're ready to release to npm:
   1. `git checkout master; git pull origin master`
   2. run `standard-version`
@@ -225,10 +225,10 @@ appropriate URLs in your CHANGELOG.
 
 ## Badges!
 
-Tell your users that you adhere to the `standard-version` commit guidelines:
+Tell your users that you adhere to the Conventional Commits specification:
 
 ```markdown
-[![Standard Version](https://img.shields.io/badge/release-standard%20version-brightgreen.svg)](https://github.com/conventional-changelog/standard-version)
+[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 ```
 
 ## FAQ
