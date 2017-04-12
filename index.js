@@ -49,7 +49,7 @@ module.exports = function standardVersion (argv, done) {
           return tag(newVersion, pkg.private, args, done)
         })
       })
-    });
+    })
   })
 }
 
@@ -204,14 +204,14 @@ function handledExec (argv, cmd, errorCb, successCb) {
     successCb()
   })
 }
-function runLifecycleHook(argv, hookName, newVersion, cb) {
-  var hookPath = path.resolve(process.cwd(), '.standard-version/hooks', hookName + '.js');
+function runLifecycleHook (argv, hookName, newVersion, cb) {
+  var hookPath = path.resolve(process.cwd(), '.standard-version/hooks', hookName + '.js')
   if (!fs.existsSync(hookPath)) {
-    cb();
+    cb()
   }
   handledExec(argv, 'node ' + hookPath + ' --new-version="' + newVersion + '"', cb, function () {
-    cb();
-  });
+    cb()
+  })
 }
 
 function commit (argv, newVersion, cb) {
