@@ -215,7 +215,7 @@ function commit (argv, newVersion, cb) {
   })
   checkpoint(argv, msg, args)
   handledExec(argv, 'git add' + toAdd + ' ' + argv.infile, cb, function () {
-    handledExec(argv, 'git commit ' + verify + (argv.sign ? '-S ' : '') + (argv.commitAll ? '' : (argv.infile + toAdd)) + ' -m "' + formatCommitMessage(argv.message, newVersion) + '"', cb, function () {
+    handledExec(argv, 'git commit ' + verify + (argv.sign ? '-S ' : '') + (argv.commitAll ? ' -a ' : (argv.infile + toAdd)) + ' -m "' + formatCommitMessage(argv.message, newVersion) + '"', cb, function () {
       cb()
     })
   })
