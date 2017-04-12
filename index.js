@@ -32,18 +32,24 @@ module.exports = function standardVersion (argv, done) {
     } else {
       checkpoint(args, 'skip version bump on first release', [], chalk.red(figures.cross))
     }
-
-    outputChangelog(args, function (err) {
+    runLifecycleHook(args, 'post-bump', newVersion, function (err) {
       if (err) {
+        printError(args, err.message)
         return done(err)
       }
-      commit(args, newVersion, function (err) {
+
+      outputChangelog(args, function (err) {
         if (err) {
           return done(err)
         }
-        return tag(newVersion, pkg.private, args, done)
+        commit(args, newVersion, function (err) {
+          if (err) {
+            return done(err)
+          }
+          return tag(newVersion, pkg.private, args, done)
+        })
       })
-    })
+    });
   })
 }
 
@@ -197,6 +203,15 @@ function handledExec (argv, cmd, errorCb, successCb) {
     }
     successCb()
   })
+}
+function runLifecycleHook(argv, hookName, newVersion, cb) {
+  var hookPath = path.resolve(process.cwd(), '.standard-version/hooks', hookName + '.js');
+  if (!fs.existsSync(hookPath)) {
+    cb();
+  }
+  handledExec(argv, 'node ' + hookPath + ' --new-version="' + newVersion + '"', cb, function () {
+    cb();
+  });
 }
 
 function commit (argv, newVersion, cb) {
