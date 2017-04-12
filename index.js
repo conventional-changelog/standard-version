@@ -209,6 +209,7 @@ function runLifecycleHook (argv, hookName, newVersion, cb) {
   var hookPath = path.resolve(process.cwd(), '.standard-version/hooks', hookName + '.js')
   if (!fs.existsSync(hookPath)) {
     cb()
+    return
   }
   handledExec(argv, 'node ' + hookPath + ' --new-version="' + newVersion + '"', cb, function () {
     cb()
