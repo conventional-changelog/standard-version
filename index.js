@@ -167,7 +167,7 @@ function outputChangelog (argv, cb) {
   }
   var content = ''
   var changelogStream = conventionalChangelog({
-    preset: 'angular'
+    preset: argv.conventionalChangelogPreset || 'angular'
   }, undefined, {merges: null})
     .on('error', function (err) {
       return cb(err)
