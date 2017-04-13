@@ -51,7 +51,7 @@ function writePackageJson (version, option) {
 
 function writeBowerJson (version, option) {
   option = option || {}
-  var bower = objectAssign(option, { version: version })
+  var bower = objectAssign(option, {version: version})
   fs.writeFileSync('bower.json', JSON.stringify(bower), 'utf-8')
 }
 
@@ -64,6 +64,14 @@ function writeNpmShrinkwrapJson (version, option) {
 function writeGitPreCommitHook () {
   fs.writeFileSync('.git/hooks/pre-commit', '#!/bin/sh\necho "precommit ran"\nexit 1', 'utf-8')
   fs.chmodSync('.git/hooks/pre-commit', '755')
+}
+
+function writePostBumpHook (causeError) {
+  shell.mkdir('-p', '.standard-version/hooks')
+  var content = 'console.error("post-bump ran")'
+  content += causeError ? '\nthrow new Error("post-bump-failure")' : ''
+  fs.writeFileSync('.standard-version/hooks/post-bump.js', content, 'utf-8')
+  fs.chmodSync('.standard-version/hooks/post-bump.js', '755')
 }
 
 function initInTempFolder () {
@@ -219,6 +227,30 @@ describe('cli', function () {
 
           unmock()
         })
+    })
+  })
+
+  describe('post-bump hook', function () {
+    it('should run the post-bump hook when provided', function () {
+      writePackageJson('1.0.0')
+      writePostBumpHook()
+      fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
+
+      commit('feat: first commit')
+      var result = execCli('--patch')
+      result.code.should.equal(0)
+      result.stderr.should.match(/post-bump ran/)
+    })
+
+    it('should run the post-bump and exit with error when post-bump fails', function () {
+      writePackageJson('1.0.0')
+      writePostBumpHook(true)
+      fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
+
+      commit('feat: first commit')
+      var result = execCli('--patch')
+      result.code.should.equal(1)
+      result.stderr.should.match(/post-bump-failure/)
     })
   })
 
