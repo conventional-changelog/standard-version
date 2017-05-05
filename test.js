@@ -67,11 +67,11 @@ function writeGitPreCommitHook () {
 }
 
 function writePostBumpHook (causeError) {
-  shell.mkdir('-p', '.standard-version/hooks')
+  shell.mkdir('-p', 'scripts')
   var content = 'console.error("post-bump ran")'
   content += causeError ? '\nthrow new Error("post-bump-failure")' : ''
-  fs.writeFileSync('.standard-version/hooks/post-bump.js', content, 'utf-8')
-  fs.chmodSync('.standard-version/hooks/post-bump.js', '755')
+  fs.writeFileSync('scripts/post-bump.js', content, 'utf-8')
+  fs.chmodSync('scripts/post-bump.js', '755')
 }
 
 function initInTempFolder () {
@@ -232,7 +232,13 @@ describe('cli', function () {
 
   describe('post-bump hook', function () {
     it('should run the post-bump hook when provided', function () {
-      writePackageJson('1.0.0')
+      writePackageJson('1.0.0', {
+        'standard-version': {
+          'hooks': {
+            'post-bump': 'node scripts/post-bump'
+          }
+        }
+      })
       writePostBumpHook()
       fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
 
@@ -243,7 +249,13 @@ describe('cli', function () {
     })
 
     it('should run the post-bump and exit with error when post-bump fails', function () {
-      writePackageJson('1.0.0')
+      writePackageJson('1.0.0', {
+        'standard-version': {
+          'hooks': {
+            'post-bump': 'node scripts/post-bump'
+          }
+        }
+      })
       writePostBumpHook(true)
       fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
 
