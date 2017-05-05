@@ -43,11 +43,17 @@ module.exports = function standardVersion (argv, done) {
         if (err) {
           return done(err)
         }
-        commit(args, newVersion, function (err) {
+        runLifecycleHook(args, 'pre-commit', newVersion, hooks, function (err) {
           if (err) {
+            printError(args, err.message)
             return done(err)
           }
-          return tag(newVersion, pkg.private, args, done)
+          commit(args, newVersion, function (err) {
+            if (err) {
+              return done(err)
+            }
+            return tag(newVersion, pkg.private, args, done)
+          })
         })
       })
     })

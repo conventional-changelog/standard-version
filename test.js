@@ -61,11 +61,15 @@ function writeGitPreCommitHook () {
 }
 
 function writePostBumpHook (causeError) {
+  writeHook('post-bump', causeError)
+}
+
+function writeHook (hookName, causeError) {
   shell.mkdir('-p', 'scripts')
-  var content = 'console.error("post-bump ran")'
-  content += causeError ? '\nthrow new Error("post-bump-failure")' : ''
-  fs.writeFileSync('scripts/post-bump.js', content, 'utf-8')
-  fs.chmodSync('scripts/post-bump.js', '755')
+  var content = 'console.error("' + hookName + ' ran")'
+  content += causeError ? '\nthrow new Error("' + hookName + '-failure")' : ''
+  fs.writeFileSync('scripts/' + hookName + '.js', content, 'utf-8')
+  fs.chmodSync('scripts/' + hookName + '.js', '755')
 }
 
 function initInTempFolder () {
@@ -257,6 +261,42 @@ describe('cli', function () {
       var result = execCli('--patch')
       result.code.should.equal(1)
       result.stderr.should.match(/post-bump-failure/)
+    })
+  })
+
+  describe('pre-commit hook', function () {
+    it('should run the pre-commit hook when provided', function () {
+      writePackageJson('1.0.0', {
+        'standard-version': {
+          'hooks': {
+            'pre-commit': 'node scripts/pre-commit'
+          }
+        }
+      })
+      writeHook('pre-commit')
+      fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
+
+      commit('feat: first commit')
+      var result = execCli('--patch')
+      result.code.should.equal(0)
+      result.stderr.should.match(/pre-commit ran/)
+    })
+
+    it('should run the pre-commit hook and exit with error when pre-commit fails', function () {
+      writePackageJson('1.0.0', {
+        'standard-version': {
+          'hooks': {
+            'pre-commit': 'node scripts/pre-commit'
+          }
+        }
+      })
+      writeHook('pre-commit', true)
+      fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
+
+      commit('feat: first commit')
+      var result = execCli('--patch')
+      result.code.should.equal(1)
+      result.stderr.should.match(/pre-commit-failure/)
     })
   })
 
