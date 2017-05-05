@@ -17,34 +17,47 @@ module.exports = function standardVersion (argv, done) {
   var defaults = require('./defaults')
   var args = objectAssign({}, defaults, argv)
 
-  bumpVersion(args.releaseAs, function (err, release) {
-    if (err) {
-      printError(args, err.message)
-      return done(err)
-    }
-
-    var newVersion = pkg.version
-
-    if (!args.firstRelease) {
-      var releaseType = getReleaseType(args.prerelease, release.releaseType, pkg.version)
-      newVersion = semver.inc(pkg.version, releaseType, args.prerelease)
-      updateConfigs(args, newVersion)
-    } else {
-      checkpoint(args, 'skip version bump on first release', [], chalk.red(figures.cross))
-    }
-
-    outputChangelog(args, function (err) {
+  if (argv.skipBumpAndChangelog) {
+    updateConfigs(args, pkg.version)
+    commitIfNeeded(argv, args, pkg.version, pkg, done)
+  } else {
+    bumpVersion(args.releaseAs, function (err, release) {
       if (err) {
+        printError(args, err.message)
         return done(err)
       }
-      commit(args, newVersion, function (err) {
+
+      var newVersion = pkg.version
+
+      if (!args.firstRelease) {
+        var releaseType = getReleaseType(args.prerelease, release.releaseType, pkg.version)
+        newVersion = semver.inc(pkg.version, releaseType, args.prerelease)
+        updateConfigs(args, newVersion)
+      } else {
+        checkpoint(args, 'skip version bump on first release', [], chalk.red(figures.cross))
+      }
+
+      outputChangelog(args, function (err) {
         if (err) {
           return done(err)
         }
-        return tag(newVersion, pkg.private, args, done)
+        commitIfNeeded(argv, args, newVersion, pkg, done)
       })
     })
-  })
+  }
+}
+
+function commitIfNeeded (argv, args, newVersion, pkg, cb) {
+  if (argv.skipCommit) {
+    cb()
+  } else {
+    commit(args, newVersion, function (err) {
+      if (err) {
+        return cb(err)
+      }
+      return tag(newVersion, pkg.private, args, cb)
+    })
+  }
 }
 
 /**
