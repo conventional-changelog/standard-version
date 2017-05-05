@@ -14,6 +14,7 @@ var objectAssign = require('object-assign')
 module.exports = function standardVersion (argv, done) {
   var pkgPath = path.resolve(process.cwd(), './package.json')
   var pkg = require(pkgPath)
+  var hooks = pkg['standard-version'] && pkg['standard-version']['hooks'] ? pkg['standard-version']['hooks'] : {}
   var defaults = require('./defaults')
   var args = objectAssign({}, defaults, argv)
 
@@ -32,7 +33,7 @@ module.exports = function standardVersion (argv, done) {
     } else {
       checkpoint(args, 'skip version bump on first release', [], chalk.red(figures.cross))
     }
-    runLifecycleHook(args, 'post-bump', newVersion, function (err) {
+    runLifecycleHook(args, 'post-bump', newVersion, hooks, function (err) {
       if (err) {
         printError(args, err.message)
         return done(err)
@@ -204,13 +205,15 @@ function handledExec (argv, cmd, errorCb, successCb) {
     successCb()
   })
 }
-function runLifecycleHook (argv, hookName, newVersion, cb) {
-  var hookPath = path.resolve(process.cwd(), '.standard-version/hooks', hookName + '.js')
-  if (!fs.existsSync(hookPath)) {
+function runLifecycleHook (argv, hookName, newVersion, hooks, cb) {
+  if (!hooks[hookName]) {
     cb()
     return
   }
-  handledExec(argv, 'node ' + hookPath + ' --new-version="' + newVersion + '"', cb, function () {
+  var command = hooks[hookName] + ' --new-version="' + newVersion + '"'
+  checkpoint(argv, 'Running lifecycle hook "%s"', [hookName])
+  checkpoint(argv, '- hook command: "%s"', [command], chalk.blue(figures.info))
+  handledExec(argv, command, cb, function () {
     cb()
   })
 }
