@@ -57,6 +57,13 @@ module.exports = require('yargs')
     default: defaults.commitAll,
     global: true
   })
+  .option('context', {
+    alias: 'c',
+    describe: 'A filepath of a json that is used to define template variables',
+    type: 'string',
+    default: undefined,
+    global: true
+  })
   .option('silent', {
     describe: 'Don\'t print logs and errors',
     type: 'boolean',

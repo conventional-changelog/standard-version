@@ -158,6 +158,10 @@ function bumpVersion (releaseAs, callback) {
 }
 
 function outputChangelog (argv, cb) {
+  var templateContext
+  if (argv.context) {
+    templateContext = require(path.resolve(process.cwd(), argv.context))
+  }
   createIfMissing(argv)
   var header = '# Change Log\n\nAll notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.\n'
   var oldContent = fs.readFileSync(argv.infile, 'utf-8')
@@ -168,7 +172,7 @@ function outputChangelog (argv, cb) {
   var content = ''
   var changelogStream = conventionalChangelog({
     preset: 'angular'
-  }, undefined, {merges: null})
+  }, templateContext, {merges: null})
     .on('error', function (err) {
       return cb(err)
     })
