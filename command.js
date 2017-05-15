@@ -59,7 +59,7 @@ module.exports = require('yargs')
   })
   .option('context', {
     alias: 'c',
-    describe: 'A filepath of a json that is used to define template variables',
+    describe: 'A filepath of a json file that is used to define template variables',
     type: 'string',
     default: undefined,
     global: true

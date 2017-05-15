@@ -162,6 +162,7 @@ If you want to commit generated artifacts in the release commit (e.g. [#96](http
 ### Use a specific context
 
 If you want to use a specific context, you can use `--context <file.json>` or `-c  <file.json>`
+For example, if you use a private version control system installed locally as gitlab, and your url does not contain the gitlab keyword (http:://myprivaterepo.company.com). It is mandatory to inform manually 'standard-version' on the context to be used.
 
 Example `gitlab.json` :
 ```json
