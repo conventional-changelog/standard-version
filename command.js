@@ -7,7 +7,6 @@ module.exports = require('yargs')
     describe: 'Specify the release type manually (like npm version <major|minor|patch>)',
     requiresArg: true,
     string: true,
-    choices: ['major', 'minor', 'patch'],
     global: true
   })
   .option('prerelease', {
