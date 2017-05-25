@@ -129,6 +129,8 @@ you would like your next release to be a `minor`. Simply do:
 ```bash
 # npm run script
 npm run release -- --release-as minor
+# Or
+npm run release -- --release-as 1.1.0
 ```
 
 you will get version `1.1.0` rather than the auto generated version `1.0.1`.

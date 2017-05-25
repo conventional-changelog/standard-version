@@ -27,7 +27,11 @@ module.exports = function standardVersion (argv, done) {
 
     if (!args.firstRelease) {
       var releaseType = getReleaseType(args.prerelease, release.releaseType, pkg.version)
-      newVersion = semver.inc(pkg.version, releaseType, args.prerelease)
+      if (semver.valid(releaseType)) {
+        newVersion = semver.valid(releaseType)
+      } else {
+        newVersion = semver.inc(pkg.version, releaseType, args.prerelease)
+      }
       updateConfigs(args, newVersion)
     } else {
       checkpoint(args, 'skip version bump on first release', [], chalk.red(figures.cross))

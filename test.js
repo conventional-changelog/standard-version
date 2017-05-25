@@ -290,6 +290,34 @@ describe('cli', function () {
       })
     })
 
+    describe('release-as-exact', function () {
+      it('releases as v100.0.0', function () {
+        var originVer = '1.0.0'
+        writePackageJson(originVer)
+        fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
+
+        commit('fix: first commit')
+
+        return execCliAsync('--release-as v100.0.0')
+          .then(function () {
+            getPackageVersion().should.equal('100.0.0')
+          })
+      })
+
+      it('releases as 200.0.0-amazing', function () {
+        var originVer = '1.0.0'
+        writePackageJson(originVer)
+        fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
+
+        commit('fix: first commit')
+
+        return execCliAsync('--release-as 200.0.0-amazing')
+          .then(function () {
+            getPackageVersion().should.equal('200.0.0-amazing')
+          })
+      })
+    })
+
     it('creates a prerelease with a new minor version after two prerelease patches', function () {
       writePackageJson('1.0.0')
       fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
