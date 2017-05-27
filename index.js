@@ -14,6 +14,7 @@ var objectAssign = require('object-assign')
 module.exports = function standardVersion (argv, done) {
   var pkgPath = path.resolve(process.cwd(), './package.json')
   var pkg = require(pkgPath)
+  var hooks = pkg['standard-version'] && pkg['standard-version']['hooks'] ? pkg['standard-version']['hooks'] : {}
   var defaults = require('./defaults')
   var args = objectAssign({}, defaults, argv)
 
@@ -32,16 +33,28 @@ module.exports = function standardVersion (argv, done) {
     } else {
       checkpoint(args, 'skip version bump on first release', [], chalk.red(figures.cross))
     }
-
-    outputChangelog(args, function (err) {
+    runLifecycleHook(args, 'post-bump', newVersion, hooks, function (err) {
       if (err) {
+        printError(args, err.message)
         return done(err)
       }
-      commit(args, newVersion, function (err) {
+
+      outputChangelog(args, function (err) {
         if (err) {
           return done(err)
         }
-        return tag(newVersion, pkg.private, args, done)
+        runLifecycleHook(args, 'pre-commit', newVersion, hooks, function (err) {
+          if (err) {
+            printError(args, err.message)
+            return done(err)
+          }
+          commit(args, newVersion, function (err) {
+            if (err) {
+              return done(err)
+            }
+            return tag(newVersion, pkg.private, args, done)
+          })
+        })
       })
     })
   })
@@ -196,6 +209,18 @@ function handledExec (argv, cmd, errorCb, successCb) {
       printError(argv, stderr, {level: 'warn', color: 'yellow'})
     }
     successCb()
+  })
+}
+function runLifecycleHook (argv, hookName, newVersion, hooks, cb) {
+  if (!hooks[hookName]) {
+    cb()
+    return
+  }
+  var command = hooks[hookName] + ' --new-version="' + newVersion + '"'
+  checkpoint(argv, 'Running lifecycle hook "%s"', [hookName])
+  checkpoint(argv, '- hook command: "%s"', [command], chalk.blue(figures.info))
+  handledExec(argv, command, cb, function () {
+    cb()
   })
 }
 
