@@ -44,7 +44,7 @@
   },
   "devDependencies": {
     "bluebird": "^3.4.6",
-    "chai": "^3.5.0",
+    "chai": "^4.0.0",
     "coveralls": "^2.11.9",
     "mocha": "^3.1.0",
     "mock-git": "^1.0.2",
