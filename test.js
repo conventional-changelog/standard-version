@@ -538,7 +538,7 @@ describe('standard-version', function () {
       })
     })
   })
-  
+
   describe('npm-shrinkwrap.json support', function () {
     beforeEach(function () {
       writeNpmShrinkwrapJson('1.0.0')
