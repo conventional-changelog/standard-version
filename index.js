@@ -58,6 +58,7 @@ module.exports = function standardVersion (argv, done) {
 var configsToUpdate = {}
 function updateConfigs (args, newVersion) {
   configsToUpdate[path.resolve(process.cwd(), './package.json')] = false
+  configsToUpdate[path.resolve(process.cwd(), './npm-shrinkwrap.json')] = false
   configsToUpdate[path.resolve(process.cwd(), './bower.json')] = false
   Object.keys(configsToUpdate).forEach(function (configPath) {
     try {
