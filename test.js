@@ -68,9 +68,9 @@ function writePostBumpHook (causeError) {
   writeHook('postbump', causeError)
 }
 
-function writeHook (hookName, causeError) {
+function writeHook (hookName, causeError, script) {
   shell.mkdir('-p', 'scripts')
-  var content = 'console.error("' + hookName + ' ran")'
+  var content = script || 'console.error("' + hookName + ' ran")'
   content += causeError ? '\nthrow new Error("' + hookName + '-failure")' : ''
   fs.writeFileSync('scripts/' + hookName + '.js', content, 'utf-8')
   fs.chmodSync('scripts/' + hookName + '.js', '755')
@@ -232,75 +232,113 @@ describe('cli', function () {
     })
   })
 
-  describe('postbump hook', function () {
-    it('should run the postbump hook when provided', function () {
-      writePackageJson('1.0.0', {
-        'standard-version': {
-          'hooks': {
-            'postbump': 'node scripts/postbump'
+  describe('lifecycle scripts', () => {
+    describe('prebump hook', function () {
+      it('should allow prebump hook to return an alternate version #', function () {
+        writePackageJson('1.0.0', {
+          'standard-version': {
+            'scripts': {
+              'prebump': 'node scripts/prebump'
+            }
           }
-        }
-      })
-      writePostBumpHook()
-      fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
+        })
+        writeHook('prebump', false, 'console.log("9.9.9")')
+        fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
 
-      commit('feat: first commit')
-      var result = execCli('--patch')
-      result.code.should.equal(0)
-      result.stderr.should.match(/postbump ran/)
+        commit('feat: first commit')
+        var result = execCli('--patch')
+        result.stdout.should.match(/9\.9\.9/)
+        result.code.should.equal(0)
+      })
     })
 
-    it('should run the postbump and exit with error when postbump fails', function () {
-      writePackageJson('1.0.0', {
-        'standard-version': {
-          'hooks': {
-            'postbump': 'node scripts/postbump'
+    describe('postbump hook', function () {
+      it('should run the postbump hook when provided', function () {
+        writePackageJson('1.0.0', {
+          'standard-version': {
+            'scripts': {
+              'postbump': 'node scripts/postbump'
+            }
           }
-        }
-      })
-      writePostBumpHook(true)
-      fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
+        })
+        writePostBumpHook()
+        fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
 
-      commit('feat: first commit')
-      var result = execCli('--patch')
-      result.code.should.equal(1)
-      result.stderr.should.match(/postbump-failure/)
+        commit('feat: first commit')
+        var result = execCli('--patch')
+        result.code.should.equal(0)
+        result.stderr.should.match(/postbump ran/)
+      })
+
+      it('should run the postbump and exit with error when postbump fails', function () {
+        writePackageJson('1.0.0', {
+          'standard-version': {
+            'scripts': {
+              'postbump': 'node scripts/postbump'
+            }
+          }
+        })
+        writePostBumpHook(true)
+        fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
+
+        commit('feat: first commit')
+        var result = execCli('--patch')
+        result.code.should.equal(1)
+        result.stderr.should.match(/postbump-failure/)
+      })
     })
-  })
 
-  describe('precommit hook', function () {
-    it('should run the precommit hook when provided', function () {
-      writePackageJson('1.0.0', {
-        'standard-version': {
-          'hooks': {
-            'precommit': 'node scripts/precommit'
+    describe('precommit hook', function () {
+      it('should run the precommit hook when provided', function () {
+        writePackageJson('1.0.0', {
+          'standard-version': {
+            'scripts': {
+              'precommit': 'node scripts/precommit'
+            }
           }
-        }
+        })
+        writeHook('precommit')
+        fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
+
+        commit('feat: first commit')
+        var result = execCli('--patch')
+        result.code.should.equal(0)
+        result.stderr.should.match(/precommit ran/)
       })
-      writeHook('precommit')
-      fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
 
-      commit('feat: first commit')
-      var result = execCli('--patch')
-      result.code.should.equal(0)
-      result.stderr.should.match(/precommit ran/)
-    })
-
-    it('should run the precommit hook and exit with error when precommit fails', function () {
-      writePackageJson('1.0.0', {
-        'standard-version': {
-          'hooks': {
-            'precommit': 'node scripts/precommit'
+      it('should run the precommit hook and exit with error when precommit fails', function () {
+        writePackageJson('1.0.0', {
+          'standard-version': {
+            'scripts': {
+              'precommit': 'node scripts/precommit'
+            }
           }
-        }
-      })
-      writeHook('precommit', true)
-      fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
+        })
+        writeHook('precommit', true)
+        fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
 
-      commit('feat: first commit')
-      var result = execCli('--patch')
-      result.code.should.equal(1)
-      result.stderr.should.match(/precommit-failure/)
+        commit('feat: first commit')
+        var result = execCli('--patch')
+        result.code.should.equal(1)
+        result.stderr.should.match(/precommit-failure/)
+      })
+
+      it('should allow an alternate commit message to be provided by precommit script', function () {
+        writePackageJson('1.0.0', {
+          'standard-version': {
+            'scripts': {
+              'precommit': 'node scripts/precommit'
+            }
+          }
+        })
+        writeHook('precommit', false, 'console.log("releasing %s delivers #222")')
+        fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
+
+        commit('feat: first commit')
+        var result = execCli('--patch')
+        result.code.should.equal(0)
+        shell.exec('git log --oneline -n1').should.match(/delivers #222/)
+      })
     })
   })
 

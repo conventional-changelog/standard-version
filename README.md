@@ -152,16 +152,32 @@ standard-version --no-verify
 
 If you have your GPG key set up, add the `--sign` or `-s` flag to your `standard-version` command.
 
-### Lifecycle hooks
+### Lifecycle scripts
 
-standard-version exposes lifecycle hooks, allowing you to execute your
-own supplementary commands during the release process. The following
+`standard-version` supports lifecycle scripts. These allow you to execute your
+own supplementary commands during the release. The following
 hooks are available:
 
-* `postbump`: called after the version in package.json has been incremented,
-  before the CHANGELOG has been generated or files have been committed to git.
-* `precommit`: called after the CHANGELOG has been generated, before files
-  have been commited to git.
+* `prebump`: executed before the version bump is calculated. If the `prebump`
+  script returns a version #, it will be used rather than
+  the version calculated by `standard-version`.
+* `postbump`: executed after the version has been bumped and written to
+  package.json. The flag `--new-version` is populated with the version that is
+  being released.
+* `precommit`: called after CHANGELOG.md and package.json have been updated,
+  but before changes have been committed to git.
+
+Simply add the following to your package.json, to enable lifecycle scripts:
+
+```json
+{
+  "standard-version": {
+    "scripts": {
+      "prebump": "echo 9.9.9"
+    }
+  }
+}
+```
 
 ### Committing generated artifacts in the release commit
 

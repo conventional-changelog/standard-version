@@ -12,17 +12,21 @@ const util = require('util')
 const checkpoint = require('./lib/checkpoint')
 const printError = require('./lib/print-error')
 const runExec = require('./lib/run-exec')
-const runLifecycleHook = require('./lib/run-lifecycle-hook')
+const runLifecycleScript = require('./lib/run-lifecycle-script')
 
 module.exports = function standardVersion (argv) {
   var pkgPath = path.resolve(process.cwd(), './package.json')
   var pkg = require(pkgPath)
   var newVersion = pkg.version
-  var hooks = argv.hooks || {}
+  var scripts = argv.scripts || {}
   var defaults = require('./defaults')
   var args = Object.assign({}, defaults, argv)
 
-  return bumpVersion(args.releaseAs)
+  return runLifecycleScript(args, 'prebump', null, scripts)
+    .then((stdout) => {
+      if (stdout && stdout.trim().length) args.releaseAs = stdout.trim()
+      return bumpVersion(args.releaseAs)
+    })
     .then((release) => {
       if (!args.firstRelease) {
         var releaseType = getReleaseType(args.prerelease, release.releaseType, pkg.version)
@@ -32,15 +36,16 @@ module.exports = function standardVersion (argv) {
         checkpoint(args, 'skip version bump on first release', [], chalk.red(figures.cross))
       }
 
-      return runLifecycleHook(args, 'postbump', newVersion, hooks)
+      return runLifecycleScript(args, 'postbump', newVersion, scripts)
     })
     .then(() => {
       return outputChangelog(args)
     })
     .then(() => {
-      return runLifecycleHook(args, 'precommit', newVersion, hooks)
+      return runLifecycleScript(args, 'precommit', newVersion, scripts)
     })
-    .then(() => {
+    .then((message) => {
+      if (message && message.length) args.message = message
       return commit(args, newVersion)
     })
     .then(() => {

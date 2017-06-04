@@ -69,12 +69,12 @@ module.exports = require('yargs')
     default: defaults.tagPrefix,
     global: true
   })
-  .option('hooks', {
-    describe: 'Lifecycle scripts to run during execution',
+  .option('scripts', {
+    describe: 'Scripts to execute for lifecycle events (prebump, precommit, etc.,)',
     default: {}
   })
   .check((argv) => {
-    if (typeof argv.hooks !== 'object' || Array.isArray(argv.hooks)) {
+    if (typeof argv.scripts !== 'object' || Array.isArray(argv.scripts)) {
       throw Error('hooks must be an object')
     } else {
       return true
