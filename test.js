@@ -55,6 +55,12 @@ function writeBowerJson (version, option) {
   fs.writeFileSync('bower.json', JSON.stringify(bower), 'utf-8')
 }
 
+function writeNpmShrinkwrapJson (version, option) {
+  option = option || {}
+  var shrinkwrap = objectAssign(option, { version: version })
+  fs.writeFileSync('npm-shrinkwrap.json', JSON.stringify(shrinkwrap), 'utf-8')
+}
+
 function writeGitPreCommitHook () {
   fs.writeFileSync('.git/hooks/pre-commit', '#!/bin/sh\necho "precommit ran"\nexit 1', 'utf-8')
   fs.chmodSync('.git/hooks/pre-commit', '755')
@@ -520,13 +526,31 @@ describe('standard-version', function () {
       writeBowerJson('1.0.0')
     })
 
-    it('bumps verson # in bower.json', function (done) {
+    it('bumps version # in bower.json', function (done) {
       commit('feat: first commit')
       shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
       commit('feat: new feature!')
       require('./index')({silent: true}, function (err) {
         if (err) return done(err)
-        JSON.parse(fs.readFileSync('package.json', 'utf-8')).version.should.equal('1.1.0')
+        JSON.parse(fs.readFileSync('bower.json', 'utf-8')).version.should.equal('1.1.0')
+        getPackageVersion().should.equal('1.1.0')
+        done()
+      })
+    })
+  })
+
+  describe('npm-shrinkwrap.json support', function () {
+    beforeEach(function () {
+      writeNpmShrinkwrapJson('1.0.0')
+    })
+
+    it('bumps version # in npm-shrinkwrap.json', function (done) {
+      commit('feat: first commit')
+      shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
+      commit('feat: new feature!')
+      require('./index')({silent: true}, function (err) {
+        if (err) return done(err)
+        JSON.parse(fs.readFileSync('npm-shrinkwrap.json', 'utf-8')).version.should.equal('1.1.0')
         getPackageVersion().should.equal('1.1.0')
         done()
       })
