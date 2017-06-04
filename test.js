@@ -2,7 +2,6 @@
 
 'use strict'
 
-var objectAssign = require('object-assign')
 var shell = require('shelljs')
 var fs = require('fs')
 var path = require('path')
@@ -44,14 +43,14 @@ function execCliAsync (argString) {
 
 function writePackageJson (version, option) {
   option = option || {}
-  var pkg = objectAssign(option, {version: version})
+  var pkg = Object.assign(option, {version: version})
   fs.writeFileSync('package.json', JSON.stringify(pkg), 'utf-8')
   delete require.cache[require.resolve(path.join(process.cwd(), 'package.json'))]
 }
 
 function writeBowerJson (version, option) {
   option = option || {}
-  var bower = objectAssign(option, {version: version})
+  var bower = Object.assign(option, {version: version})
   fs.writeFileSync('bower.json', JSON.stringify(bower), 'utf-8')
 }
 

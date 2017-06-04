@@ -8,7 +8,6 @@ const fs = require('fs')
 const accessSync = require('fs-access').sync
 const semver = require('semver')
 const util = require('util')
-const objectAssign = require('object-assign')
 
 const checkpoint = require('./lib/checkpoint')
 const printError = require('./lib/print-error')
@@ -20,7 +19,7 @@ module.exports = function standardVersion (argv, done) {
   var pkg = require(pkgPath)
   var hooks = argv.hooks || {}
   var defaults = require('./defaults')
-  var args = objectAssign({}, defaults, argv)
+  var args = Object.assign({}, defaults, argv)
 
   return bumpVersion(args.releaseAs, function (err, release) {
     if (err) {
