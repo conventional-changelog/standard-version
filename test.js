@@ -55,7 +55,7 @@ function writeBowerJson (version, option) {
 
 function writeNpmShrinkwrapJson (version, option) {
   option = option || {}
-  var shrinkwrap = objectAssign(option, { version: version })
+  var shrinkwrap = Object.assign(option, { version: version })
   fs.writeFileSync('npm-shrinkwrap.json', JSON.stringify(shrinkwrap), 'utf-8')
 }
 
