@@ -14,53 +14,42 @@ const printError = require('./lib/print-error')
 const runExec = require('./lib/run-exec')
 const runLifecycleHook = require('./lib/run-lifecycle-hook')
 
-module.exports = function standardVersion (argv, done) {
+module.exports = function standardVersion (argv) {
   var pkgPath = path.resolve(process.cwd(), './package.json')
   var pkg = require(pkgPath)
+  var newVersion = pkg.version
   var hooks = argv.hooks || {}
   var defaults = require('./defaults')
   var args = Object.assign({}, defaults, argv)
 
-  return bumpVersion(args.releaseAs, function (err, release) {
-    if (err) {
-      printError(args, err.message)
-      return done(err)
-    }
-
-    var newVersion = pkg.version
-
-    if (!args.firstRelease) {
-      var releaseType = getReleaseType(args.prerelease, release.releaseType, pkg.version)
-      newVersion = semver.valid(releaseType) || semver.inc(pkg.version, releaseType, args.prerelease)
-      updateConfigs(args, newVersion)
-    } else {
-      checkpoint(args, 'skip version bump on first release', [], chalk.red(figures.cross))
-    }
-    runLifecycleHook(args, 'postbump', newVersion, hooks, function (err) {
-      if (err) {
-        printError(args, err.message)
-        return done(err)
+  return bumpVersion(args.releaseAs)
+    .then((release) => {
+      if (!args.firstRelease) {
+        var releaseType = getReleaseType(args.prerelease, release.releaseType, pkg.version)
+        newVersion = semver.valid(releaseType) || semver.inc(pkg.version, releaseType, args.prerelease)
+        updateConfigs(args, newVersion)
+      } else {
+        checkpoint(args, 'skip version bump on first release', [], chalk.red(figures.cross))
       }
 
-      outputChangelog(args, function (err) {
-        if (err) {
-          return done(err)
-        }
-        runLifecycleHook(args, 'precommit', newVersion, hooks, function (err) {
-          if (err) {
-            printError(args, err.message)
-            return done(err)
-          }
-          commit(args, newVersion, function (err) {
-            if (err) {
-              return done(err)
-            }
-            return tag(newVersion, pkg.private, args, done)
-          })
-        })
-      })
+      return runLifecycleHook(args, 'postbump', newVersion, hooks)
     })
-  })
+    .then(() => {
+      return outputChangelog(args)
+    })
+    .then(() => {
+      return runLifecycleHook(args, 'precommit', newVersion, hooks)
+    })
+    .then(() => {
+      return commit(args, newVersion)
+    })
+    .then(() => {
+      return tag(newVersion, pkg.private, args)
+    })
+    .catch((err) => {
+      printError(args, err.message)
+      throw err
+    })
 }
 
 /**
@@ -161,47 +150,52 @@ function getTypePriority (type) {
 }
 
 function bumpVersion (releaseAs, callback) {
-  if (releaseAs) {
-    callback(null, {
-      releaseType: releaseAs
-    })
-  } else {
-    conventionalRecommendedBump({
+  return new Promise((resolve, reject) => {
+    if (releaseAs) {
+      return resolve({
+        releaseType: releaseAs
+      })
+    } else {
+      conventionalRecommendedBump({
+        preset: 'angular'
+      }, function (err, release) {
+        if (err) return reject(err)
+        else return resolve(release)
+      })
+    }
+  })
+}
+
+function outputChangelog (argv) {
+  return new Promise((resolve, reject) => {
+    createIfMissing(argv)
+    var header = '# Change Log\n\nAll notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.\n'
+    var oldContent = fs.readFileSync(argv.infile, 'utf-8')
+    // find the position of the last release and remove header:
+    if (oldContent.indexOf('<a name=') !== -1) {
+      oldContent = oldContent.substring(oldContent.indexOf('<a name='))
+    }
+    var content = ''
+    var changelogStream = conventionalChangelog({
       preset: 'angular'
-    }, function (err, release) {
-      callback(err, release)
-    })
-  }
-}
+    }, undefined, {merges: null})
+      .on('error', function (err) {
+        return reject(err)
+      })
 
-function outputChangelog (argv, cb) {
-  createIfMissing(argv)
-  var header = '# Change Log\n\nAll notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.\n'
-  var oldContent = fs.readFileSync(argv.infile, 'utf-8')
-  // find the position of the last release and remove header:
-  if (oldContent.indexOf('<a name=') !== -1) {
-    oldContent = oldContent.substring(oldContent.indexOf('<a name='))
-  }
-  var content = ''
-  var changelogStream = conventionalChangelog({
-    preset: 'angular'
-  }, undefined, {merges: null})
-    .on('error', function (err) {
-      return cb(err)
+    changelogStream.on('data', function (buffer) {
+      content += buffer.toString()
     })
 
-  changelogStream.on('data', function (buffer) {
-    content += buffer.toString()
-  })
-
-  changelogStream.on('end', function () {
-    checkpoint(argv, 'outputting changes to %s', [argv.infile])
-    fs.writeFileSync(argv.infile, header + '\n' + (content + oldContent).replace(/\n+$/, '\n'), 'utf-8')
-    return cb()
+    changelogStream.on('end', function () {
+      checkpoint(argv, 'outputting changes to %s', [argv.infile])
+      fs.writeFileSync(argv.infile, header + '\n' + (content + oldContent).replace(/\n+$/, '\n'), 'utf-8')
+      return resolve()
+    })
   })
 }
 
-function commit (argv, newVersion, cb) {
+function commit (argv, newVersion) {
   var msg = 'committing %s'
   var args = [argv.infile]
   var verify = argv.verify === false || argv.n ? '--no-verify ' : ''
@@ -220,19 +214,13 @@ function commit (argv, newVersion, cb) {
     .then(() => {
       return runExec(argv, 'git commit ' + verify + (argv.sign ? '-S ' : '') + (argv.commitAll ? '' : (argv.infile + toAdd)) + ' -m "' + formatCommitMessage(argv.message, newVersion) + '"')
     })
-    .then(() => {
-      return cb()
-    })
-    .catch((err) => {
-      return cb(err)
-    })
 }
 
 function formatCommitMessage (msg, newVersion) {
   return String(msg).indexOf('%s') !== -1 ? util.format(msg, newVersion) : msg
 }
 
-function tag (newVersion, pkgPrivate, argv, cb) {
+function tag (newVersion, pkgPrivate, argv) {
   var tagOption
   if (argv.sign) {
     tagOption = '-s '
@@ -246,10 +234,6 @@ function tag (newVersion, pkgPrivate, argv, cb) {
       if (pkgPrivate !== true) message += '; npm publish'
 
       checkpoint(argv, 'Run `%s` to publish', [message], chalk.blue(figures.info))
-      return cb()
-    })
-    .catch((err) => {
-      return cb(err)
     })
 }
 

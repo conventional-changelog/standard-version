@@ -9,6 +9,9 @@
     "test": "nyc mocha --timeout=20000 test.js",
     "release": "bin/cli.js"
   },
+  "nyc": {
+    "exclude": ["tmp/**"]
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/conventional-changelog/standard-version.git"
@@ -42,7 +45,6 @@
     "yargs": "^8.0.1"
   },
   "devDependencies": {
-    "bluebird": "^3.4.6",
     "chai": "^3.5.0",
     "coveralls": "^2.11.9",
     "mocha": "^3.1.0",

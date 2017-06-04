@@ -6,9 +6,8 @@ var cmdParser = require('../command')
 if (process.version.match(/v(\d+)\./)[1] < 4) {
   console.error('standard-version: Node v4 or greater is required. `standard-version` did not run.')
 } else {
-  standardVersion(cmdParser.argv, function (err) {
-    if (err) {
+  standardVersion(cmdParser.argv)
+    .catch(() => {
       process.exit(1)
-    }
-  })
+    })
 }

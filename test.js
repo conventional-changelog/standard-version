@@ -9,11 +9,10 @@ var stream = require('stream')
 var mockGit = require('mock-git')
 var mockery = require('mockery')
 var semver = require('semver')
-var Promise = require('bluebird')
 var cli = require('./command')
 var standardVersion = require('./index')
 
-var should = require('chai').should()
+require('chai').should()
 
 var cliPath = path.resolve(__dirname, './bin/cli.js')
 
@@ -38,7 +37,7 @@ function execCli (argString) {
 }
 
 function execCliAsync (argString) {
-  return Promise.promisify(standardVersion)(cli.parse('standard-version ' + argString + ' --silent'))
+  return standardVersion(cli.parse('standard-version ' + argString + ' --silent'))
 }
 
 function writePackageJson (version, option) {
@@ -550,11 +549,11 @@ describe('standard-version', function () {
       shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
       commit('feat: new feature!')
 
-      require('./index')({silent: true}, function (err) {
-        should.exist(err)
-        err.message.should.match(/bump err/)
-        done()
-      })
+      require('./index')({silent: true})
+        .catch((err) => {
+          err.message.should.match(/bump err/)
+          done()
+        })
     })
   })
 
@@ -580,11 +579,11 @@ describe('standard-version', function () {
       shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
       commit('feat: new feature!')
 
-      require('./index')({silent: true}, function (err) {
-        should.exist(err)
-        err.message.should.match(/changelog err/)
-        done()
-      })
+      require('./index')({silent: true})
+        .catch((err) => {
+          err.message.should.match(/changelog err/)
+          return done()
+        })
     })
   })
 
@@ -593,15 +592,14 @@ describe('standard-version', function () {
     shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
     commit('feat: new feature!')
 
-    require('./index')({silent: true}, function (err) {
-      should.not.exist(err)
-
-      // check last commit message
-      shell.exec('git log --oneline -n1').stdout.should.match(/chore\(release\): 1\.1\.0/)
-      // check annotated tag message
-      shell.exec('git tag -l -n1 v1.1.0').stdout.should.match(/chore\(release\): 1\.1\.0/)
-      done()
-    })
+    require('./index')({silent: true})
+      .then(() => {
+        // check last commit message
+        shell.exec('git log --oneline -n1').stdout.should.match(/chore\(release\): 1\.1\.0/)
+        // check annotated tag message
+        shell.exec('git tag -l -n1 v1.1.0').stdout.should.match(/chore\(release\): 1\.1\.0/)
+        done()
+      })
   })
 
   describe('bower.json support', function () {
@@ -613,12 +611,12 @@ describe('standard-version', function () {
       commit('feat: first commit')
       shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
       commit('feat: new feature!')
-      require('./index')({silent: true}, function (err) {
-        if (err) return done(err)
-        JSON.parse(fs.readFileSync('bower.json', 'utf-8')).version.should.equal('1.1.0')
-        getPackageVersion().should.equal('1.1.0')
-        done()
-      })
+      require('./index')({silent: true})
+        .then(() => {
+          JSON.parse(fs.readFileSync('bower.json', 'utf-8')).version.should.equal('1.1.0')
+          getPackageVersion().should.equal('1.1.0')
+          return done()
+        })
     })
   })
 
@@ -631,12 +629,12 @@ describe('standard-version', function () {
       commit('feat: first commit')
       shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
       commit('feat: new feature!')
-      require('./index')({silent: true}, function (err) {
-        if (err) return done(err)
-        JSON.parse(fs.readFileSync('npm-shrinkwrap.json', 'utf-8')).version.should.equal('1.1.0')
-        getPackageVersion().should.equal('1.1.0')
-        done()
-      })
+      require('./index')({silent: true})
+        .then(() => {
+          JSON.parse(fs.readFileSync('npm-shrinkwrap.json', 'utf-8')).version.should.equal('1.1.0')
+          getPackageVersion().should.equal('1.1.0')
+          return done()
+        })
     })
   })
 })
