@@ -22,7 +22,7 @@ module.exports = function standardVersion (argv, done) {
   var defaults = require('./defaults')
   var args = objectAssign({}, defaults, argv)
 
-  bumpVersion(args.releaseAs, function (err, release) {
+  return bumpVersion(args.releaseAs, function (err, release) {
     if (err) {
       printError(args, err.message)
       return done(err)
@@ -217,11 +217,16 @@ function commit (argv, newVersion, cb) {
     }
   })
   checkpoint(argv, msg, args)
-  runExec(argv, 'git add' + toAdd + ' ' + argv.infile, cb, function () {
-    runExec(argv, 'git commit ' + verify + (argv.sign ? '-S ' : '') + (argv.commitAll ? '' : (argv.infile + toAdd)) + ' -m "' + formatCommitMessage(argv.message, newVersion) + '"', cb, function () {
-      cb()
+  return runExec(argv, 'git add' + toAdd + ' ' + argv.infile)
+    .then(() => {
+      return runExec(argv, 'git commit ' + verify + (argv.sign ? '-S ' : '') + (argv.commitAll ? '' : (argv.infile + toAdd)) + ' -m "' + formatCommitMessage(argv.message, newVersion) + '"')
     })
-  })
+    .then(() => {
+      return cb()
+    })
+    .catch((err) => {
+      return cb(err)
+    })
 }
 
 function formatCommitMessage (msg, newVersion) {
@@ -236,13 +241,17 @@ function tag (newVersion, pkgPrivate, argv, cb) {
     tagOption = '-a '
   }
   checkpoint(argv, 'tagging release %s', [newVersion])
-  runExec(argv, 'git tag ' + tagOption + argv.tagPrefix + newVersion + ' -m "' + formatCommitMessage(argv.message, newVersion) + '"', cb, function () {
-    var message = 'git push --follow-tags origin master'
-    if (pkgPrivate !== true) message += '; npm publish'
+  return runExec(argv, 'git tag ' + tagOption + argv.tagPrefix + newVersion + ' -m "' + formatCommitMessage(argv.message, newVersion) + '"')
+    .then(() => {
+      var message = 'git push --follow-tags origin master'
+      if (pkgPrivate !== true) message += '; npm publish'
 
-    checkpoint(argv, 'Run `%s` to publish', [message], chalk.blue(figures.info))
-    cb()
-  })
+      checkpoint(argv, 'Run `%s` to publish', [message], chalk.blue(figures.info))
+      return cb()
+    })
+    .catch((err) => {
+      return cb(err)
+    })
 }
 
 function createIfMissing (argv) {

@@ -271,7 +271,7 @@ describe('cli', function () {
   })
 
   describe('precommit hook', function () {
-    it('should run the pre-commit hook when provided', function () {
+    it('should run the precommit hook when provided', function () {
       writePackageJson('1.0.0', {
         'standard-version': {
           'hooks': {
@@ -288,7 +288,7 @@ describe('cli', function () {
       result.stderr.should.match(/precommit ran/)
     })
 
-    it('should run the pre-commit hook and exit with error when pre-commit fails', function () {
+    it('should run the precommit hook and exit with error when precommit fails', function () {
       writePackageJson('1.0.0', {
         'standard-version': {
           'hooks': {
