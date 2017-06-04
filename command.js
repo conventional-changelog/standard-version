@@ -69,10 +69,22 @@ module.exports = require('yargs')
     default: defaults.tagPrefix,
     global: true
   })
+  .option('hooks', {
+    describe: 'Lifecycle scripts to run during execution',
+    default: {}
+  })
+  .check((argv) => {
+    if (typeof argv.hooks !== 'object' || Array.isArray(argv.hooks)) {
+      throw Error('hooks must be an object')
+    } else {
+      return true
+    }
+  })
   .version()
   .alias('version', 'v')
   .help()
   .alias('help', 'h')
   .example('$0', 'Update changelog and tag release')
   .example('$0 -m "%s: see changelog for details"', 'Update changelog and tag release with custom commit message')
+  .pkgConf('standard-version')
   .wrap(97)

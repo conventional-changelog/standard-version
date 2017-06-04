@@ -67,7 +67,7 @@ function writeGitPreCommitHook () {
 }
 
 function writePostBumpHook (causeError) {
-  writeHook('post-bump', causeError)
+  writeHook('postbump', causeError)
 }
 
 function writeHook (hookName, causeError) {
@@ -234,12 +234,12 @@ describe('cli', function () {
     })
   })
 
-  describe('post-bump hook', function () {
-    it('should run the post-bump hook when provided', function () {
+  describe('postbump hook', function () {
+    it('should run the postbump hook when provided', function () {
       writePackageJson('1.0.0', {
         'standard-version': {
           'hooks': {
-            'post-bump': 'node scripts/post-bump'
+            'postbump': 'node scripts/postbump'
           }
         }
       })
@@ -249,14 +249,14 @@ describe('cli', function () {
       commit('feat: first commit')
       var result = execCli('--patch')
       result.code.should.equal(0)
-      result.stderr.should.match(/post-bump ran/)
+      result.stderr.should.match(/postbump ran/)
     })
 
-    it('should run the post-bump and exit with error when post-bump fails', function () {
+    it('should run the postbump and exit with error when postbump fails', function () {
       writePackageJson('1.0.0', {
         'standard-version': {
           'hooks': {
-            'post-bump': 'node scripts/post-bump'
+            'postbump': 'node scripts/postbump'
           }
         }
       })
@@ -266,43 +266,43 @@ describe('cli', function () {
       commit('feat: first commit')
       var result = execCli('--patch')
       result.code.should.equal(1)
-      result.stderr.should.match(/post-bump-failure/)
+      result.stderr.should.match(/postbump-failure/)
     })
   })
 
-  describe('pre-commit hook', function () {
+  describe('precommit hook', function () {
     it('should run the pre-commit hook when provided', function () {
       writePackageJson('1.0.0', {
         'standard-version': {
           'hooks': {
-            'pre-commit': 'node scripts/pre-commit'
+            'precommit': 'node scripts/precommit'
           }
         }
       })
-      writeHook('pre-commit')
+      writeHook('precommit')
       fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
 
       commit('feat: first commit')
       var result = execCli('--patch')
       result.code.should.equal(0)
-      result.stderr.should.match(/pre-commit ran/)
+      result.stderr.should.match(/precommit ran/)
     })
 
     it('should run the pre-commit hook and exit with error when pre-commit fails', function () {
       writePackageJson('1.0.0', {
         'standard-version': {
           'hooks': {
-            'pre-commit': 'node scripts/pre-commit'
+            'precommit': 'node scripts/precommit'
           }
         }
       })
-      writeHook('pre-commit', true)
+      writeHook('precommit', true)
       fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
 
       commit('feat: first commit')
       var result = execCli('--patch')
       result.code.should.equal(1)
-      result.stderr.should.match(/pre-commit-failure/)
+      result.stderr.should.match(/precommit-failure/)
     })
   })
 

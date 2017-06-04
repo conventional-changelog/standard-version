@@ -152,6 +152,17 @@ standard-version --no-verify
 
 If you have your GPG key set up, add the `--sign` or `-s` flag to your `standard-version` command.
 
+### Lifecycle hooks
+
+standard-version exposes lifecycle hooks, allowing you to execute your
+own supplementary commands during the release process. The following
+hooks are available:
+
+* `postbump`: called after the version in package.json has been incremented,
+  before the CHANGELOG has been generated or files have been committed to git.
+* `precommit`: called after the CHANGELOG has been generated, before files
+  have been commited to git.
+
 ### Committing generated artifacts in the release commit
 
 If you want to commit generated artifacts in the release commit (e.g. [#96](https://github.com/conventional-changelog/standard-version/issues/96)), you can use the `--commit-all` or `-a` flag. You will need to stage the artifacts you want to commit, so your `release` command could look like this:

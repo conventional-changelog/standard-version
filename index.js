@@ -1,20 +1,24 @@
-var conventionalRecommendedBump = require('conventional-recommended-bump')
-var conventionalChangelog = require('conventional-changelog')
-var path = require('path')
+const conventionalRecommendedBump = require('conventional-recommended-bump')
+const conventionalChangelog = require('conventional-changelog')
+const path = require('path')
 
-var chalk = require('chalk')
-var figures = require('figures')
-var exec = require('child_process').exec
-var fs = require('fs')
-var accessSync = require('fs-access').sync
-var semver = require('semver')
-var util = require('util')
-var objectAssign = require('object-assign')
+const chalk = require('chalk')
+const figures = require('figures')
+const fs = require('fs')
+const accessSync = require('fs-access').sync
+const semver = require('semver')
+const util = require('util')
+const objectAssign = require('object-assign')
+
+const checkpoint = require('./lib/checkpoint')
+const printError = require('./lib/print-error')
+const runExec = require('./lib/run-exec')
+const runLifecycleHook = require('./lib/run-lifecycle-hook')
 
 module.exports = function standardVersion (argv, done) {
   var pkgPath = path.resolve(process.cwd(), './package.json')
   var pkg = require(pkgPath)
-  var hooks = pkg['standard-version'] && pkg['standard-version']['hooks'] ? pkg['standard-version']['hooks'] : {}
+  var hooks = argv.hooks || {}
   var defaults = require('./defaults')
   var args = objectAssign({}, defaults, argv)
 
@@ -33,7 +37,7 @@ module.exports = function standardVersion (argv, done) {
     } else {
       checkpoint(args, 'skip version bump on first release', [], chalk.red(figures.cross))
     }
-    runLifecycleHook(args, 'post-bump', newVersion, hooks, function (err) {
+    runLifecycleHook(args, 'postbump', newVersion, hooks, function (err) {
       if (err) {
         printError(args, err.message)
         return done(err)
@@ -43,7 +47,7 @@ module.exports = function standardVersion (argv, done) {
         if (err) {
           return done(err)
         }
-        runLifecycleHook(args, 'pre-commit', newVersion, hooks, function (err) {
+        runLifecycleHook(args, 'precommit', newVersion, hooks, function (err) {
           if (err) {
             printError(args, err.message)
             return done(err)
@@ -198,33 +202,6 @@ function outputChangelog (argv, cb) {
   })
 }
 
-function handledExec (argv, cmd, errorCb, successCb) {
-  // Exec given cmd and handle possible errors
-  exec(cmd, function (err, stdout, stderr) {
-    // If exec returns content in stderr, but no error, print it as a warning
-    // If exec returns an error, print it and exit with return code 1
-    if (err) {
-      printError(argv, stderr || err.message)
-      return errorCb(err)
-    } else if (stderr) {
-      printError(argv, stderr, {level: 'warn', color: 'yellow'})
-    }
-    successCb()
-  })
-}
-function runLifecycleHook (argv, hookName, newVersion, hooks, cb) {
-  if (!hooks[hookName]) {
-    cb()
-    return
-  }
-  var command = hooks[hookName] + ' --new-version="' + newVersion + '"'
-  checkpoint(argv, 'Running lifecycle hook "%s"', [hookName])
-  checkpoint(argv, '- hook command: "%s"', [command], chalk.blue(figures.info))
-  handledExec(argv, command, cb, function () {
-    cb()
-  })
-}
-
 function commit (argv, newVersion, cb) {
   var msg = 'committing %s'
   var args = [argv.infile]
@@ -240,8 +217,8 @@ function commit (argv, newVersion, cb) {
     }
   })
   checkpoint(argv, msg, args)
-  handledExec(argv, 'git add' + toAdd + ' ' + argv.infile, cb, function () {
-    handledExec(argv, 'git commit ' + verify + (argv.sign ? '-S ' : '') + (argv.commitAll ? '' : (argv.infile + toAdd)) + ' -m "' + formatCommitMessage(argv.message, newVersion) + '"', cb, function () {
+  runExec(argv, 'git add' + toAdd + ' ' + argv.infile, cb, function () {
+    runExec(argv, 'git commit ' + verify + (argv.sign ? '-S ' : '') + (argv.commitAll ? '' : (argv.infile + toAdd)) + ' -m "' + formatCommitMessage(argv.message, newVersion) + '"', cb, function () {
       cb()
     })
   })
@@ -259,7 +236,7 @@ function tag (newVersion, pkgPrivate, argv, cb) {
     tagOption = '-a '
   }
   checkpoint(argv, 'tagging release %s', [newVersion])
-  handledExec(argv, 'git tag ' + tagOption + argv.tagPrefix + newVersion + ' -m "' + formatCommitMessage(argv.message, newVersion) + '"', cb, function () {
+  runExec(argv, 'git tag ' + tagOption + argv.tagPrefix + newVersion + ' -m "' + formatCommitMessage(argv.message, newVersion) + '"', cb, function () {
     var message = 'git push --follow-tags origin master'
     if (pkgPrivate !== true) message += '; npm publish'
 
@@ -277,24 +254,5 @@ function createIfMissing (argv) {
       argv.outputUnreleased = true
       fs.writeFileSync(argv.infile, '\n', 'utf-8')
     }
-  }
-}
-
-function checkpoint (argv, msg, args, figure) {
-  if (!argv.silent) {
-    console.info((figure || chalk.green(figures.tick)) + ' ' + util.format.apply(util, [msg].concat(args.map(function (arg) {
-      return chalk.bold(arg)
-    }))))
-  }
-}
-
-function printError (argv, msg, opts) {
-  if (!argv.silent) {
-    opts = objectAssign({
-      level: 'error',
-      color: 'red'
-    }, opts)
-
-    console[opts.level](chalk[opts.color](msg))
   }
 }
