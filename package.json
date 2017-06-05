@@ -9,6 +9,9 @@
     "test": "nyc mocha --timeout=20000 test.js",
     "release": "bin/cli.js"
   },
+  "nyc": {
+    "exclude": ["tmp/**"]
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/conventional-changelog/standard-version.git"
@@ -38,18 +41,16 @@
     "conventional-recommended-bump": "^1.0.0",
     "figures": "^1.5.0",
     "fs-access": "^1.0.0",
-    "object-assign": "^4.1.0",
     "semver": "^5.1.0",
-    "yargs": "^7.0.1"
+    "yargs": "^8.0.1"
   },
   "devDependencies": {
-    "bluebird": "^3.4.6",
     "chai": "^3.5.0",
     "coveralls": "^2.11.9",
     "mocha": "^3.1.0",
     "mock-git": "^1.0.2",
     "mockery": "^2.0.0",
-    "nyc": "^10.0.0",
+    "nyc": "^11.0.2",
     "shelljs": "^0.7.3",
     "standard": "^10.0.0"
   }

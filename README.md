@@ -152,6 +152,33 @@ standard-version --no-verify
 
 If you have your GPG key set up, add the `--sign` or `-s` flag to your `standard-version` command.
 
+### Lifecycle scripts
+
+`standard-version` supports lifecycle scripts. These allow you to execute your
+own supplementary commands during the release. The following
+hooks are available:
+
+* `prebump`: executed before the version bump is calculated. If the `prebump`
+  script returns a version #, it will be used rather than
+  the version calculated by `standard-version`.
+* `postbump`: executed after the version has been bumped and written to
+  package.json. The flag `--new-version` is populated with the version that is
+  being released.
+* `precommit`: called after CHANGELOG.md and package.json have been updated,
+  but before changes have been committed to git.
+
+Simply add the following to your package.json, to enable lifecycle scripts:
+
+```json
+{
+  "standard-version": {
+    "scripts": {
+      "prebump": "echo 9.9.9"
+    }
+  }
+}
+```
+
 ### Committing generated artifacts in the release commit
 
 If you want to commit generated artifacts in the release commit (e.g. [#96](https://github.com/conventional-changelog/standard-version/issues/96)), you can use the `--commit-all` or `-a` flag. You will need to stage the artifacts you want to commit, so your `release` command could look like this:

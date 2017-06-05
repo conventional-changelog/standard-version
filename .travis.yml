@@ -2,7 +2,7 @@ language: node_js
 node_js:
   - "4"
   - "5"
-  - "node"
+  - "stable"
 before_script:
   - git config --global user.name 'Travis-CI'
   - git config --global user.email 'dummy@example.org'

@@ -2,7 +2,6 @@
 
 'use strict'
 
-var objectAssign = require('object-assign')
 var shell = require('shelljs')
 var fs = require('fs')
 var path = require('path')
@@ -10,11 +9,10 @@ var stream = require('stream')
 var mockGit = require('mock-git')
 var mockery = require('mockery')
 var semver = require('semver')
-var Promise = require('bluebird')
 var cli = require('./command')
 var standardVersion = require('./index')
 
-var should = require('chai').should()
+require('chai').should()
 
 var cliPath = path.resolve(__dirname, './bin/cli.js')
 
@@ -39,31 +37,43 @@ function execCli (argString) {
 }
 
 function execCliAsync (argString) {
-  return Promise.promisify(standardVersion)(cli.parse('standard-version ' + argString + ' --silent'))
+  return standardVersion(cli.parse('standard-version ' + argString + ' --silent'))
 }
 
 function writePackageJson (version, option) {
   option = option || {}
-  var pkg = objectAssign(option, {version: version})
+  var pkg = Object.assign(option, {version: version})
   fs.writeFileSync('package.json', JSON.stringify(pkg), 'utf-8')
   delete require.cache[require.resolve(path.join(process.cwd(), 'package.json'))]
 }
 
 function writeBowerJson (version, option) {
   option = option || {}
-  var bower = objectAssign(option, { version: version })
+  var bower = Object.assign(option, {version: version})
   fs.writeFileSync('bower.json', JSON.stringify(bower), 'utf-8')
 }
 
 function writeNpmShrinkwrapJson (version, option) {
   option = option || {}
-  var shrinkwrap = objectAssign(option, { version: version })
+  var shrinkwrap = Object.assign(option, { version: version })
   fs.writeFileSync('npm-shrinkwrap.json', JSON.stringify(shrinkwrap), 'utf-8')
 }
 
 function writeGitPreCommitHook () {
   fs.writeFileSync('.git/hooks/pre-commit', '#!/bin/sh\necho "precommit ran"\nexit 1', 'utf-8')
   fs.chmodSync('.git/hooks/pre-commit', '755')
+}
+
+function writePostBumpHook (causeError) {
+  writeHook('postbump', causeError)
+}
+
+function writeHook (hookName, causeError, script) {
+  shell.mkdir('-p', 'scripts')
+  var content = script || 'console.error("' + hookName + ' ran")'
+  content += causeError ? '\nthrow new Error("' + hookName + '-failure")' : ''
+  fs.writeFileSync('scripts/' + hookName + '.js', content, 'utf-8')
+  fs.chmodSync('scripts/' + hookName + '.js', '755')
 }
 
 function initInTempFolder () {
@@ -219,6 +229,116 @@ describe('cli', function () {
 
           unmock()
         })
+    })
+  })
+
+  describe('lifecycle scripts', () => {
+    describe('prebump hook', function () {
+      it('should allow prebump hook to return an alternate version #', function () {
+        writePackageJson('1.0.0', {
+          'standard-version': {
+            'scripts': {
+              'prebump': 'node scripts/prebump'
+            }
+          }
+        })
+        writeHook('prebump', false, 'console.log("9.9.9")')
+        fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
+
+        commit('feat: first commit')
+        var result = execCli('--patch')
+        result.stdout.should.match(/9\.9\.9/)
+        result.code.should.equal(0)
+      })
+    })
+
+    describe('postbump hook', function () {
+      it('should run the postbump hook when provided', function () {
+        writePackageJson('1.0.0', {
+          'standard-version': {
+            'scripts': {
+              'postbump': 'node scripts/postbump'
+            }
+          }
+        })
+        writePostBumpHook()
+        fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
+
+        commit('feat: first commit')
+        var result = execCli('--patch')
+        result.code.should.equal(0)
+        result.stderr.should.match(/postbump ran/)
+      })
+
+      it('should run the postbump and exit with error when postbump fails', function () {
+        writePackageJson('1.0.0', {
+          'standard-version': {
+            'scripts': {
+              'postbump': 'node scripts/postbump'
+            }
+          }
+        })
+        writePostBumpHook(true)
+        fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
+
+        commit('feat: first commit')
+        var result = execCli('--patch')
+        result.code.should.equal(1)
+        result.stderr.should.match(/postbump-failure/)
+      })
+    })
+
+    describe('precommit hook', function () {
+      it('should run the precommit hook when provided', function () {
+        writePackageJson('1.0.0', {
+          'standard-version': {
+            'scripts': {
+              'precommit': 'node scripts/precommit'
+            }
+          }
+        })
+        writeHook('precommit')
+        fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
+
+        commit('feat: first commit')
+        var result = execCli('--patch')
+        result.code.should.equal(0)
+        result.stderr.should.match(/precommit ran/)
+      })
+
+      it('should run the precommit hook and exit with error when precommit fails', function () {
+        writePackageJson('1.0.0', {
+          'standard-version': {
+            'scripts': {
+              'precommit': 'node scripts/precommit'
+            }
+          }
+        })
+        writeHook('precommit', true)
+        fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
+
+        commit('feat: first commit')
+        var result = execCli('--patch')
+        result.code.should.equal(1)
+        result.stderr.should.match(/precommit-failure/)
+      })
+
+      it('should allow an alternate commit message to be provided by precommit script', function () {
+        writePackageJson('1.0.0', {
+          'standard-version': {
+            'scripts': {
+              'precommit': 'node scripts/precommit'
+            }
+          }
+        })
+        writeHook('precommit', false, 'console.log("releasing %s delivers #222")')
+        fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
+
+        commit('feat: first commit')
+        var result = execCli('--patch')
+        result.code.should.equal(0)
+        shell.exec('git log --oneline -n1').should.match(/delivers #222/)
+      })
     })
   })
 
@@ -467,11 +587,11 @@ describe('standard-version', function () {
       shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
       commit('feat: new feature!')
 
-      require('./index')({silent: true}, function (err) {
-        should.exist(err)
-        err.message.should.match(/bump err/)
-        done()
-      })
+      require('./index')({silent: true})
+        .catch((err) => {
+          err.message.should.match(/bump err/)
+          done()
+        })
     })
   })
 
@@ -497,11 +617,11 @@ describe('standard-version', function () {
       shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
       commit('feat: new feature!')
 
-      require('./index')({silent: true}, function (err) {
-        should.exist(err)
-        err.message.should.match(/changelog err/)
-        done()
-      })
+      require('./index')({silent: true})
+        .catch((err) => {
+          err.message.should.match(/changelog err/)
+          return done()
+        })
     })
   })
 
@@ -510,15 +630,14 @@ describe('standard-version', function () {
     shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
     commit('feat: new feature!')
 
-    require('./index')({silent: true}, function (err) {
-      should.not.exist(err)
-
-      // check last commit message
-      shell.exec('git log --oneline -n1').stdout.should.match(/chore\(release\): 1\.1\.0/)
-      // check annotated tag message
-      shell.exec('git tag -l -n1 v1.1.0').stdout.should.match(/chore\(release\): 1\.1\.0/)
-      done()
-    })
+    require('./index')({silent: true})
+      .then(() => {
+        // check last commit message
+        shell.exec('git log --oneline -n1').stdout.should.match(/chore\(release\): 1\.1\.0/)
+        // check annotated tag message
+        shell.exec('git tag -l -n1 v1.1.0').stdout.should.match(/chore\(release\): 1\.1\.0/)
+        done()
+      })
   })
 
   describe('bower.json support', function () {
@@ -530,12 +649,12 @@ describe('standard-version', function () {
       commit('feat: first commit')
       shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
       commit('feat: new feature!')
-      require('./index')({silent: true}, function (err) {
-        if (err) return done(err)
-        JSON.parse(fs.readFileSync('bower.json', 'utf-8')).version.should.equal('1.1.0')
-        getPackageVersion().should.equal('1.1.0')
-        done()
-      })
+      require('./index')({silent: true})
+        .then(() => {
+          JSON.parse(fs.readFileSync('bower.json', 'utf-8')).version.should.equal('1.1.0')
+          getPackageVersion().should.equal('1.1.0')
+          return done()
+        })
     })
   })
 
@@ -548,12 +667,12 @@ describe('standard-version', function () {
       commit('feat: first commit')
       shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
       commit('feat: new feature!')
-      require('./index')({silent: true}, function (err) {
-        if (err) return done(err)
-        JSON.parse(fs.readFileSync('npm-shrinkwrap.json', 'utf-8')).version.should.equal('1.1.0')
-        getPackageVersion().should.equal('1.1.0')
-        done()
-      })
+      require('./index')({silent: true})
+        .then(() => {
+          JSON.parse(fs.readFileSync('npm-shrinkwrap.json', 'utf-8')).version.should.equal('1.1.0')
+          getPackageVersion().should.equal('1.1.0')
+          return done()
+        })
     })
   })
 })
