@@ -8,5 +8,6 @@
   "silent": false,
   "tagPrefix": "v",
   "scripts": {},
+  "skip": {},
   "dryRun": false
 }

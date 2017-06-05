@@ -156,24 +156,37 @@ If you have your GPG key set up, add the `--sign` or `-s` flag to your `standard
 
 `standard-version` supports lifecycle scripts. These allow you to execute your
 own supplementary commands during the release. The following
-hooks are available:
+hooks are available and execute in the order documented:
 
-* `prebump`: executed before the version bump is calculated. If the `prebump`
+* `prebump`/`postbump`: executed before and after the version is bumped. If the `prebump`
   script returns a version #, it will be used rather than
   the version calculated by `standard-version`.
-* `postbump`: executed after the version has been bumped and written to
-  package.json. The flag `--new-version` is populated with the version that is
-  being released.
-* `precommit`: called after CHANGELOG.md and package.json have been updated,
-  but before changes have been committed to git.
+* `prechangelog`/`postchangelog`: executes before and after the CHANGELOG is generated.
+* `precommit`/`postcommit`: called before and after the commit step.
+* `pretag`/`posttag`: called before and after the tagging step.
 
-Simply add the following to your package.json, to enable lifecycle scripts:
+Simply add the following to your package.json to configure lifecycle scripts:
 
 ```json
 {
   "standard-version": {
     "scripts": {
       "prebump": "echo 9.9.9"
+    }
+  }
+}
+```
+
+### Skipping lifecycle steps
+
+You can skip any of the lifecycle steps (`bump`, `changelog`, `commit`, `tag`),
+by adding the following to your package.json:
+
+```json
+{
+  "standard-version": {
+    "skip": {
+      "changelog": true
     }
   }
 }
