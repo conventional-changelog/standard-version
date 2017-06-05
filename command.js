@@ -60,7 +60,11 @@ module.exports = require('yargs')
     default: defaults.tagPrefix
   })
   .option('scripts', {
-    describe: 'Scripts to execute for lifecycle events (prebump, precommit, etc.,)',
+    describe: 'Provide scripts to execute for lifecycle events (prebump, precommit, etc.,)',
+    default: defaults.scripts
+  })
+  .option('skip', {
+    describe: 'Map of steps in the release process that should be skipped',
     default: defaults.scripts
   })
   .option('dry-run', {
@@ -71,6 +75,8 @@ module.exports = require('yargs')
   .check((argv) => {
     if (typeof argv.scripts !== 'object' || Array.isArray(argv.scripts)) {
       throw Error('scripts must be an object')
+    } else if (typeof argv.skip !== 'object' || Array.isArray(argv.skip)) {
+      throw Error('skip must be an object')
     } else {
       return true
     }
