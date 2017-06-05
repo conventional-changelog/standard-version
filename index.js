@@ -13,16 +13,16 @@ const checkpoint = require('./lib/checkpoint')
 const printError = require('./lib/print-error')
 const runExec = require('./lib/run-exec')
 const runLifecycleScript = require('./lib/run-lifecycle-script')
+const writeFile = require('./lib/write-file')
 
 module.exports = function standardVersion (argv) {
   var pkgPath = path.resolve(process.cwd(), './package.json')
   var pkg = require(pkgPath)
   var newVersion = pkg.version
-  var scripts = argv.scripts || {}
   var defaults = require('./defaults')
   var args = Object.assign({}, defaults, argv)
 
-  return runLifecycleScript(args, 'prebump', null, scripts)
+  return runLifecycleScript(args, 'prebump', null, args)
     .then((stdout) => {
       if (stdout && stdout.trim().length) args.releaseAs = stdout.trim()
       return bumpVersion(args.releaseAs)
@@ -36,13 +36,13 @@ module.exports = function standardVersion (argv) {
         checkpoint(args, 'skip version bump on first release', [], chalk.red(figures.cross))
       }
 
-      return runLifecycleScript(args, 'postbump', newVersion, scripts)
+      return runLifecycleScript(args, 'postbump', newVersion, args)
     })
     .then(() => {
       return outputChangelog(args)
     })
     .then(() => {
-      return runLifecycleScript(args, 'precommit', newVersion, scripts)
+      return runLifecycleScript(args, 'precommit', newVersion, args)
     })
     .then((message) => {
       if (message && message.length) args.message = message
@@ -78,7 +78,7 @@ function updateConfigs (args, newVersion) {
         var filename = path.basename(configPath)
         checkpoint(args, 'bumping version in ' + filename + ' from %s to %s', [config.version, newVersion])
         config.version = newVersion
-        fs.writeFileSync(configPath, JSON.stringify(config, null, 2) + '\n', 'utf-8')
+        writeFile(args, configPath, JSON.stringify(config, null, 2) + '\n')
         // flag any config files that we modify the version # for
         // as having been updated.
         configsToUpdate[configPath] = true
@@ -173,7 +173,7 @@ function bumpVersion (releaseAs, callback) {
 
 function outputChangelog (argv) {
   return new Promise((resolve, reject) => {
-    createIfMissing(argv)
+    if (!argv.dryRun) createIfMissing(argv)
     var header = '# Change Log\n\nAll notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.\n'
     var oldContent = fs.readFileSync(argv.infile, 'utf-8')
     // find the position of the last release and remove header:
@@ -194,7 +194,8 @@ function outputChangelog (argv) {
 
     changelogStream.on('end', function () {
       checkpoint(argv, 'outputting changes to %s', [argv.infile])
-      fs.writeFileSync(argv.infile, header + '\n' + (content + oldContent).replace(/\n+$/, '\n'), 'utf-8')
+      if (argv.dryRun) console.log(`\n---\n${chalk.gray(content)}\n---\n`)
+      else writeFile(argv, argv.infile, header + '\n' + (content + oldContent).replace(/\n+$/, '\n'))
       return resolve()
     })
   })
@@ -249,7 +250,7 @@ function createIfMissing (argv) {
     if (err.code === 'ENOENT') {
       checkpoint(argv, 'created %s', [argv.infile])
       argv.outputUnreleased = true
-      fs.writeFileSync(argv.infile, '\n', 'utf-8')
+      writeFile(argv, argv.infile, '\n')
     }
   }
 }

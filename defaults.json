@@ -6,5 +6,7 @@
   "noVerify": false,
   "commitAll": false,
   "silent": false,
-  "tagPrefix": "v"
+  "tagPrefix": "v",
+  "scripts": {},
+  "dryRun": false
 }
