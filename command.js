@@ -65,7 +65,8 @@ module.exports = require('yargs')
   })
   .option('dry-run', {
     type: 'boolean',
-    default: defaults.dryRun
+    default: defaults.dryRun,
+    describe: 'See the commands that running standard-version would run'
   })
   .check((argv) => {
     if (typeof argv.scripts !== 'object' || Array.isArray(argv.scripts)) {

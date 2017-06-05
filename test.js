@@ -675,4 +675,17 @@ describe('standard-version', function () {
         })
     })
   })
+
+  describe('dry-run', function () {
+    it('skips all non-idempotent steps', function (done) {
+      commit('feat: first commit')
+      shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
+      commit('feat: new feature!')
+      execCli('--dry-run').stdout.should.match(/### Features/)
+      shell.exec('git log --oneline -n1').stdout.should.match(/feat: new feature!/)
+      shell.exec('git tag').stdout.should.match(/1\.0\.0/)
+      getPackageVersion().should.equal('1.0.0')
+      return done()
+    })
+  })
 })

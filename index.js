@@ -39,7 +39,7 @@ module.exports = function standardVersion (argv) {
       return runLifecycleScript(args, 'postbump', newVersion, args)
     })
     .then(() => {
-      return outputChangelog(args)
+      return outputChangelog(args, newVersion)
     })
     .then(() => {
       return runLifecycleScript(args, 'precommit', newVersion, args)
@@ -171,19 +171,21 @@ function bumpVersion (releaseAs, callback) {
   })
 }
 
-function outputChangelog (argv) {
+function outputChangelog (argv, newVersion) {
   return new Promise((resolve, reject) => {
-    if (!argv.dryRun) createIfMissing(argv)
+    createIfMissing(argv)
     var header = '# Change Log\n\nAll notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.\n'
-    var oldContent = fs.readFileSync(argv.infile, 'utf-8')
+    var oldContent = argv.dryRun ? '' : fs.readFileSync(argv.infile, 'utf-8')
     // find the position of the last release and remove header:
     if (oldContent.indexOf('<a name=') !== -1) {
       oldContent = oldContent.substring(oldContent.indexOf('<a name='))
     }
     var content = ''
+    var context
+    if (argv.dryRun) context = {version: newVersion}
     var changelogStream = conventionalChangelog({
       preset: 'angular'
-    }, undefined, {merges: null})
+    }, context, {merges: null})
       .on('error', function (err) {
         return reject(err)
       })
@@ -194,7 +196,7 @@ function outputChangelog (argv) {
 
     changelogStream.on('end', function () {
       checkpoint(argv, 'outputting changes to %s', [argv.infile])
-      if (argv.dryRun) console.log(`\n---\n${chalk.gray(content)}\n---\n`)
+      if (argv.dryRun) console.log(`\n---\n${chalk.gray(content.trim())}\n---\n`)
       else writeFile(argv, argv.infile, header + '\n' + (content + oldContent).replace(/\n+$/, '\n'))
       return resolve()
     })
