@@ -13,16 +13,16 @@ const checkpoint = require('./lib/checkpoint')
 const printError = require('./lib/print-error')
 const runExec = require('./lib/run-exec')
 const runLifecycleScript = require('./lib/run-lifecycle-script')
+const writeFile = require('./lib/write-file')
 
 module.exports = function standardVersion (argv) {
   var pkgPath = path.resolve(process.cwd(), './package.json')
   var pkg = require(pkgPath)
   var newVersion = pkg.version
-  var scripts = argv.scripts || {}
   var defaults = require('./defaults')
   var args = Object.assign({}, defaults, argv)
 
-  return runLifecycleScript(args, 'prebump', null, scripts)
+  return runLifecycleScript(args, 'prebump', null)
     .then((stdout) => {
       if (stdout && stdout.trim().length) args.releaseAs = stdout.trim()
       return bumpVersion(args.releaseAs)
@@ -36,13 +36,13 @@ module.exports = function standardVersion (argv) {
         checkpoint(args, 'skip version bump on first release', [], chalk.red(figures.cross))
       }
 
-      return runLifecycleScript(args, 'postbump', newVersion, scripts)
+      return runLifecycleScript(args, 'postbump', newVersion, args)
     })
     .then(() => {
-      return outputChangelog(args)
+      return outputChangelog(args, newVersion)
     })
     .then(() => {
-      return runLifecycleScript(args, 'precommit', newVersion, scripts)
+      return runLifecycleScript(args, 'precommit', newVersion, args)
     })
     .then((message) => {
       if (message && message.length) args.message = message
@@ -61,7 +61,7 @@ module.exports = function standardVersion (argv) {
  * attempt to update the version # in a collection of common config
  * files, e.g., package.json, bower.json.
  *
- * @param argv config object
+ * @param args config object
  * @param newVersion version # to update to.
  * @return {string}
  */
@@ -78,7 +78,7 @@ function updateConfigs (args, newVersion) {
         var filename = path.basename(configPath)
         checkpoint(args, 'bumping version in ' + filename + ' from %s to %s', [config.version, newVersion])
         config.version = newVersion
-        fs.writeFileSync(configPath, JSON.stringify(config, null, 2) + '\n', 'utf-8')
+        writeFile(args, configPath, JSON.stringify(config, null, 2) + '\n')
         // flag any config files that we modify the version # for
         // as having been updated.
         configsToUpdate[configPath] = true
@@ -171,19 +171,21 @@ function bumpVersion (releaseAs, callback) {
   })
 }
 
-function outputChangelog (argv) {
+function outputChangelog (args, newVersion) {
   return new Promise((resolve, reject) => {
-    createIfMissing(argv)
+    createIfMissing(args)
     var header = '# Change Log\n\nAll notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.\n'
-    var oldContent = fs.readFileSync(argv.infile, 'utf-8')
+    var oldContent = args.dryRun ? '' : fs.readFileSync(args.infile, 'utf-8')
     // find the position of the last release and remove header:
     if (oldContent.indexOf('<a name=') !== -1) {
       oldContent = oldContent.substring(oldContent.indexOf('<a name='))
     }
     var content = ''
+    var context
+    if (args.dryRun) context = {version: newVersion}
     var changelogStream = conventionalChangelog({
       preset: 'angular'
-    }, undefined, {merges: null})
+    }, context, {merges: null})
       .on('error', function (err) {
         return reject(err)
       })
@@ -193,31 +195,32 @@ function outputChangelog (argv) {
     })
 
     changelogStream.on('end', function () {
-      checkpoint(argv, 'outputting changes to %s', [argv.infile])
-      fs.writeFileSync(argv.infile, header + '\n' + (content + oldContent).replace(/\n+$/, '\n'), 'utf-8')
+      checkpoint(args, 'outputting changes to %s', [args.infile])
+      if (args.dryRun) console.info(`\n---\n${chalk.gray(content.trim())}\n---\n`)
+      else writeFile(args, args.infile, header + '\n' + (content + oldContent).replace(/\n+$/, '\n'))
       return resolve()
     })
   })
 }
 
-function commit (argv, newVersion) {
+function commit (args, newVersion) {
   var msg = 'committing %s'
-  var args = [argv.infile]
-  var verify = argv.verify === false || argv.n ? '--no-verify ' : ''
+  var paths = [args.infile]
+  var verify = args.verify === false || args.n ? '--no-verify ' : ''
   var toAdd = ''
   // commit any of the config files that we've updated
   // the version # for.
   Object.keys(configsToUpdate).forEach(function (p) {
     if (configsToUpdate[p]) {
       msg += ' and %s'
-      args.unshift(path.basename(p))
+      paths.unshift(path.basename(p))
       toAdd += ' ' + path.relative(process.cwd(), p)
     }
   })
-  checkpoint(argv, msg, args)
-  return runExec(argv, 'git add' + toAdd + ' ' + argv.infile)
+  checkpoint(args, msg, paths)
+  return runExec(args, 'git add' + toAdd + ' ' + args.infile)
     .then(() => {
-      return runExec(argv, 'git commit ' + verify + (argv.sign ? '-S ' : '') + (argv.commitAll ? '' : (argv.infile + toAdd)) + ' -m "' + formatCommitMessage(argv.message, newVersion) + '"')
+      return runExec(args, 'git commit ' + verify + (args.sign ? '-S ' : '') + (args.commitAll ? '' : (args.infile + toAdd)) + ' -m "' + formatCommitMessage(args.message, newVersion) + '"')
     })
 }
 
@@ -225,31 +228,31 @@ function formatCommitMessage (msg, newVersion) {
   return String(msg).indexOf('%s') !== -1 ? util.format(msg, newVersion) : msg
 }
 
-function tag (newVersion, pkgPrivate, argv) {
+function tag (newVersion, pkgPrivate, args) {
   var tagOption
-  if (argv.sign) {
+  if (args.sign) {
     tagOption = '-s '
   } else {
     tagOption = '-a '
   }
-  checkpoint(argv, 'tagging release %s', [newVersion])
-  return runExec(argv, 'git tag ' + tagOption + argv.tagPrefix + newVersion + ' -m "' + formatCommitMessage(argv.message, newVersion) + '"')
+  checkpoint(args, 'tagging release %s', [newVersion])
+  return runExec(args, 'git tag ' + tagOption + args.tagPrefix + newVersion + ' -m "' + formatCommitMessage(args.message, newVersion) + '"')
     .then(() => {
       var message = 'git push --follow-tags origin master'
       if (pkgPrivate !== true) message += '; npm publish'
 
-      checkpoint(argv, 'Run `%s` to publish', [message], chalk.blue(figures.info))
+      checkpoint(args, 'Run `%s` to publish', [message], chalk.blue(figures.info))
     })
 }
 
-function createIfMissing (argv) {
+function createIfMissing (args) {
   try {
-    accessSync(argv.infile, fs.F_OK)
+    accessSync(args.infile, fs.F_OK)
   } catch (err) {
     if (err.code === 'ENOENT') {
-      checkpoint(argv, 'created %s', [argv.infile])
-      argv.outputUnreleased = true
-      fs.writeFileSync(argv.infile, '\n', 'utf-8')
+      checkpoint(args, 'created %s', [args.infile])
+      args.outputUnreleased = true
+      writeFile(args, args.infile, '\n')
     }
   }
 }

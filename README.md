@@ -188,6 +188,18 @@ If you want to commit generated artifacts in the release commit (e.g. [#96](http
 "release": "git add <file(s) to commit> && standard-version -a"
 ```
 
+### Dry run mode
+
+running `standard-version` with the flag `--dry-run` allows you to see what
+commands would be run, without committing to git or updating files.
+
+```sh
+# npm run script
+npm run release -- --dry-run
+# or global bin
+standard-version --dry-run
+```
+
 ### CLI Help
 
 ```sh
