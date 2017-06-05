@@ -349,7 +349,8 @@ describe('cli', function () {
 
       commit('feat: first commit')
       return execCliAsync('--prerelease')
-        .then(function () {
+        .then(function (messages) {
+          messages[messages.length - 1].should.equal('Run `git push --follow-tags origin master; npm publish --tag prerelease` to publish')
           // it's a feature commit, so it's minor type
           getPackageVersion().should.equal('1.1.0-0')
         })
