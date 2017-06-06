@@ -688,4 +688,36 @@ describe('standard-version', function () {
       return done()
     })
   })
+
+  describe('skip', () => {
+    it('allows bump and changelog generation to be skipped', function () {
+      let changelogContent = 'legacy header format<a name="1.0.0">\n'
+      writePackageJson('1.0.0')
+      fs.writeFileSync('CHANGELOG.md', changelogContent, 'utf-8')
+
+      commit('feat: first commit')
+      return execCliAsync('--skip.bump true --skip.changelog true')
+        .then(function () {
+          getPackageVersion().should.equal('1.0.0')
+          var content = fs.readFileSync('CHANGELOG.md', 'utf-8')
+          content.should.equal(changelogContent)
+        })
+    })
+
+    it('allows the commit phase to be skipped', function () {
+      let changelogContent = 'legacy header format<a name="1.0.0">\n'
+      writePackageJson('1.0.0')
+      fs.writeFileSync('CHANGELOG.md', changelogContent, 'utf-8')
+
+      commit('feat: new feature from branch')
+      return execCliAsync('--skip.commit true')
+        .then(function () {
+          getPackageVersion().should.equal('1.1.0')
+          var content = fs.readFileSync('CHANGELOG.md', 'utf-8')
+          content.should.match(/new feature from branch/)
+          // check last commit message
+          shell.exec('git log --oneline -n1').stdout.should.match(/feat: new feature from branch/)
+        })
+    })
+  })
 })
