@@ -21,6 +21,7 @@ module.exports = function standardVersion (argv) {
   var newVersion = pkg.version
   var defaults = require('./defaults')
   var args = Object.assign({}, defaults, argv)
+  args[Symbol.for('messages')] = []
 
   return runLifecycleScript(args, 'prebump', null)
     .then((stdout) => {
@@ -50,6 +51,9 @@ module.exports = function standardVersion (argv) {
     })
     .then(() => {
       return tag(newVersion, pkg.private, args)
+    })
+    .then(() => {
+      return args[Symbol.for('messages')]
     })
     .catch((err) => {
       printError(args, err.message)
@@ -240,6 +244,7 @@ function tag (newVersion, pkgPrivate, args) {
     .then(() => {
       var message = 'git push --follow-tags origin master'
       if (pkgPrivate !== true) message += '; npm publish'
+      if (args.prerelease !== undefined) message += ' --tag prerelease'
 
       checkpoint(args, 'Run `%s` to publish', [message], chalk.blue(figures.info))
     })
