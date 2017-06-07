@@ -137,6 +137,29 @@ you will get version `1.1.0` rather than the auto generated version `1.0.1`.
 
 > **NOTE:** you can combine `--release-as` and `--prerelease` to generate a release. This is useful when publishing experimental feature(s).
 
+### Release on a seperate branch like `release2.0` or `hotfix-parsing-lists`
+
+Releasing on a seperate branch is slightly more elaborate. Say for example you have a development version on master and a 2.0 version branch that should remain stable(-ish).
+
+In the case of a release2.0 branch with a hotfix switch to a new branch:
+
+    git checkout release2.0 # if you're not already on that branch
+    git checkout -b hotfix-i18n-broken
+
+After you're done commit your work and **first** merge it to the main branch before running the release.
+
+    git checkout release2.0
+    git merge hotfix-i18n-broken # or rebase whichever you prefer
+
+    # npm run script
+    npm run release
+
+**CAUTION:** Do not cut releases from other branches, as they will screw up your history (if this is mandatory, you need to somehow get to git-semver-tags and enable the "all branches tags" option).
+
+If possible merge the hotfix branch to your other release (master/release2.1/release3.0 etc.) or rebase and ff-merge and repeat the standard-version process.
+
+The reasoning behind this is that your CHANGELOG.md will be intact for the branches on which it should be applied. Without breaking the CHANGELOG once things are merged back.
+
 ### Prevent Git Hooks
 
 If you use git hooks, like pre-commit, to test your code before committing, you can prevent hooks from being verified during the commit step by passing the `--no-verify` option:
