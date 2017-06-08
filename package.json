@@ -49,7 +49,7 @@
   "devDependencies": {
     "chai": "^3.5.0",
     "coveralls": "^2.11.9",
-    "mocha": "^3.1.0",
+    "mocha": "^3.4.2",
     "mock-git": "^1.0.2",
     "mockery": "^2.0.0",
     "nyc": "^11.0.2",
