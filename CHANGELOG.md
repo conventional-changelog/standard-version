@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="4.2.0"></a>
+# [4.2.0](https://github.com/conventional-changelog/standard-version/compare/v4.1.0...v4.2.0) (2017-06-12)
+
+
+### Features
+
+* add support for `package-lock.json` ([#190](https://github.com/conventional-changelog/standard-version/issues/190)) ([bc0fc53](https://github.com/conventional-changelog/standard-version/commit/bc0fc53))
+
+
+
 <a name="4.1.0"></a>
 # [4.1.0](https://github.com/conventional-changelog/standard-version/compare/v4.0.0...v4.1.0) (2017-06-06)
 
