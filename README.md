@@ -307,6 +307,14 @@ Although this will allow each commit to be included as separate entries in your 
 
 For this reason, we recommend keeping the scope of each PR to one general feature or fix. In practice, this allows you to use unstructured commit messages when committing each little change and then squash them into a single commit with a structured message (referencing the PR number) once they have been reviewed and accepted.
 
+### Why is `chore`, `style`, `refactor`, `docs`, `ci` or `build` entries not in my CHANGELOG?
+
+TL;DR: Those entries don't make any different to your end-users, unless there's a BREAKING CHANGE.
+
+Typically, commits marked as chore do not end up in the CHANGELOG by default. Since the CHANGELOG file is always included in the published package, the idea is to strike a balance between including the important changes (in an easy to read/render format) and keeping the file to a reasonable size. If all changes were included, it would essentially duplicate the entire git log.
+
+The only reason that chore ended up in the CHANGELOG is because it was also marked as a BREAKING CHANGE, which is a little odd but understandable.
+
 ## License
 
 ISC
