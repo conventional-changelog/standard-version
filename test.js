@@ -360,6 +360,14 @@ describe('cli', function () {
           getPackageVersion().should.equal('1.1.0-0')
         })
     })
+
+    it('advises use of --tag prerelease for publishing to npm', function () {
+      writePackageJson('1.0.0')
+      fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
+
+      commit('feat: first commit')
+      execCli('--prerelease').stdout.should.include('--tag prerelease')
+    })
   })
 
   describe('manual-release', function () {
