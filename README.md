@@ -1,11 +1,12 @@
 # Standard Version
 
-[![Join the chat at https://gitter.im/conventional-changelog/standard-version](https://badges.gitter.im/conventional-changelog/standard-version.svg)](https://gitter.im/conventional-changelog/standard-version?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
 [![Build Status](https://travis-ci.org/conventional-changelog/standard-version.svg?branch=master)](https://travis-ci.org/conventional-changelog/standard-version)
 [![NPM version](https://img.shields.io/npm/v/standard-version.svg)](https://www.npmjs.com/package/standard-version)
 [![Coverage Status](https://coveralls.io/repos/conventional-changelog/standard-version/badge.svg?branch=)](https://coveralls.io/r/conventional-changelog/standard-version?branch=master)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
+[![community slack](http://devtoolscommunity.herokuapp.com/badge.svg)](http://devtoolscommunity.herokuapp.com)
+
+_Having problems? want to contribute? join our [community slack](http://devtoolscommunity.herokuapp.com)_.
 
 > stop using `npm version`, use `standard-version` it rocks!
 
@@ -129,6 +130,8 @@ you would like your next release to be a `minor`. Simply do:
 ```bash
 # npm run script
 npm run release -- --release-as minor
+# Or
+npm run release -- --release-as 1.1.0
 ```
 
 you will get version `1.1.0` rather than the auto generated version `1.0.1`.
@@ -150,6 +153,46 @@ standard-version --no-verify
 
 If you have your GPG key set up, add the `--sign` or `-s` flag to your `standard-version` command.
 
+### Lifecycle scripts
+
+`standard-version` supports lifecycle scripts. These allow you to execute your
+own supplementary commands during the release. The following
+hooks are available and execute in the order documented:
+
+* `prebump`/`postbump`: executed before and after the version is bumped. If the `prebump`
+  script returns a version #, it will be used rather than
+  the version calculated by `standard-version`.
+* `prechangelog`/`postchangelog`: executes before and after the CHANGELOG is generated.
+* `precommit`/`postcommit`: called before and after the commit step.
+* `pretag`/`posttag`: called before and after the tagging step.
+
+Simply add the following to your package.json to configure lifecycle scripts:
+
+```json
+{
+  "standard-version": {
+    "scripts": {
+      "prebump": "echo 9.9.9"
+    }
+  }
+}
+```
+
+### Skipping lifecycle steps
+
+You can skip any of the lifecycle steps (`bump`, `changelog`, `commit`, `tag`),
+by adding the following to your package.json:
+
+```json
+{
+  "standard-version": {
+    "skip": {
+      "changelog": true
+    }
+  }
+}
+```
+
 ### Committing generated artifacts in the release commit
 
 If you want to commit generated artifacts in the release commit (e.g. [#96](https://github.com/conventional-changelog/standard-version/issues/96)), you can use the `--commit-all` or `-a` flag. You will need to stage the artifacts you want to commit, so your `release` command could look like this:
@@ -159,12 +202,29 @@ If you want to commit generated artifacts in the release commit (e.g. [#96](http
 "release": "git add <file(s) to commit> && standard-version -a"
 ```
 
-### Use a specific context
+### Using a specific host context
 
-If you want to use a specific context, you can use `--context <file.json>` or `-c  <file.json>`
-For example, if you use a private version control system installed locally as gitlab, and your url does not contain the gitlab keyword (http:://myprivaterepo.company.com). It is mandatory to inform manually 'standard-version' on the context to be used.
+Running `standard-version` with the flag `--context` or `-c` allows you to specify a different host context.
 
-Example `gitlab.json` :
+```sh
+# npm run script
+npm run release -- --context <context.json>
+# or global bin
+standard-version --context <context.json>
+```
+
+In case you are using a private version control system installed locally like gitlab, and your repository url does not contain the git type keyword (github|bitbucket|gitlab). It is mandatory to inform manually `standard-version` on the host context (keywords) to be used.
+
+`package.json` :
+```json
+{
+  "name": "Private Project",
+  "author": "Private Owner",
+  "version": "1.0.0",
+  "repository": "http:://private-repo.company.org/private-owner/private-project.git"
+}
+```
+`gitlab.json` :
 ```json
 {
   "issue": "issues",
@@ -183,6 +243,18 @@ Example `gitlab.json` :
    "#"
  ]
 }
+```
+
+### Dry run mode
+
+running `standard-version` with the flag `--dry-run` allows you to see what
+commands would be run, without committing to git or updating files.
+
+```sh
+# npm run script
+npm run release -- --dry-run
+# or global bin
+standard-version --dry-run
 ```
 
 ### CLI Help

@@ -2,7 +2,6 @@
 
 'use strict'
 
-var objectAssign = require('object-assign')
 var shell = require('shelljs')
 var fs = require('fs')
 var path = require('path')
@@ -10,11 +9,10 @@ var stream = require('stream')
 var mockGit = require('mock-git')
 var mockery = require('mockery')
 var semver = require('semver')
-var Promise = require('bluebird')
 var cli = require('./command')
 var standardVersion = require('./index')
 
-var should = require('chai').should()
+require('chai').should()
 
 var cliPath = path.resolve(__dirname, './bin/cli.js')
 
@@ -39,25 +37,73 @@ function execCli (argString) {
 }
 
 function execCliAsync (argString) {
-  return Promise.promisify(standardVersion)(cli.parse('standard-version ' + argString + ' --silent'))
+  return standardVersion(cli.parse('standard-version ' + argString + ' --silent'))
 }
 
 function writePackageJson (version, option) {
   option = option || {}
-  var pkg = objectAssign(option, {version: version})
+  var pkg = Object.assign(option, {version: version})
   fs.writeFileSync('package.json', JSON.stringify(pkg), 'utf-8')
   delete require.cache[require.resolve(path.join(process.cwd(), 'package.json'))]
 }
 
+function writeContextJson (name, option) {
+  name = name || 'gitlab.json'
+  option = option || {}
+  var context = Object.assign(option, {
+    issue: 'issues',
+    commit: 'commit',
+    referenceActions: [
+      'close',
+      'closes',
+      'closed',
+      'closing',
+      'fix',
+      'fixes',
+      'fixed',
+      'fixing'
+    ],
+    issuePrefixes: [
+      '#'
+    ]
+  })
+  fs.writeFileSync(name, JSON.stringify(context), 'utf-8')
+  delete require.cache[require.resolve(path.join(process.cwd(), name))]
+}
+
 function writeBowerJson (version, option) {
   option = option || {}
-  var bower = objectAssign(option, { version: version })
+  var bower = Object.assign(option, {version: version})
   fs.writeFileSync('bower.json', JSON.stringify(bower), 'utf-8')
+}
+
+function writeNpmShrinkwrapJson (version, option) {
+  option = option || {}
+  var shrinkwrap = Object.assign(option, { version: version })
+  fs.writeFileSync('npm-shrinkwrap.json', JSON.stringify(shrinkwrap), 'utf-8')
+}
+
+function writePackageLockJson (version, option) {
+  option = option || {}
+  var pkgLock = Object.assign(option, { version: version })
+  fs.writeFileSync('package-lock.json', JSON.stringify(pkgLock), 'utf-8')
 }
 
 function writeGitPreCommitHook () {
   fs.writeFileSync('.git/hooks/pre-commit', '#!/bin/sh\necho "precommit ran"\nexit 1', 'utf-8')
   fs.chmodSync('.git/hooks/pre-commit', '755')
+}
+
+function writePostBumpHook (causeError) {
+  writeHook('postbump', causeError)
+}
+
+function writeHook (hookName, causeError, script) {
+  shell.mkdir('-p', 'scripts')
+  var content = script || 'console.error("' + hookName + ' ran")'
+  content += causeError ? '\nthrow new Error("' + hookName + '-failure")' : ''
+  fs.writeFileSync('scripts/' + hookName + '.js', content, 'utf-8')
+  fs.chmodSync('scripts/' + hookName + '.js', '755')
 }
 
 function initInTempFolder () {
@@ -216,19 +262,155 @@ describe('cli', function () {
     })
   })
 
-  describe('with context', function () {
-    it('should use context.json', function () {
-      writePackageJson('1.0.1')
+  describe('unknown host type', function () {
+    describe('with no context flag', function () {
+      it('should use default context', function () {
+        writePackageJson('1.0.1', {'repository': 'https://private-repo.company.org/private-owner/private-project.git'})
 
-      commit('feat: new context flag')
-      commit('fix: patch release')
-      execCli('--context ../context.json').code.should.equal(0)
+        commit('feat: new context flag')
+        commit('fix: patch release')
+        execCli().code.should.equal(0)
 
-      var content = fs.readFileSync('CHANGELOG.md', 'utf-8')
-      content.should.include('](bitbucket/b/a/commits/')
-      content.should.match(/patch release/)
-      content.should.match(/new context flag/)
-      shell.exec('git tag').stdout.should.match(/1\.1\.0/)
+        var content = fs.readFileSync('CHANGELOG.md', 'utf-8')
+        content.should.include('](https://private-repo.company.org/private-owner/private-project/commits/')
+        content.should.match(/patch release/)
+        content.should.match(/new context flag/)
+        shell.exec('git tag').stdout.should.match(/1\.1\.0/)
+      })
+    })
+    describe('with context flag', function () {
+      it('should exit with error with missing context file', function () {
+        commit('feat: new context flag')
+        commit('fix: patch release')
+        var result = execCli('--context unknown.json')
+
+        result.code.should.equal(1)
+        result.stderr.should.match(/no such file or directory/)
+      })
+      it('should use context keywords with a valid context file', function () {
+        writePackageJson('1.0.1', {'repository': 'https://private-repo.company.org/private-owner/private-project.git'})
+        writeContextJson()
+
+        commit('feat: new context flag')
+        commit('fix: patch release')
+        execCli('--context gitlab.json').code.should.equal(0)
+
+        var content = fs.readFileSync('CHANGELOG.md', 'utf-8')
+        content.should.include('](https://private-repo.company.org/private-owner/private-project/commit/')
+        content.should.match(/patch release/)
+        content.should.match(/new context flag/)
+        shell.exec('git tag').stdout.should.match(/1\.1\.0/)
+      })
+    })
+  })
+
+  describe('lifecycle scripts', () => {
+    describe('prebump hook', function () {
+      it('should allow prebump hook to return an alternate version #', function () {
+        writePackageJson('1.0.0', {
+          'standard-version': {
+            'scripts': {
+              'prebump': 'node scripts/prebump'
+            }
+          }
+        })
+        writeHook('prebump', false, 'console.log("9.9.9")')
+        fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
+
+        commit('feat: first commit')
+        var result = execCli('--patch')
+        result.stdout.should.match(/9\.9\.9/)
+        result.code.should.equal(0)
+      })
+    })
+
+    describe('postbump hook', function () {
+      it('should run the postbump hook when provided', function () {
+        writePackageJson('1.0.0', {
+          'standard-version': {
+            'scripts': {
+              'postbump': 'node scripts/postbump'
+            }
+          }
+        })
+        writePostBumpHook()
+        fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
+
+        commit('feat: first commit')
+        var result = execCli('--patch')
+        result.code.should.equal(0)
+        result.stderr.should.match(/postbump ran/)
+      })
+
+      it('should run the postbump and exit with error when postbump fails', function () {
+        writePackageJson('1.0.0', {
+          'standard-version': {
+            'scripts': {
+              'postbump': 'node scripts/postbump'
+            }
+          }
+        })
+        writePostBumpHook(true)
+        fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
+
+        commit('feat: first commit')
+        var result = execCli('--patch')
+        result.code.should.equal(1)
+        result.stderr.should.match(/postbump-failure/)
+      })
+    })
+
+    describe('precommit hook', function () {
+      it('should run the precommit hook when provided', function () {
+        writePackageJson('1.0.0', {
+          'standard-version': {
+            'scripts': {
+              'precommit': 'node scripts/precommit'
+            }
+          }
+        })
+        writeHook('precommit')
+        fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
+
+        commit('feat: first commit')
+        var result = execCli('--patch')
+        result.code.should.equal(0)
+        result.stderr.should.match(/precommit ran/)
+      })
+
+      it('should run the precommit hook and exit with error when precommit fails', function () {
+        writePackageJson('1.0.0', {
+          'standard-version': {
+            'scripts': {
+              'precommit': 'node scripts/precommit'
+            }
+          }
+        })
+        writeHook('precommit', true)
+        fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
+
+        commit('feat: first commit')
+        var result = execCli('--patch')
+        result.code.should.equal(1)
+        result.stderr.should.match(/precommit-failure/)
+      })
+
+      it('should allow an alternate commit message to be provided by precommit script', function () {
+        writePackageJson('1.0.0', {
+          'standard-version': {
+            'scripts': {
+              'precommit': 'node scripts/precommit'
+            }
+          }
+        })
+        writeHook('precommit', false, 'console.log("releasing %s delivers #222")')
+        fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
+
+        commit('feat: first commit')
+        var result = execCli('--patch')
+        result.code.should.equal(0)
+        shell.exec('git log --oneline -n1').should.match(/delivers #222/)
+      })
     })
   })
 
@@ -243,6 +425,14 @@ describe('cli', function () {
           // it's a feature commit, so it's minor type
           getPackageVersion().should.equal('1.1.0-0')
         })
+    })
+
+    it('advises use of --tag prerelease for publishing to npm', function () {
+      writePackageJson('1.0.0')
+      fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
+
+      commit('feat: first commit')
+      execCli('--prerelease').stdout.should.include('--tag prerelease')
     })
   })
 
@@ -303,6 +493,34 @@ describe('cli', function () {
               getPackageVersion().should.equal(version.major + '.' + version.minor + '.' + version.patch + '-' + type + '.0')
             })
         })
+      })
+    })
+
+    describe('release-as-exact', function () {
+      it('releases as v100.0.0', function () {
+        var originVer = '1.0.0'
+        writePackageJson(originVer)
+        fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
+
+        commit('fix: first commit')
+
+        return execCliAsync('--release-as v100.0.0')
+          .then(function () {
+            getPackageVersion().should.equal('100.0.0')
+          })
+      })
+
+      it('releases as 200.0.0-amazing', function () {
+        var originVer = '1.0.0'
+        writePackageJson(originVer)
+        fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
+
+        commit('fix: first commit')
+
+        return execCliAsync('--release-as 200.0.0-amazing')
+          .then(function () {
+            getPackageVersion().should.equal('200.0.0-amazing')
+          })
       })
     })
 
@@ -449,11 +667,11 @@ describe('standard-version', function () {
       shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
       commit('feat: new feature!')
 
-      require('./index')({silent: true}, function (err) {
-        should.exist(err)
-        err.message.should.match(/bump err/)
-        done()
-      })
+      require('./index')({silent: true})
+        .catch((err) => {
+          err.message.should.match(/bump err/)
+          done()
+        })
     })
   })
 
@@ -479,11 +697,11 @@ describe('standard-version', function () {
       shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
       commit('feat: new feature!')
 
-      require('./index')({silent: true}, function (err) {
-        should.exist(err)
-        err.message.should.match(/changelog err/)
-        done()
-      })
+      require('./index')({silent: true})
+        .catch((err) => {
+          err.message.should.match(/changelog err/)
+          return done()
+        })
     })
   })
 
@@ -492,15 +710,14 @@ describe('standard-version', function () {
     shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
     commit('feat: new feature!')
 
-    require('./index')({silent: true}, function (err) {
-      should.not.exist(err)
-
-      // check last commit message
-      shell.exec('git log --oneline -n1').stdout.should.match(/chore\(release\): 1\.1\.0/)
-      // check annotated tag message
-      shell.exec('git tag -l -n1 v1.1.0').stdout.should.match(/chore\(release\): 1\.1\.0/)
-      done()
-    })
+    require('./index')({silent: true})
+      .then(() => {
+        // check last commit message
+        shell.exec('git log --oneline -n1').stdout.should.match(/chore\(release\): 1\.1\.0/)
+        // check annotated tag message
+        shell.exec('git tag -l -n1 v1.1.0').stdout.should.match(/chore\(release\): 1\.1\.0/)
+        done()
+      })
   })
 
   describe('bower.json support', function () {
@@ -508,16 +725,97 @@ describe('standard-version', function () {
       writeBowerJson('1.0.0')
     })
 
-    it('bumps verson # in bower.json', function (done) {
+    it('bumps version # in bower.json', function (done) {
       commit('feat: first commit')
       shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
       commit('feat: new feature!')
-      require('./index')({silent: true}, function (err) {
-        if (err) return done(err)
-        JSON.parse(fs.readFileSync('package.json', 'utf-8')).version.should.equal('1.1.0')
-        getPackageVersion().should.equal('1.1.0')
-        done()
-      })
+      require('./index')({silent: true})
+        .then(() => {
+          JSON.parse(fs.readFileSync('bower.json', 'utf-8')).version.should.equal('1.1.0')
+          getPackageVersion().should.equal('1.1.0')
+          return done()
+        })
+    })
+  })
+
+  describe('npm-shrinkwrap.json support', function () {
+    beforeEach(function () {
+      writeNpmShrinkwrapJson('1.0.0')
+    })
+
+    it('bumps version # in npm-shrinkwrap.json', function (done) {
+      commit('feat: first commit')
+      shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
+      commit('feat: new feature!')
+      require('./index')({silent: true})
+        .then(() => {
+          JSON.parse(fs.readFileSync('npm-shrinkwrap.json', 'utf-8')).version.should.equal('1.1.0')
+          getPackageVersion().should.equal('1.1.0')
+          return done()
+        })
+    })
+  })
+
+  describe('package-lock.json support', function () {
+    beforeEach(function () {
+      writePackageLockJson('1.0.0')
+    })
+
+    it('bumps version # in package-lock.json', function (done) {
+      commit('feat: first commit')
+      shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
+      commit('feat: new feature!')
+      require('./index')({silent: true})
+        .then(() => {
+          JSON.parse(fs.readFileSync('package-lock.json', 'utf-8')).version.should.equal('1.1.0')
+          getPackageVersion().should.equal('1.1.0')
+          return done()
+        })
+    })
+  })
+
+  describe('dry-run', function () {
+    it('skips all non-idempotent steps', function (done) {
+      commit('feat: first commit')
+      shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
+      commit('feat: new feature!')
+      execCli('--dry-run').stdout.should.match(/### Features/)
+      shell.exec('git log --oneline -n1').stdout.should.match(/feat: new feature!/)
+      shell.exec('git tag').stdout.should.match(/1\.0\.0/)
+      getPackageVersion().should.equal('1.0.0')
+      return done()
+    })
+  })
+
+  describe('skip', () => {
+    it('allows bump and changelog generation to be skipped', function () {
+      let changelogContent = 'legacy header format<a name="1.0.0">\n'
+      writePackageJson('1.0.0')
+      fs.writeFileSync('CHANGELOG.md', changelogContent, 'utf-8')
+
+      commit('feat: first commit')
+      return execCliAsync('--skip.bump true --skip.changelog true')
+        .then(function () {
+          getPackageVersion().should.equal('1.0.0')
+          var content = fs.readFileSync('CHANGELOG.md', 'utf-8')
+          content.should.equal(changelogContent)
+        })
+    })
+
+    it('allows the commit phase to be skipped', function () {
+      let changelogContent = 'legacy header format<a name="1.0.0">\n'
+      writePackageJson('1.0.0')
+      fs.writeFileSync('CHANGELOG.md', changelogContent, 'utf-8')
+
+      commit('feat: new feature from branch')
+      return execCliAsync('--skip.commit true')
+        .then(function () {
+          getPackageVersion().should.equal('1.1.0')
+          var content = fs.readFileSync('CHANGELOG.md', 'utf-8')
+          content.should.match(/new feature from branch/)
+          // check last commit message
+          shell.exec('git log --oneline -n1').stdout.should.match(/feat: new feature from branch/)
+        })
     })
   })
 })

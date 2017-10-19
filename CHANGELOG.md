@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="4.2.0"></a>
+# [4.2.0](https://github.com/conventional-changelog/standard-version/compare/v4.1.0...v4.2.0) (2017-06-12)
+
+
+### Features
+
+* add support for `package-lock.json` ([#190](https://github.com/conventional-changelog/standard-version/issues/190)) ([bc0fc53](https://github.com/conventional-changelog/standard-version/commit/bc0fc53))
+
+
+
+<a name="4.1.0"></a>
+# [4.1.0](https://github.com/conventional-changelog/standard-version/compare/v4.0.0...v4.1.0) (2017-06-06)
+
+
+### Features
+
+* **cli:** print error and don't run with node <4, closes [#124](https://github.com/conventional-changelog/standard-version/issues/124) ([d0d71a5](https://github.com/conventional-changelog/standard-version/commit/d0d71a5))
+* add dry-run mode ([#187](https://github.com/conventional-changelog/standard-version/issues/187)) ([d073353](https://github.com/conventional-changelog/standard-version/commit/d073353))
+* add prebump, postbump, precommit, lifecycle scripts ([#186](https://github.com/conventional-changelog/standard-version/issues/186)) ([dfd1d12](https://github.com/conventional-changelog/standard-version/commit/dfd1d12))
+* add support for `npm-shrinkwrap.json` ([#185](https://github.com/conventional-changelog/standard-version/issues/185)) ([86af7fc](https://github.com/conventional-changelog/standard-version/commit/86af7fc))
+* add support for skipping lifecycle steps, polish lifecycle work ([#188](https://github.com/conventional-changelog/standard-version/issues/188)) ([d31dcdb](https://github.com/conventional-changelog/standard-version/commit/d31dcdb))
+* allow a version # to be provided for release-as, rather than just major, minor, patch. ([13eb9cd](https://github.com/conventional-changelog/standard-version/commit/13eb9cd))
+
+
+
 <a name="4.0.0"></a>
 # [4.0.0](https://github.com/conventional-changelog/standard-version/compare/v4.0.0-1...v4.0.0) (2016-12-02)
 
