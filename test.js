@@ -180,8 +180,8 @@ describe('cli', function () {
           var captured = shell.cat('gitcapture.log').stdout.split('\n').map(function (line) {
             return line ? JSON.parse(line) : line
           })
-          captured[captured.length - 3].should.deep.equal(['commit', '-S', 'CHANGELOG.md', 'package.json', '-m', 'chore(release): 1.0.1'])
-          captured[captured.length - 2].should.deep.equal(['tag', '-s', 'v1.0.1', '-m', 'chore(release): 1.0.1'])
+          captured[captured.length - 3].should.deep.equal(['commit', '-S', 'CHANGELOG.md', 'package.json', '-m', 'build: release 1.0.1'])
+          captured[captured.length - 2].should.deep.equal(['tag', '-s', 'v1.0.1', '-m', 'build: release 1.0.1'])
 
           unmock()
         })
@@ -523,9 +523,9 @@ describe('cli', function () {
     execCli().code.should.equal(0)
 
     // check last commit message
-    shell.exec('git log --oneline -n1').stdout.should.match(/chore\(release\): 1\.1\.0/)
+    shell.exec('git log --oneline -n1').stdout.should.match(/build: release 1\.1\.0/)
     // check annotated tag message
-    shell.exec('git tag -l -n1 v1.1.0').stdout.should.match(/chore\(release\): 1\.1\.0/)
+    shell.exec('git tag -l -n1 v1.1.0').stdout.should.match(/build: release 1\.1\.0/)
   })
 
   it('appends line feed at end of package.json', function () {
@@ -647,9 +647,9 @@ describe('standard-version', function () {
     require('./index')({silent: true})
       .then(() => {
         // check last commit message
-        shell.exec('git log --oneline -n1').stdout.should.match(/chore\(release\): 1\.1\.0/)
+        shell.exec('git log --oneline -n1').stdout.should.match(/build: release 1\.1\.0/)
         // check annotated tag message
-        shell.exec('git tag -l -n1 v1.1.0').stdout.should.match(/chore\(release\): 1\.1\.0/)
+        shell.exec('git tag -l -n1 v1.1.0').stdout.should.match(/build: release 1\.1\.0/)
         done()
       })
   })
