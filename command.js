@@ -65,7 +65,7 @@ module.exports = require('yargs')
   })
   .option('skip', {
     describe: 'Map of steps in the release process that should be skipped',
-    default: defaults.scripts
+    default: defaults.skip
   })
   .option('dry-run', {
     type: 'boolean',
