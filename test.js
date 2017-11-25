@@ -9,6 +9,7 @@ var stream = require('stream')
 var mockGit = require('mock-git')
 var mockery = require('mockery')
 var semver = require('semver')
+var formatCommitMessage = require('./lib/format-commit-message')
 var cli = require('./command')
 var standardVersion = require('./index')
 
@@ -100,6 +101,18 @@ function finishTemp () {
 function getPackageVersion () {
   return JSON.parse(fs.readFileSync('package.json', 'utf-8')).version
 }
+
+describe('format-commit-message', function () {
+  it('works for no %s', function () {
+    formatCommitMessage('chore(release): 1.0.0', '1.0.0').should.equal('chore(release): 1.0.0')
+  })
+  it('works for one %s', function () {
+    formatCommitMessage('chore(release): %s', '1.0.0').should.equal('chore(release): 1.0.0')
+  })
+  it('works for two %s', function () {
+    formatCommitMessage('chore(release): %s \n\n* CHANGELOG: https://github.com/conventional-changelog/standard-version/blob/v%s/CHANGELOG.md', '1.0.0').should.equal('chore(release): 1.0.0 \n\n* CHANGELOG: https://github.com/conventional-changelog/standard-version/blob/v1.0.0/CHANGELOG.md')
+  })
+})
 
 describe('cli', function () {
   beforeEach(initInTempFolder)
