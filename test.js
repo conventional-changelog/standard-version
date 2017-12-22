@@ -590,6 +590,32 @@ describe('cli', function () {
     var pkgJson = fs.readFileSync('package.json', 'utf-8')
     pkgJson.should.equal(['{', '  "version": "1.1.0"', '}', ''].join('\n'))
   })
+
+  it('exits with error code if "scripts" is not an object', () => {
+    writePackageJson('1.0.0', {
+      'standard-version': {
+        scripts: 'echo hello'
+      }
+    })
+
+    commit('feat: first commit')
+    var result = execCli()
+    result.code.should.equal(1)
+    result.stderr.should.match(/scripts must be an object/)
+  })
+
+  it('exits with error code if "skip" is not an object', () => {
+    writePackageJson('1.0.0', {
+      'standard-version': {
+        skip: true
+      }
+    })
+
+    commit('feat: first commit')
+    var result = execCli()
+    result.code.should.equal(1)
+    result.stderr.should.match(/skip must be an object/)
+  })
 })
 
 describe('standard-version', function () {
@@ -767,6 +793,8 @@ describe('standard-version', function () {
   })
 
   describe('.gitignore', () => {
+    const libGitignorePath = path.join(__dirname, 'lib', 'gitignore.js')
+
     beforeEach(function () {
       writeBowerJson('1.0.0')
     })
@@ -783,6 +811,31 @@ describe('standard-version', function () {
           getPackageVersion().should.equal('1.1.0')
           return done()
         })
+    })
+
+    it('silently ignores a missing .gitignore file', () => {
+      shell.rm('-f', '.gitignore')
+      delete require.cache[require.resolve(libGitignorePath)]
+      const consoleWarn = console.warn
+      let capturedWarning = '<NOTHING>'
+      console.warn = msg => { capturedWarning = msg }
+      const shouldBeFalse = require(libGitignorePath)(libGitignorePath)
+      console.warn = consoleWarn
+      shouldBeFalse.should.equal(false)
+      capturedWarning.should.equal('<NOTHING>')
+    })
+
+    it('logs a warning if .gitignore is a directory (code coverage)', () => {
+      shell.mkdir('.gitignore')
+      delete require.cache[require.resolve(libGitignorePath)]
+      const consoleWarn = console.warn
+      let capturedWarning = ''
+      console.warn = msg => { capturedWarning = msg }
+      const shouldBeFalse = require(libGitignorePath)(libGitignorePath)
+      console.warn = consoleWarn
+      shell.rm('-rf', '.gitignore')
+      shouldBeFalse.should.equal(false)
+      capturedWarning.should.match(/EISDIR/)
     })
   })
 })
