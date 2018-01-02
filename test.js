@@ -698,15 +698,14 @@ describe('standard-version', function () {
       writeBowerJson('1.0.0')
     })
 
-    it('bumps version # in bower.json', function (done) {
+    it('bumps version # in bower.json', function () {
       commit('feat: first commit')
       shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
       commit('feat: new feature!')
-      require('./index')({silent: true})
+      return require('./index')({silent: true})
         .then(() => {
           JSON.parse(fs.readFileSync('bower.json', 'utf-8')).version.should.equal('1.1.0')
           getPackageVersion().should.equal('1.1.0')
-          return done()
         })
     })
   })
@@ -732,17 +731,17 @@ describe('standard-version', function () {
   describe('package-lock.json support', function () {
     beforeEach(function () {
       writePackageLockJson('1.0.0')
+      fs.writeFileSync('.gitignore', '', 'utf-8')
     })
 
-    it('bumps version # in package-lock.json', function (done) {
+    it('bumps version # in package-lock.json', function () {
       commit('feat: first commit')
       shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
       commit('feat: new feature!')
-      require('./index')({silent: true})
+      return require('./index')({silent: true})
         .then(() => {
           JSON.parse(fs.readFileSync('package-lock.json', 'utf-8')).version.should.equal('1.1.0')
           getPackageVersion().should.equal('1.1.0')
-          return done()
         })
     })
   })
@@ -793,49 +792,21 @@ describe('standard-version', function () {
   })
 
   describe('.gitignore', () => {
-    const libGitignorePath = path.join(__dirname, 'lib', 'gitignore.js')
-
     beforeEach(function () {
       writeBowerJson('1.0.0')
     })
 
-    it('does not update files present in .gitignore', (done) => {
+    it('does not update files present in .gitignore', () => {
       fs.writeFileSync('.gitignore', 'bower.json', 'utf-8')
 
       commit('feat: first commit')
       shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
       commit('feat: new feature!')
-      require('./index')({silent: true})
+      return require('./index')({silent: true})
         .then(() => {
           JSON.parse(fs.readFileSync('bower.json', 'utf-8')).version.should.equal('1.0.0')
           getPackageVersion().should.equal('1.1.0')
-          return done()
         })
-    })
-
-    it('silently ignores a missing .gitignore file', () => {
-      shell.rm('-f', '.gitignore')
-      delete require.cache[require.resolve(libGitignorePath)]
-      const consoleWarn = console.warn
-      let capturedWarning = '<NOTHING>'
-      console.warn = msg => { capturedWarning = msg }
-      const shouldBeFalse = require(libGitignorePath)(libGitignorePath)
-      console.warn = consoleWarn
-      shouldBeFalse.should.equal(false)
-      capturedWarning.should.equal('<NOTHING>')
-    })
-
-    it('logs a warning if .gitignore is a directory (code coverage)', () => {
-      shell.mkdir('.gitignore')
-      delete require.cache[require.resolve(libGitignorePath)]
-      const consoleWarn = console.warn
-      let capturedWarning = ''
-      console.warn = msg => { capturedWarning = msg }
-      const shouldBeFalse = require(libGitignorePath)(libGitignorePath)
-      console.warn = consoleWarn
-      shell.rm('-rf', '.gitignore')
-      shouldBeFalse.should.equal(false)
-      capturedWarning.should.match(/EISDIR/)
     })
   })
 })
