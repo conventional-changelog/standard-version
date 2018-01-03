@@ -590,6 +590,32 @@ describe('cli', function () {
     var pkgJson = fs.readFileSync('package.json', 'utf-8')
     pkgJson.should.equal(['{', '  "version": "1.1.0"', '}', ''].join('\n'))
   })
+
+  it('exits with error code if "scripts" is not an object', () => {
+    writePackageJson('1.0.0', {
+      'standard-version': {
+        scripts: 'echo hello'
+      }
+    })
+
+    commit('feat: first commit')
+    var result = execCli()
+    result.code.should.equal(1)
+    result.stderr.should.match(/scripts must be an object/)
+  })
+
+  it('exits with error code if "skip" is not an object', () => {
+    writePackageJson('1.0.0', {
+      'standard-version': {
+        skip: true
+      }
+    })
+
+    commit('feat: first commit')
+    var result = execCli()
+    result.code.should.equal(1)
+    result.stderr.should.match(/skip must be an object/)
+  })
 })
 
 describe('standard-version', function () {
@@ -672,15 +698,14 @@ describe('standard-version', function () {
       writeBowerJson('1.0.0')
     })
 
-    it('bumps version # in bower.json', function (done) {
+    it('bumps version # in bower.json', function () {
       commit('feat: first commit')
       shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
       commit('feat: new feature!')
-      require('./index')({silent: true})
+      return require('./index')({silent: true})
         .then(() => {
           JSON.parse(fs.readFileSync('bower.json', 'utf-8')).version.should.equal('1.1.0')
           getPackageVersion().should.equal('1.1.0')
-          return done()
         })
     })
   })
@@ -706,17 +731,17 @@ describe('standard-version', function () {
   describe('package-lock.json support', function () {
     beforeEach(function () {
       writePackageLockJson('1.0.0')
+      fs.writeFileSync('.gitignore', '', 'utf-8')
     })
 
-    it('bumps version # in package-lock.json', function (done) {
+    it('bumps version # in package-lock.json', function () {
       commit('feat: first commit')
       shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
       commit('feat: new feature!')
-      require('./index')({silent: true})
+      return require('./index')({silent: true})
         .then(() => {
           JSON.parse(fs.readFileSync('package-lock.json', 'utf-8')).version.should.equal('1.1.0')
           getPackageVersion().should.equal('1.1.0')
-          return done()
         })
     })
   })
@@ -762,6 +787,25 @@ describe('standard-version', function () {
           content.should.match(/new feature from branch/)
           // check last commit message
           shell.exec('git log --oneline -n1').stdout.should.match(/feat: new feature from branch/)
+        })
+    })
+  })
+
+  describe('.gitignore', () => {
+    beforeEach(function () {
+      writeBowerJson('1.0.0')
+    })
+
+    it('does not update files present in .gitignore', () => {
+      fs.writeFileSync('.gitignore', 'bower.json', 'utf-8')
+
+      commit('feat: first commit')
+      shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
+      commit('feat: new feature!')
+      return require('./index')({silent: true})
+        .then(() => {
+          JSON.parse(fs.readFileSync('bower.json', 'utf-8')).version.should.equal('1.0.0')
+          getPackageVersion().should.equal('1.1.0')
         })
     })
   })
