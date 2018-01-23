@@ -49,6 +49,7 @@
   },
   "devDependencies": {
     "chai": "^3.5.0",
+    "conventional-changelog-meso": "git+https://github.com/ankur-kushwaha/conventional-changelog-meso.git",
     "coveralls": "^2.11.9",
     "mocha": "^3.1.0",
     "mock-git": "^1.0.2",
