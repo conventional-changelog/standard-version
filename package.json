@@ -16,7 +16,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/conventional-changelog/standard-version.git"
+    "url": "git+https://ewegithub.sb.karmalab.net/EWE/standard-version"
   },
   "engines": {
     "node": ">=4.0"
@@ -34,9 +34,9 @@
   "author": "Ben Coe <ben@npmjs.com>",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/conventional-changelog/standard-version/issues"
+    "url": "https://ewegithub.sb.karmalab.net/EWE/standard-version/issues"
   },
-  "homepage": "https://github.com/conventional-changelog/standard-version#readme",
+  "homepage": "https://ewegithub.sb.karmalab.net/EWE/standard-version#readme",
   "dependencies": {
     "@commitlint/core": "^6.0.2",
     "chalk": "^1.1.3",
