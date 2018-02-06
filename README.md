@@ -178,6 +178,19 @@ Simply add the following to your package.json to configure lifecycle scripts:
 }
 ```
 
+As an example to change from using GitHub to track your items to using your projects Jira use a 
+`postchangelog` script to replace the url fragment containing 'https://github.com/`myproject`/issues/'
+with a link to your Jira - assuming you have already installed [replace](https://www.npmjs.com/package/replace)
+```json
+{
+  "standard-version": {
+    "scripts": {
+      "postchangelog": "replace 'https://github.com/myproject/issues/' 'https://myjira/browse/' CHANGELOG.md"
+    }
+  }
+}
+```
+
 ### Skipping lifecycle steps
 
 You can skip any of the lifecycle steps (`bump`, `changelog`, `commit`, `tag`),
