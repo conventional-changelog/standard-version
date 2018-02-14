@@ -2,6 +2,7 @@ const path = require('path')
 const printError = require('./lib/print-error')
 
 const bump = require('./lib/lifecycles/bump')
+const analyzeCommits = require('./lib/lifecycles/analyzeCommits');
 const changelog = require('./lib/lifecycles/changelog')
 const commit = require('./lib/lifecycles/commit')
 const tag = require('./lib/lifecycles/tag')
@@ -14,6 +15,9 @@ module.exports = function standardVersion (argv) {
   var args = Object.assign({}, defaults, argv)
 
   return Promise.resolve()
+    .then(()=>{
+      return analyzeCommits();
+    })
     .then(() => {
       return bump(args, pkg)
     })
@@ -29,7 +33,7 @@ module.exports = function standardVersion (argv) {
     .then(() => {
       return tag(newVersion, pkg.private, args)
     })
-    .catch((err) => {
+    .catch((err) => {      
       printError(args, err.message)
       throw err
     })
