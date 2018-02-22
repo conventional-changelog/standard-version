@@ -159,6 +159,9 @@ If you have your GPG key set up, add the `--sign` or `-s` flag to your `standard
 own supplementary commands during the release. The following
 hooks are available and execute in the order documented:
 
+* `prerelease`: executed before anything happens. If the `prerelease` script returns a
+  non-zero exit code, versioning will be aborted, but it has no other effect on the
+  process.
 * `prebump`/`postbump`: executed before and after the version is bumped. If the `prebump`
   script returns a version #, it will be used rather than
   the version calculated by `standard-version`.
