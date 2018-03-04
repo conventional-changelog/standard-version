@@ -54,6 +54,12 @@ function writeBowerJson (version, option) {
   fs.writeFileSync('bower.json', JSON.stringify(bower), 'utf-8')
 }
 
+function writeManifestJson (version, option) {
+  option = option || {}
+  var manifest = Object.assign(option, {version: version})
+  fs.writeFileSync('manifest.json', JSON.stringify(manifest), 'utf-8')
+}
+
 function writeNpmShrinkwrapJson (version, option) {
   option = option || {}
   var shrinkwrap = Object.assign(option, { version: version })
@@ -705,6 +711,23 @@ describe('standard-version', function () {
       return require('./index')({silent: true})
         .then(() => {
           JSON.parse(fs.readFileSync('bower.json', 'utf-8')).version.should.equal('1.1.0')
+          getPackageVersion().should.equal('1.1.0')
+        })
+    })
+  })
+
+  describe.only('manifest.json support', function () {
+    beforeEach(function () {
+      writeManifestJson('1.0.0')
+    })
+
+    it('bumps version # in manifest.json', function () {
+      commit('feat: first commit')
+      shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
+      commit('feat: new feature!')
+      return require('./index')({silent: true})
+        .then(() => {
+          JSON.parse(fs.readFileSync('manifest.json', 'utf-8')).version.should.equal('1.1.0')
           getPackageVersion().should.equal('1.1.0')
         })
     })
