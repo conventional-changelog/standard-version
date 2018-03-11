@@ -699,6 +699,16 @@ describe('standard-version', function () {
       })
   })
 
+  describe('without a package file to bump', function () {
+    it('should exit with error', function () {
+      shell.rm('package.json')
+      return require('./index')({silent: true})
+        .catch((err) => {
+          err.message.should.equal('no package file found')
+        })
+    })
+  })
+
   describe('bower.json support', function () {
     beforeEach(function () {
       writeBowerJson('1.0.0')
@@ -765,16 +775,6 @@ describe('standard-version', function () {
         .then(() => {
           JSON.parse(fs.readFileSync('package-lock.json', 'utf-8')).version.should.equal('1.1.0')
           getPackageVersion().should.equal('1.1.0')
-        })
-    })
-  })
-
-  describe('without a package file to bump', function () {
-    it('should exit with error', function () {
-      shell.rm('package.json')
-      return require('./index')({silent: true})
-        .catch((err) => {
-          err.message.should.equal('no package file found')
         })
     })
   })
