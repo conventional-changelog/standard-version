@@ -769,6 +769,17 @@ describe('standard-version', function () {
     })
   })
 
+  describe('without a package file to bump', function () {
+    it('should exit with error', function () {
+      shell.rm('package.json')
+      return require('./index')({silent: true})
+        .catch((err) => {
+          err.message.should.equal('no package file found')
+        })
+
+    })
+  })
+
   describe('dry-run', function () {
     it('skips all non-idempotent steps', function (done) {
       commit('feat: first commit')
