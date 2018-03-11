@@ -716,7 +716,7 @@ describe('standard-version', function () {
     })
   })
 
-  describe.only('manifest.json support', function () {
+  describe('manifest.json support', function () {
     beforeEach(function () {
       writeManifestJson('1.0.0')
     })
