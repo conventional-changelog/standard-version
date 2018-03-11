@@ -776,7 +776,6 @@ describe('standard-version', function () {
         .catch((err) => {
           err.message.should.equal('no package file found')
         })
-
     })
   })
 
