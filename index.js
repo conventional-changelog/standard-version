@@ -16,7 +16,7 @@ module.exports = function standardVersion (argv) {
     } catch (err) {}
   })
   if (!pkg) {
-    throw new Error('no package file found')
+    return Promise.reject(new Error('no package file found'))
   }
   var newVersion = pkg.version
   var defaults = require('./defaults')
