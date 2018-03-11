@@ -9,6 +9,7 @@ const tag = require('./lib/lifecycles/tag')
 module.exports = function standardVersion (argv) {
   var pkg
   bump.pkgFiles.forEach((filename) => {
+    if (pkg) return
     var pkgPath = path.resolve(process.cwd(), filename)
     try {
       pkg = require(pkgPath)
