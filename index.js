@@ -7,8 +7,17 @@ const commit = require('./lib/lifecycles/commit')
 const tag = require('./lib/lifecycles/tag')
 
 module.exports = function standardVersion (argv) {
-  var pkgPath = path.resolve(process.cwd(), './package.json')
-  var pkg = require(pkgPath)
+  var pkg
+  bump.pkgFiles.forEach((filename) => {
+    if (pkg) return
+    var pkgPath = path.resolve(process.cwd(), filename)
+    try {
+      pkg = require(pkgPath)
+    } catch (err) {}
+  })
+  if (!pkg) {
+    return Promise.reject(new Error('no package file found'))
+  }
   var newVersion = pkg.version
   var defaults = require('./defaults')
   var args = Object.assign({}, defaults, argv)
