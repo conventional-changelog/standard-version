@@ -258,6 +258,42 @@ describe('cli', function () {
   })
 
   describe('lifecycle scripts', () => {
+    describe('prerelease hook', function () {
+      it('should run the prerelease hook when provided', function () {
+        writePackageJson('1.0.0', {
+          'standard-version': {
+            'scripts': {
+              'prerelease': 'node scripts/prerelease'
+            }
+          }
+        })
+        writeHook('prerelease')
+        fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
+
+        commit('feat: first commit')
+        var result = execCli('--patch')
+        result.code.should.equal(0)
+        result.stderr.should.match(/prerelease ran/)
+      })
+
+      it('should abort if the hook returns a non-zero exit code', function () {
+        writePackageJson('1.0.0', {
+          'standard-version': {
+            'scripts': {
+              'prerelease': 'node scripts/prerelease && exit 1'
+            }
+          }
+        })
+        writeHook('prerelease')
+        fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
+
+        commit('feat: first commit')
+        var result = execCli('--patch')
+        result.code.should.equal(1)
+        result.stderr.should.match(/prerelease ran/)
+      })
+    })
+
     describe('prebump hook', function () {
       it('should allow prebump hook to return an alternate version #', function () {
         writePackageJson('1.0.0', {
