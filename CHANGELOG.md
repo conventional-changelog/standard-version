@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="4.4.0"></a>
+# [4.4.0](https://github.com/conventional-changelog/standard-version/compare/v4.3.0...v4.4.0) (2018-05-21)
+
+
+### Bug Fixes
+
+* show full tag name in checkpoint ([#241](https://github.com/conventional-changelog/standard-version/issues/241)) ([b4ed4f9](https://github.com/conventional-changelog/standard-version/commit/b4ed4f9))
+* use tagPrefix in CHANGELOG lifecycle step ([#243](https://github.com/conventional-changelog/standard-version/issues/243)) ([a56c7ac](https://github.com/conventional-changelog/standard-version/commit/a56c7ac))
+
+
+### Features
+
+* add prerelease lifecycle script hook (closes [#217](https://github.com/conventional-changelog/standard-version/issues/217)) ([#234](https://github.com/conventional-changelog/standard-version/issues/234)) ([ba4e7f6](https://github.com/conventional-changelog/standard-version/commit/ba4e7f6))
+* manifest.json support ([#236](https://github.com/conventional-changelog/standard-version/issues/236)) ([371d992](https://github.com/conventional-changelog/standard-version/commit/371d992))
+
+
+
 <a name="4.3.0"></a>
 # [4.3.0](https://github.com/conventional-changelog/standard-version/compare/v4.2.0...v4.3.0) (2018-01-03)
 
