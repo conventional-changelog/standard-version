@@ -423,6 +423,14 @@ describe('cli', function () {
       commit('feat: first commit')
       execCli('--prerelease').stdout.should.include('--tag prerelease')
     })
+
+    it('advises use of --tag alpha for publishing to npm when tagging alpha', function () {
+      writePackageJson('1.0.0')
+      fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
+
+      commit('feat: first commit')
+      execCli('--prerelease alpha').stdout.should.include('--tag alpha')
+    })
   })
 
   describe('manual-release', function () {
