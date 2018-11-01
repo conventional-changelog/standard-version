@@ -8,23 +8,23 @@
 
 _Having problems? want to contribute? join our [community slack](http://devtoolscommunity.herokuapp.com)_.
 
-> stop using `npm version`, use `standard-version` it rocks!
 
-Automatic versioning and CHANGELOG generation, using GitHub's squash button and
+Automate versioning and CHANGELOG generation, with [semver](https://semver.org/) and
 [conventional commit messages](https://conventionalcommits.org).
 
 _how it works:_
 
 1. when you land commits on your `master` branch, select the _Squash and Merge_ option.
 2. add a title and body that follows the [Conventional Commits Specification](https://conventionalcommits.org).
-3. when you're ready to release to npm:
+3. when you're ready to release:
   1. `git checkout master; git pull origin master`
   2. run `standard-version`
-  3. `git push --follow-tags origin master && npm publish`
+  3. `git push --follow-tags origin master && npm publish
+    _(or, `docker push`, `gem push`, etc.)_
 
 `standard-version` does the following:
 
-1. bumps the version in _package.json/bower.json_ (based on your commit history)
+1. bumps the version in metadata files (package.json, composer.json, etc).
 2. uses [conventional-changelog](https://github.com/conventional-changelog/conventional-changelog) to update _CHANGELOG.md_
 3. commits _package.json (et al.)_ and _CHANGELOG.md_
 4. tags a new release
@@ -181,7 +181,7 @@ Simply add the following to your package.json to configure lifecycle scripts:
 }
 ```
 
-As an example to change from using GitHub to track your items to using your projects Jira use a 
+As an example to change from using GitHub to track your items to using your projects Jira use a
 `postchangelog` script to replace the url fragment containing 'https://github.com/`myproject`/issues/'
 with a link to your Jira - assuming you have already installed [replace](https://www.npmjs.com/package/replace)
 ```json

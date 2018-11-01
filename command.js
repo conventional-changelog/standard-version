@@ -72,6 +72,11 @@ module.exports = require('yargs')
     default: defaults.dryRun,
     describe: 'See the commands that running standard-version would run'
   })
+  .option('git-tag-fallback', {
+    type: 'boolean',
+    default: defaults.gitTagFallback,
+    describe: `fallback to git tags for version, if no meta-information file is found (e.g., package.json)`
+  })
   .check((argv) => {
     if (typeof argv.scripts !== 'object' || Array.isArray(argv.scripts)) {
       throw Error('scripts must be an object')
