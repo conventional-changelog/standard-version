@@ -43,20 +43,20 @@ function execCliAsync (argString) {
 
 function writePackageJson (version, option) {
   option = option || {}
-  var pkg = Object.assign(option, {version: version})
+  var pkg = Object.assign(option, { version: version })
   fs.writeFileSync('package.json', JSON.stringify(pkg), 'utf-8')
   delete require.cache[require.resolve(path.join(process.cwd(), 'package.json'))]
 }
 
 function writeBowerJson (version, option) {
   option = option || {}
-  var bower = Object.assign(option, {version: version})
+  var bower = Object.assign(option, { version: version })
   fs.writeFileSync('bower.json', JSON.stringify(bower), 'utf-8')
 }
 
 function writeManifestJson (version, option) {
   option = option || {}
-  var manifest = Object.assign(option, {version: version})
+  var manifest = Object.assign(option, { version: version })
   fs.writeFileSync('manifest.json', JSON.stringify(manifest), 'utf-8')
 }
 
@@ -607,7 +607,7 @@ describe('cli', function () {
   })
 
   it('does not display `npm publish` if the package is private', function () {
-    writePackageJson('1.0.0', {private: true})
+    writePackageJson('1.0.0', { private: true })
 
     var result = execCli()
     result.code.should.equal(0)
@@ -666,7 +666,7 @@ describe('standard-version', function () {
 
   describe('with mocked conventionalRecommendedBump', function () {
     beforeEach(function () {
-      mockery.enable({warnOnUnregistered: false, useCleanCache: true})
+      mockery.enable({ warnOnUnregistered: false, useCleanCache: true })
       mockery.registerMock('conventional-recommended-bump', function (_, cb) {
         cb(new Error('bump err'))
       })
@@ -682,7 +682,7 @@ describe('standard-version', function () {
       shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
       commit('feat: new feature!')
 
-      require('./index')({silent: true})
+      require('./index')({ silent: true })
         .catch((err) => {
           err.message.should.match(/bump err/)
           done()
@@ -692,9 +692,9 @@ describe('standard-version', function () {
 
   describe('with mocked conventionalChangelog', function () {
     beforeEach(function () {
-      mockery.enable({warnOnUnregistered: false, useCleanCache: true})
+      mockery.enable({ warnOnUnregistered: false, useCleanCache: true })
       mockery.registerMock('conventional-changelog', function () {
-        var readable = new stream.Readable({objectMode: true})
+        var readable = new stream.Readable({ objectMode: true })
         readable._read = function () {
         }
         setImmediate(readable.emit.bind(readable), 'error', new Error('changelog err'))
@@ -712,7 +712,7 @@ describe('standard-version', function () {
       shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
       commit('feat: new feature!')
 
-      require('./index')({silent: true})
+      require('./index')({ silent: true })
         .catch((err) => {
           err.message.should.match(/changelog err/)
           return done()
@@ -725,7 +725,7 @@ describe('standard-version', function () {
     shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
     commit('feat: new feature!')
 
-    require('./index')({silent: true})
+    require('./index')({ silent: true })
       .then(() => {
         // check last commit message
         shell.exec('git log --oneline -n1').stdout.should.match(/chore\(release\): 1\.1\.0/)
@@ -738,7 +738,7 @@ describe('standard-version', function () {
   describe('without a package file to bump', function () {
     it('should exit with error', function () {
       shell.rm('package.json')
-      return require('./index')({silent: true})
+      return require('./index')({ silent: true })
         .catch((err) => {
           err.message.should.equal('no package file found')
         })
@@ -754,7 +754,7 @@ describe('standard-version', function () {
       commit('feat: first commit')
       shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
       commit('feat: new feature!')
-      return require('./index')({silent: true})
+      return require('./index')({ silent: true })
         .then(() => {
           JSON.parse(fs.readFileSync('bower.json', 'utf-8')).version.should.equal('1.1.0')
           getPackageVersion().should.equal('1.1.0')
@@ -771,7 +771,7 @@ describe('standard-version', function () {
       commit('feat: first commit')
       shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
       commit('feat: new feature!')
-      return require('./index')({silent: true})
+      return require('./index')({ silent: true })
         .then(() => {
           JSON.parse(fs.readFileSync('manifest.json', 'utf-8')).version.should.equal('1.1.0')
           getPackageVersion().should.equal('1.1.0')
@@ -788,7 +788,7 @@ describe('standard-version', function () {
       commit('feat: first commit')
       shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
       commit('feat: new feature!')
-      require('./index')({silent: true})
+      require('./index')({ silent: true })
         .then(() => {
           JSON.parse(fs.readFileSync('npm-shrinkwrap.json', 'utf-8')).version.should.equal('1.1.0')
           getPackageVersion().should.equal('1.1.0')
@@ -807,7 +807,7 @@ describe('standard-version', function () {
       commit('feat: first commit')
       shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
       commit('feat: new feature!')
-      return require('./index')({silent: true})
+      return require('./index')({ silent: true })
         .then(() => {
           JSON.parse(fs.readFileSync('package-lock.json', 'utf-8')).version.should.equal('1.1.0')
           getPackageVersion().should.equal('1.1.0')
@@ -871,7 +871,7 @@ describe('standard-version', function () {
       commit('feat: first commit')
       shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
       commit('feat: new feature!')
-      return require('./index')({silent: true})
+      return require('./index')({ silent: true })
         .then(() => {
           JSON.parse(fs.readFileSync('bower.json', 'utf-8')).version.should.equal('1.0.0')
           getPackageVersion().should.equal('1.1.0')
