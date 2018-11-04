@@ -2,16 +2,16 @@
 
 'use strict'
 
-var shell = require('shelljs')
-var fs = require('fs')
-var path = require('path')
-var stream = require('stream')
-var mockGit = require('mock-git')
-var mockery = require('mockery')
-var semver = require('semver')
-var formatCommitMessage = require('./lib/format-commit-message')
-var cli = require('./command')
-var standardVersion = require('./index')
+const shell = require('shelljs')
+const fs = require('fs')
+const path = require('path')
+const stream = require('stream')
+const mockGit = require('mock-git')
+const mockery = require('mockery')
+const semver = require('semver')
+const formatCommitMessage = require('./lib/format-commit-message')
+const cli = require('./command')
+const standardVersion = require('./index')
 
 require('chai').should()
 
@@ -45,7 +45,6 @@ function writePackageJson (version, option) {
   option = option || {}
   var pkg = Object.assign(option, { version: version })
   fs.writeFileSync('package.json', JSON.stringify(pkg), 'utf-8')
-  delete require.cache[require.resolve(path.join(process.cwd(), 'package.json'))]
 }
 
 function writeBowerJson (version, option) {
@@ -96,6 +95,16 @@ function initInTempFolder () {
   shell.cd('tmp')
   shell.exec('git init')
   commit('root-commit')
+  ;['package.json',
+    'manifest.json',
+    'bower.json'
+  ].forEach(metadata => {
+    try {
+      delete require.cache[require.resolve(path.join(process.cwd(), metadata))]
+    } catch (err) {
+      // we haven't loaded the metadata file yet.
+    }
+  })
   writePackageJson('1.0.0')
 }
 
@@ -746,7 +755,10 @@ describe('standard-version', function () {
   describe('without a package file to bump', function () {
     it('should exit with error', function () {
       shell.rm('package.json')
-      return require('./index')({ silent: true })
+      return require('./index')({
+        silent: true,
+        gitTagFallback: false
+      })
         .catch((err) => {
           err.message.should.equal('no package file found')
         })
@@ -883,6 +895,49 @@ describe('standard-version', function () {
         .then(() => {
           JSON.parse(fs.readFileSync('bower.json', 'utf-8')).version.should.equal('1.0.0')
           getPackageVersion().should.equal('1.1.0')
+        })
+    })
+  })
+
+  describe('.gitignore', () => {
+    beforeEach(function () {
+      writeBowerJson('1.0.0')
+    })
+
+    it('does not update files present in .gitignore', () => {
+      fs.writeFileSync('.gitignore', 'bower.json', 'utf-8')
+
+      commit('feat: first commit')
+      shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
+      commit('feat: new feature!')
+      return require('./index')({ silent: true })
+        .then(() => {
+          JSON.parse(fs.readFileSync('bower.json', 'utf-8')).version.should.equal('1.0.0')
+          getPackageVersion().should.equal('1.1.0')
+        })
+    })
+  })
+
+  describe('gitTagFallback', () => {
+    it('defaults to 1.0.0 if no tags in git history', () => {
+      shell.rm('package.json')
+      commit('feat: first commit')
+      return require('./index')({ silent: true })
+        .then(() => {
+          const output = shell.exec('git tag')
+          output.stdout.should.include('v1.1.0')
+        })
+    })
+
+    it('bases version on last tag, if tags are found', () => {
+      shell.rm('package.json')
+      shell.exec('git tag -a v5.0.0 -m "a release"')
+      shell.exec('git tag -a v3.0.0 -m "another release"')
+      commit('feat: another commit')
+      return require('./index')({ silent: true })
+        .then(() => {
+          const output = shell.exec('git tag')
+          output.stdout.should.include('v5.1.0')
         })
     })
   })
