@@ -7,6 +7,23 @@ const path = require('path')
 const printError = require('./lib/print-error')
 const tag = require('./lib/lifecycles/tag')
 
+// allows configuration of `standard-version` and submodules via `standard-version`
+// key in `package.json` or a provided `--config` file.
+function getConfigurationFromArguments (argv) {
+  const hasConfigArg = Boolean(argv.config)
+  const configurationPath = path.resolve(process.cwd(), hasConfigArg ? argv.config : 'package.json')
+  const config = require(configurationPath)
+  if (typeof config === 'function') {
+    // if the export of the configuraiton is a function, we expect the
+    // result to be our configuration object.
+    return config()
+  }
+  if (typeof config === 'object') {
+    return !hasConfigArg || config.hasOwnProperty('standard-version') ? (config['standard-version'] || {}) : config
+  }
+  return {}
+}
+
 module.exports = function standardVersion (argv) {
   let pkg
   bump.pkgFiles.forEach((filename) => {
@@ -19,8 +36,12 @@ module.exports = function standardVersion (argv) {
   })
   let newVersion
   let defaults = require('./defaults')
-  let args = Object.assign({}, defaults, argv)
-
+  const packageConfiguration = getConfigurationFromArguments(argv)
+  // the `modules` key is reserved for submodule configurations.
+  const moduleConfigurations = packageConfiguration.modules || {}
+  // module specific configurations are *not* passed as part of `standard-version`s arguments.
+  delete packageConfiguration.modules
+  const args = Object.assign({}, defaults, argv, packageConfiguration)
   return Promise.resolve()
     .then(() => {
       if (!pkg && args.gitTagFallback) {
@@ -35,7 +56,11 @@ module.exports = function standardVersion (argv) {
       newVersion = version
     })
     .then(() => {
-      return bump(args, newVersion)
+      return bump(
+        args,
+        newVersion,
+        moduleConfigurations['conventional-recommended-bump']
+      )
     })
     .then((_newVersion) => {
       // if bump runs, it calculaes the new version that we
