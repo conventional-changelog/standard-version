@@ -79,7 +79,7 @@ module.exports = require('yargs')
   })
   .option('path', {
     type: 'string',
-    describe: 'Only populate commits made under this path',
+    describe: 'Only populate commits made under this path'
   })
   .check((argv) => {
     if (typeof argv.scripts !== 'object' || Array.isArray(argv.scripts)) {
