@@ -81,6 +81,11 @@ module.exports = require('yargs')
     type: 'string',
     describe: 'Only populate commits made under this path'
   })
+  .option('preset', {
+    type: 'string',
+    default: defaults.preset,
+    describe: 'Commit message guideline preset (default: angular)'
+  })
   .check((argv) => {
     if (typeof argv.scripts !== 'object' || Array.isArray(argv.scripts)) {
       throw Error('scripts must be an object')
