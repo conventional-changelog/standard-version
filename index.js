@@ -1,3 +1,11 @@
+<<<<<<< HEAD
+=======
+const fs = require('fs')
+const latestSemverTag = require('./lib/latest-semver-tag')
+const path = require('path')
+const printError = require('./lib/print-error')
+
+>>>>>>> fix: ensure configuration fallback when configration file or package.json is not present
 const bump = require('./lib/lifecycles/bump')
 const changelog = require('./lib/lifecycles/changelog')
 const commit = require('./lib/lifecycles/commit')
@@ -12,6 +20,9 @@ const tag = require('./lib/lifecycles/tag')
 function getConfigurationFromArguments (argv) {
   const hasConfigArg = Boolean(argv.config)
   const configurationPath = path.resolve(process.cwd(), hasConfigArg ? argv.config : 'package.json')
+  if (!fs.existsSync(configurationPath)) {
+    return {}
+  }
   const config = require(configurationPath)
   if (typeof config === 'function') {
     // if the export of the configuraiton is a function, we expect the
