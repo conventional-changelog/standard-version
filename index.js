@@ -77,7 +77,11 @@ module.exports = function standardVersion (argv) {
       // if bump runs, it calculaes the new version that we
       // should release at.
       if (_newVersion) newVersion = _newVersion
-      return changelog(args, newVersion)
+      return changelog(
+        args,
+        newVersion,
+        moduleConfigurations['conventional-changelog']
+      )
     })
     .then(() => {
       return commit(args, newVersion)
