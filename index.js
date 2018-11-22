@@ -34,11 +34,14 @@ module.exports = function standardVersion (argv) {
       newVersion = version
     })
     .then(() => {
+      console.info("standard-version", args);
       return bump(args, newVersion)
     })
     .then((_newVersion) => {
       // if bump runs, it calculaes the new version that we
       // should release at.
+      console.info("standard-version newVersion:", _newVersion);
+      console.info("standard-version args before changelog():", args);
       if (_newVersion) newVersion = _newVersion
       return changelog(args, newVersion)
     })
