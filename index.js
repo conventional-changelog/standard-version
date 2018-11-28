@@ -47,7 +47,7 @@ module.exports = function standardVersion (argv) {
   })
   let newVersion
   let defaults = require('./defaults')
-  const packageConfiguration = getConfigurationFromArguments(argv)
+  const packageConfiguration = Object.assign({}, getConfigurationFromArguments(argv))
   // the `modules` key is reserved for submodule configurations.
   const moduleConfigurations = packageConfiguration.modules || {}
   // module specific configurations are *not* passed as part of `standard-version`s arguments.
