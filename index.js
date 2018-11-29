@@ -1,10 +1,10 @@
-const latestSemverTag = require('./lib/latest-semver-tag')
-const path = require('path')
-const printError = require('./lib/print-error')
-
 const bump = require('./lib/lifecycles/bump')
 const changelog = require('./lib/lifecycles/changelog')
 const commit = require('./lib/lifecycles/commit')
+const fs = require('fs')
+const latestSemverTag = require('./lib/latest-semver-tag')
+const path = require('path')
+const printError = require('./lib/print-error')
 const tag = require('./lib/lifecycles/tag')
 
 module.exports = function standardVersion (argv) {
@@ -13,7 +13,8 @@ module.exports = function standardVersion (argv) {
     if (pkg) return
     var pkgPath = path.resolve(process.cwd(), filename)
     try {
-      pkg = require(pkgPath)
+      var data = fs.readFileSync(pkgPath, 'utf8')
+      pkg = JSON.parse(data)
     } catch (err) {}
   })
   let newVersion
