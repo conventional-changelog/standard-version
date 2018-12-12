@@ -19,7 +19,7 @@
     "url": "git+https://github.com/conventional-changelog/standard-version.git"
   },
   "engines": {
-    "node": ">=4.0"
+    "node": ">=6"
   },
   "keywords": [
     "conventional-changelog",
