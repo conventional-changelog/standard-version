@@ -41,7 +41,7 @@
     "chalk": "^2.4.1",
     "conventional-changelog": "^3.0.5",
     "conventional-recommended-bump": "^4.0.4",
-    "dotgitignore": "^1.0.3",
+    "dotgitignore": "^2.0.0",
     "figures": "^2.0.0",
     "fs-access": "^1.0.0",
     "semver": "^5.2.0",
