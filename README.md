@@ -19,8 +19,8 @@ _how it works:_
 3. when you're ready to release:
   1. `git checkout master; git pull origin master`
   2. run `standard-version`
-  3. `git push --follow-tags origin master && npm publish
-    _(or, `docker push`, `gem push`, etc.)_
+  3. `git push --follow-tags origin master && npm publish`
+     _(or, `docker push`, `gem push`, etc.)_
 
 `standard-version` does the following:
 
