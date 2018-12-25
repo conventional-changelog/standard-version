@@ -245,18 +245,18 @@ Use the `silent` option to stop `standard-version` from printing anything
 to the console.
 
 ```js
-var standardVersion = require('standard-version')
+const standardVersion = require('standard-version')
 
 // Options are the same as command line, except camelCase
+// standardVersion returns a Promise
 standardVersion({
   noVerify: true,
   infile: 'docs/CHANGELOG.md',
   silent: true
-}, function (err) {
-  if (err) {
-    console.error(`standard-version failed with message: ${err.message}`)
-  }
+}).then(() => {
   // standard-version is done
+}).catch(err => {
+    console.error(`standard-version failed with message: ${err.message}`)
 })
 ```
 
