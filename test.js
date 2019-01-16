@@ -440,6 +440,14 @@ describe('cli', function () {
       commit('feat: first commit')
       execCli('--prerelease alpha').stdout.should.include('--tag alpha')
     })
+
+    it('does not advise use of --tag prerelease for private modules', function () {
+      writePackageJson('1.0.0', { private: true })
+      fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
+
+      commit('feat: first commit')
+      execCli('--prerelease').stdout.should.not.include('--tag prerelease')
+    })
   })
 
   describe('manual-release', function () {
