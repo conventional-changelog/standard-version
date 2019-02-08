@@ -44,6 +44,7 @@
     "dotgitignore": "^1.0.3",
     "figures": "^2.0.0",
     "fs-access": "^1.0.0",
+    "git-semver-tags": "^2.0.2",
     "semver": "^5.2.0",
     "yargs": "^12.0.2"
   },
