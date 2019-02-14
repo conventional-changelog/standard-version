@@ -95,16 +95,6 @@ function initInTempFolder () {
   shell.cd('tmp')
   shell.exec('git init')
   commit('root-commit')
-  ;['package.json',
-    'manifest.json',
-    'bower.json'
-  ].forEach(metadata => {
-    try {
-      delete require.cache[require.resolve(path.join(process.cwd(), metadata))]
-    } catch (err) {
-      // we haven't loaded the metadata file yet.
-    }
-  })
   writePackageJson('1.0.0')
 }
 
@@ -613,6 +603,44 @@ describe('cli', function () {
 
     var pkgJson = fs.readFileSync('package.json', 'utf-8')
     pkgJson.should.equal(['{', '  "version": "1.0.1"', '}', ''].join('\n'))
+  })
+
+  it('preserves indentation of tabs in package.json', function () {
+    var indentation = '\t'
+    var newPkgJson = ['{', indentation + '"version": "1.0.0"', '}', ''].join('\n')
+    fs.writeFileSync('package.json', newPkgJson, 'utf-8')
+
+    execCli().code.should.equal(0)
+    var pkgJson = fs.readFileSync('package.json', 'utf-8')
+    pkgJson.should.equal(['{', indentation + '"version": "1.0.1"', '}', ''].join('\n'))
+  })
+
+  it('preserves indentation of spaces in package.json', function () {
+    var indentation = '     '
+    var newPkgJson = ['{', indentation + '"version": "1.0.0"', '}', ''].join('\n')
+    fs.writeFileSync('package.json', newPkgJson, 'utf-8')
+
+    execCli().code.should.equal(0)
+    var pkgJson = fs.readFileSync('package.json', 'utf-8')
+    pkgJson.should.equal(['{', indentation + '"version": "1.0.1"', '}', ''].join('\n'))
+  })
+
+  it('preserves line feed in package.json', function () {
+    var newPkgJson = ['{', '  "version": "1.0.0"', '}', ''].join('\n')
+    fs.writeFileSync('package.json', newPkgJson, 'utf-8')
+
+    execCli().code.should.equal(0)
+    var pkgJson = fs.readFileSync('package.json', 'utf-8')
+    pkgJson.should.equal(['{', '  "version": "1.0.1"', '}', ''].join('\n'))
+  })
+
+  it('preserves carriage return + line feed in package.json', function () {
+    var newPkgJson = ['{', '  "version": "1.0.0"', '}', ''].join('\r\n')
+    fs.writeFileSync('package.json', newPkgJson, 'utf-8')
+
+    execCli().code.should.equal(0)
+    var pkgJson = fs.readFileSync('package.json', 'utf-8')
+    pkgJson.should.equal(['{', '  "version": "1.0.1"', '}', ''].join('\r\n'))
   })
 
   it('does not run git hooks if the --no-verify flag is passed', function () {
