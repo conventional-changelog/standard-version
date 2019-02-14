@@ -39,7 +39,7 @@
   "homepage": "https://github.com/conventional-changelog/standard-version#readme",
   "dependencies": {
     "chalk": "^2.4.1",
-    "conventional-changelog": "^3.0.5",
+    "conventional-changelog": "^3.0.6",
     "conventional-recommended-bump": "^4.0.4",
     "dotgitignore": "^1.0.3",
     "figures": "^2.0.0",
@@ -54,7 +54,7 @@
     "mocha": "^5.2.0",
     "mock-git": "^1.0.3",
     "mockery": "^2.0.0",
-    "nyc": "^13.1.0",
+    "nyc": "^13.3.0",
     "shelljs": "^0.7.8",
     "standard": "^12.0.1"
   }
