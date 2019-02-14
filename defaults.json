@@ -10,5 +10,6 @@
   "scripts": {},
   "skip": {},
   "dryRun": false,
-  "gitTagFallback": true
+  "gitTagFallback": true,
+  "preset": "angular"
 }

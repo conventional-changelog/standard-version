@@ -77,6 +77,15 @@ module.exports = require('yargs')
     default: defaults.gitTagFallback,
     describe: `fallback to git tags for version, if no meta-information file is found (e.g., package.json)`
   })
+  .option('path', {
+    type: 'string',
+    describe: 'Only populate commits made under this path'
+  })
+  .option('preset', {
+    type: 'string',
+    default: defaults.preset,
+    describe: 'Commit message guideline preset (default: angular)'
+  })
   .check((argv) => {
     if (typeof argv.scripts !== 'object' || Array.isArray(argv.scripts)) {
       throw Error('scripts must be an object')
