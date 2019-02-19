@@ -1,11 +1,3 @@
-<<<<<<< HEAD
-=======
-const fs = require('fs')
-const latestSemverTag = require('./lib/latest-semver-tag')
-const path = require('path')
-const printError = require('./lib/print-error')
-
->>>>>>> fix: ensure configuration fallback when configration file or package.json is not present
 const bump = require('./lib/lifecycles/bump')
 const changelog = require('./lib/lifecycles/changelog')
 const commit = require('./lib/lifecycles/commit')
