@@ -195,8 +195,8 @@ describe('cli', function () {
         'standard-version': {
           modules: {
             'conventional-changelog': {
+              host: 'gitlab',
               repoUrl: 'https://other-git-service.com/repoUrl',
-              host: 'https://other-git-service.com',
               repository: 'git+https://other-git-service.com/repository.git'
             }
           }
