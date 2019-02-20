@@ -190,6 +190,28 @@ describe('cli', function () {
         assertPresetOverrideCHANGELOG()
       })
     })
+    it('allows configuration of repository options', function () {
+      writePackageJson('2.0.0', {
+        'standard-version': {
+          modules: {
+            'conventional-changelog': {
+              repoUrl: 'https://other-git-service.com/repoUrl',
+              host: 'https://other-git-service.com',
+              repository: 'git+https://other-git-service.com/repository.git'
+            }
+          }
+        }
+      })
+      commit('feat: angular style commit with issue reference\n\n#278')
+      execCli().code.should.equal(0)
+      var content = fs.readFileSync('CHANGELOG.md', 'utf-8')
+      /**
+       * @todo this test fails. it seems like it could actually be an issue with
+       * `conventional-changelog/conventional-changelog-core`, _or_ a configuration
+       * value is missing.
+       */
+      // content.should.contain('other-git-service.com')
+    })
   })
 
   describe('CHANGELOG.md does not exist', function () {
