@@ -7,26 +7,6 @@ const path = require('path')
 const printError = require('./lib/print-error')
 const tag = require('./lib/lifecycles/tag')
 
-// allows configuration of `standard-version` and submodules via `standard-version`
-// key in `package.json` or a provided `--config` file.
-function getConfigurationFromArguments (argv) {
-  const hasConfigArg = Boolean(argv.config)
-  const configurationPath = path.resolve(process.cwd(), hasConfigArg ? argv.config : 'package.json')
-  if (!fs.existsSync(configurationPath)) {
-    return {}
-  }
-  const config = require(configurationPath)
-  if (typeof config === 'function') {
-    // if the export of the configuraiton is a function, we expect the
-    // result to be our configuration object.
-    return config()
-  }
-  if (typeof config === 'object') {
-    return !hasConfigArg || config.hasOwnProperty('standard-version') ? (config['standard-version'] || {}) : config
-  }
-  return {}
-}
-
 module.exports = function standardVersion (argv) {
   let pkg
   bump.pkgFiles.forEach((filename) => {
@@ -39,7 +19,7 @@ module.exports = function standardVersion (argv) {
   })
   let newVersion
   let defaults = require('./defaults')
-  const packageConfiguration = Object.assign({}, getConfigurationFromArguments(argv))
+  const packageConfiguration = Object.assign({}, argv.configuration)
   // the `modules` key is reserved for submodule configurations.
   const moduleConfigurations = packageConfiguration.modules || {}
   // module specific configurations are *not* passed as part of `standard-version`s arguments.

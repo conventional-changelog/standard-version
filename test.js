@@ -123,6 +123,75 @@ describe('cli', function () {
   beforeEach(initInTempFolder)
   afterEach(finishTemp)
 
+  describe('configuration', function () {
+    describe('preset', function () {
+      const presetOverride = 'eslint'
+      function makePresetCommits () {
+        commit('Upgrade: This is an <type> defined by the eslint preset.')
+        commit('fix: This is not <type> defined eslint preset (angular).')
+      }
+      function assertPresetOverrideCHANGELOG () {
+        var content = fs.readFileSync('CHANGELOG.md', 'utf-8')
+        content.should.contain('### Upgrade')
+        content.should.not.contain('### Bug Fixes')
+      }
+      it('uses --preset angular as the default', function () {
+        makePresetCommits()
+        execCli().code.should.equal(0)
+        var content = fs.readFileSync('CHANGELOG.md', 'utf-8')
+        content.should.not.contain('### Upgrade')
+        content.should.contain('### Bug Fixes')
+      })
+      it('via --preset flag', function () {
+        makePresetCommits()
+        execCli('--preset ' + presetOverride).code.should.equal(0)
+        assertPresetOverrideCHANGELOG()
+      })
+      it('via package.json (["standard-version"].modules.["conventional-changelog"].preset)', function () {
+        writePackageJson('1.0.0', {
+          'standard-version': {
+            modules: {
+              'conventional-changelog': {
+                preset: presetOverride
+              }
+            }
+          }
+        })
+        makePresetCommits()
+        execCli().code.should.equal(0)
+        assertPresetOverrideCHANGELOG()
+      })
+      it('via custom.json (modules.["conventional-changelog"].preset)', function () {
+        fs.writeFileSync('custom.json', JSON.stringify({
+          modules: {
+            'conventional-changelog': {
+              preset: presetOverride
+            }
+          }
+        }), 'utf-8')
+        makePresetCommits()
+        execCli('--config custom.json').code.should.equal(0)
+        assertPresetOverrideCHANGELOG()
+      })
+      it('via functional-config.js (modules.["conventional-changelog"].preset)', function () {
+        fs.writeFileSync(
+          'functional-config.js',
+          `module.exports = () => ({
+            modules: {
+              'conventional-changelog': {
+                preset: '${presetOverride}'
+              }
+            }
+          });`,
+          'utf-8'
+        )
+        makePresetCommits()
+        execCli('--config functional-config.js').code.should.equal(0)
+        assertPresetOverrideCHANGELOG()
+      })
+    })
+  })
+
   describe('CHANGELOG.md does not exist', function () {
     it('populates changelog with commits since last tag by default', function () {
       commit('feat: first commit')

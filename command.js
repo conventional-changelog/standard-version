@@ -1,3 +1,4 @@
+var fs = require('fs')
 var defaults = require('./defaults')
 
 module.exports = require('yargs')
@@ -86,6 +87,30 @@ module.exports = require('yargs')
     default: defaults.preset,
     describe: 'Commit message guideline preset (default: angular)'
   })
+  .config(
+    'config',
+    'Specify a path to a file that provides configuration options to standard-version and it\'s modules',
+    function (configPath) {
+      const parsed = {}
+      if (!fs.existsSync(configPath)) {
+        return parsed
+      }
+      const config = require(configPath)
+      if (typeof config === 'function') {
+        // if the export of the configuraiton is a function, we expect the
+        // result to be our configuration object.
+        parsed.configuration = config()
+      }
+      if (typeof config === 'object') {
+        parsed.configuration = config.hasOwnProperty('standard-version') ? config['standard-version'] : (
+          // if the configuration is coming from a `package.json`, the `standard-version` key is required.
+          configPath.endsWith('package.json') ? {} : config
+        )
+      }
+      return parsed
+    }
+  )
+  .default('config', 'package.json')
   .check((argv) => {
     if (typeof argv.scripts !== 'object' || Array.isArray(argv.scripts)) {
       throw Error('scripts must be an object')
