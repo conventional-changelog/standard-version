@@ -210,7 +210,7 @@ describe('cli', function () {
        * `conventional-changelog/conventional-changelog-core`, _or_ a configuration
        * value is missing.
        */
-      // content.should.contain('other-git-service.com')
+      content.should.contain('other-git-service.com')
     })
   })
 
