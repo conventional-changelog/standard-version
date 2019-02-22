@@ -147,7 +147,7 @@ describe('cli', function () {
         execCli('--preset ' + presetOverride).code.should.equal(0)
         assertPresetOverrideCHANGELOG()
       })
-      it('via package.json (["standard-version"].modules.["conventional-changelog"].preset)', function () {
+      it('via package.json (["standard-version"].modules["conventional-changelog"].preset)', function () {
         writePackageJson('1.0.0', {
           'standard-version': {
             modules: {
@@ -161,7 +161,7 @@ describe('cli', function () {
         execCli().code.should.equal(0)
         assertPresetOverrideCHANGELOG()
       })
-      it('via custom.json (modules.["conventional-changelog"].preset)', function () {
+      it('via custom.json (modules["conventional-changelog"].preset)', function () {
         fs.writeFileSync('custom.json', JSON.stringify({
           modules: {
             'conventional-changelog': {
@@ -173,7 +173,7 @@ describe('cli', function () {
         execCli('--config custom.json').code.should.equal(0)
         assertPresetOverrideCHANGELOG()
       })
-      it('via functional-config.js (modules.["conventional-changelog"].preset)', function () {
+      it('via functional-config.js (modules["conventional-changelog"].preset)', function () {
         fs.writeFileSync(
           'functional-config.js',
           `module.exports = () => ({
@@ -189,12 +189,33 @@ describe('cli', function () {
         execCli('--config functional-config.js').code.should.equal(0)
         assertPresetOverrideCHANGELOG()
       })
+      it('allows modules["conventional-changelog"].preset and modules["conventional-changelog-core"] options', function () {
+        writePackageJson('2.0.0', {
+          'standard-version': {
+            modules: {
+              'conventional-changelog': {
+                preset: presetOverride
+              },
+              'conventional-changelog-core': {
+                host: 'gitlab',
+                repoUrl: 'https://other-git-service.com/repoUrl',
+                repository: 'git+https://other-git-service.com/repository.git'
+              }
+            }
+          }
+        })
+        makePresetCommits()
+        execCli().code.should.equal(0)
+        assertPresetOverrideCHANGELOG()
+        var content = fs.readFileSync('CHANGELOG.md', 'utf-8')
+        content.should.contain('other-git-service.com')
+      })
     })
-    it('allows configuration of repository options', function () {
+    it('allows configuration of repository options (modules.["conventional-changelog-core"])', function () {
       writePackageJson('2.0.0', {
         'standard-version': {
           modules: {
-            'conventional-changelog': {
+            'conventional-changelog-core': {
               host: 'gitlab',
               repoUrl: 'https://other-git-service.com/repoUrl',
               repository: 'git+https://other-git-service.com/repository.git'
@@ -205,12 +226,29 @@ describe('cli', function () {
       commit('feat: angular style commit with issue reference\n\n#278')
       execCli().code.should.equal(0)
       var content = fs.readFileSync('CHANGELOG.md', 'utf-8')
-      /**
-       * @todo this test fails. it seems like it could actually be an issue with
-       * `conventional-changelog/conventional-changelog-core`, _or_ a configuration
-       * value is missing.
-       */
       content.should.contain('other-git-service.com')
+    })
+
+    describe('tagPrefix', function () {
+      it('via --tagPrefix flag', function () {
+        var prefix = 'version-foo/'
+        commit('feat: angular style commit')
+        execCli('--tagPrefix=' + prefix).code.should.equal(0)
+        commit('feat: another angular style commit')
+        execCli('--tagPrefix=' + prefix).code.should.equal(0)
+        var content = fs.readFileSync('CHANGELOG.md', 'utf-8')
+        content.should.contain('/compare/' + prefix)
+      })
+
+      it('via --tagPrefix flag with --preset flag', function () {
+        var prefix = 'version-foo/'
+        commit('Feat: eslint style commit')
+        execCli('--preset=eslint --tagPrefix=' + prefix).code.should.equal(0)
+        commit('Feat: another eslint style commit')
+        execCli('--preset=eslint --tagPrefix=' + prefix).code.should.equal(0)
+        var content = fs.readFileSync('CHANGELOG.md', 'utf-8')
+        content.should.contain('/compare/' + prefix)
+      })
     })
   })
 

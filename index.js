@@ -42,7 +42,7 @@ module.exports = function standardVersion (argv) {
       return bump(
         args,
         newVersion,
-        moduleConfigurations['conventional-recommended-bump']
+        moduleConfigurations
       )
     })
     .then((_newVersion) => {
@@ -52,7 +52,7 @@ module.exports = function standardVersion (argv) {
       return changelog(
         args,
         newVersion,
-        moduleConfigurations['conventional-changelog']
+        moduleConfigurations
       )
     })
     .then(() => {
