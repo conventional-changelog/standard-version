@@ -33,6 +33,9 @@ module.exports = function standardVersion (argv) {
     })
     .then(version => {
       newVersion = version
+      if (args.zeroMode && !version.startsWith('0.')) {
+        throw new Error('--zero-mode can only be used with 0.x.x releases')
+      }
     })
     .then(() => {
       return bump(args, newVersion)

@@ -440,6 +440,52 @@ describe('cli', function () {
     })
   })
 
+  describe('zero-mode', function () {
+    it('works with patch release', function () {
+      writePackageJson('0.1.0')
+      commit('feat: first commit')
+      shell.exec('git tag -a v0.1.0 -m "my awesome first release"')
+      commit('fix: patch release')
+
+      execCli('--zero-mode').code.should.equal(0)
+
+      JSON.parse(fs.readFileSync('package.json', 'utf-8')).version.should.equal('0.1.1')
+    })
+
+    it('works with feature release', function () {
+      writePackageJson('0.1.0')
+      commit('feat: first commit')
+      shell.exec('git tag -a v0.1.0 -m "my awesome first release"')
+      commit('feat: feature release')
+
+      execCli('--zero-mode').code.should.equal(0)
+
+      JSON.parse(fs.readFileSync('package.json', 'utf-8')).version.should.equal('0.1.1')
+    })
+
+    it('works with breaking release', function () {
+      writePackageJson('0.1.0')
+      commit('feat: first commit')
+      shell.exec('git tag -a v0.1.0 -m "my awesome first release"')
+      commit('feat: breaking release\n\nBREAKING CHANGE: this is a breaking change')
+
+      execCli('--zero-mode').code.should.equal(0)
+
+      JSON.parse(fs.readFileSync('package.json', 'utf-8')).version.should.equal('0.2.0')
+    })
+
+    it('throws if not 0.x', function () {
+      writePackageJson('1.0.0')
+      commit('feat: first commit')
+      shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
+      commit('feat: patch release')
+
+      const result = execCli('--zero-mode')
+      result.code.should.equal(1)
+      result.stderr.should.match(/can only be used with 0\.x\.x releases/)
+    })
+  })
+
   describe('manual-release', function () {
     it('throws error when not specifying a release type', function () {
       writePackageJson('1.0.0')

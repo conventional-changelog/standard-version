@@ -8,6 +8,12 @@ module.exports = require('yargs')
     requiresArg: true,
     string: true
   })
+  .option('zero-mode', {
+    alias: 'z',
+    describe: 'Prevent bumping the version to 1.0.0',
+    type: 'boolean',
+    default: defaults.zeroMode
+  })
   .option('prerelease', {
     alias: 'p',
     describe: 'make a pre-release with optional option value to specify a tag id',

@@ -2,6 +2,7 @@
   "infile": "CHANGELOG.md",
   "message": "chore(release): %s",
   "firstRelease": false,
+  "zeroMode": false,
   "sign": false,
   "noVerify": false,
   "commitAll": false,
