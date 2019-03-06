@@ -463,16 +463,19 @@ describe('cli', function () {
       JSON.parse(fs.readFileSync('package.json', 'utf-8')).version.should.equal('0.1.1')
     })
 
-    it('works with breaking release', function () {
-      writePackageJson('0.1.0')
-      commit('feat: first commit')
-      shell.exec('git tag -a v0.1.0 -m "my awesome first release"')
-      commit('feat: breaking release\n\nBREAKING CHANGE: this is a breaking change')
+    if (process.platform !== 'win32') {
+      /* Unable to pass line-feeds to commit message from Windows command-line. */
+      it('works with breaking release', function () {
+        writePackageJson('0.1.0')
+        commit('feat: first commit')
+        shell.exec('git tag -a v0.1.0 -m "my awesome first release"')
+        commit('feat: breaking release\n\nBREAKING CHANGE: this is a breaking change')
 
-      execCli('--zero-mode').code.should.equal(0)
+        execCli('--zero-mode').code.should.equal(0)
 
-      JSON.parse(fs.readFileSync('package.json', 'utf-8')).version.should.equal('0.2.0')
-    })
+        JSON.parse(fs.readFileSync('package.json', 'utf-8')).version.should.equal('0.2.0')
+      })
+    }
 
     it('throws if not 0.x', function () {
       writePackageJson('1.0.0')
