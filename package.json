@@ -54,6 +54,7 @@
   "devDependencies": {
     "chai": "^3.5.0",
     "coveralls": "^3.0.1",
+    "is-windows": "^1.0.2",
     "mocha": "^5.2.0",
     "mock-git": "^1.0.3",
     "mockery": "^2.0.0",

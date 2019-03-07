@@ -9,6 +9,7 @@ const stream = require('stream')
 const mockGit = require('mock-git')
 const mockery = require('mockery')
 const semver = require('semver')
+const isWindows = require('is-windows')
 const formatCommitMessage = require('./lib/format-commit-message')
 const cli = require('./command')
 const standardVersion = require('./index')
@@ -463,7 +464,7 @@ describe('cli', function () {
       JSON.parse(fs.readFileSync('package.json', 'utf-8')).version.should.equal('0.1.1')
     })
 
-    if (process.platform !== 'win32') {
+    if (!isWindows()) {
       /* Unable to pass line-feeds to commit message from Windows command-line. */
       it('works with breaking release', function () {
         writePackageJson('0.1.0')
