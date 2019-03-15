@@ -93,7 +93,7 @@ module.exports = require('yargs')
     function (configPath) {
       const parsed = {}
       if (!fs.existsSync(configPath)) {
-        return parsed
+        throw Error('unable to locate provided configuration file')
       }
       const config = require(configPath)
       if (typeof config === 'function') {

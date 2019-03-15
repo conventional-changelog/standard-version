@@ -189,6 +189,9 @@ describe('cli', function () {
         execCli('--config functional-config.js').code.should.equal(0)
         assertPresetOverrideCHANGELOG()
       })
+      it('providing and invalid configuration file will result in an error', function () {
+        execCli('--config fake-file.js').code.should.above(0)
+      })
       it('allows modules["conventional-changelog"].preset and modules["conventional-changelog-core"] options', function () {
         writePackageJson('2.0.0', {
           'standard-version': {
