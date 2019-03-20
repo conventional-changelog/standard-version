@@ -955,13 +955,13 @@ describe('standard-version', function () {
   })
 
   describe('gitTagFallback', () => {
-    it('defaults to 1.0.0 if no tags in git history', () => {
+    it('defaults to 0.0.0 if no tags in git history', () => {
       shell.rm('package.json')
       commit('feat: first commit')
       return require('./index')({ silent: true })
         .then(() => {
           const output = shell.exec('git tag')
-          output.stdout.should.include('v1.1.0')
+          output.stdout.should.include('v0.1.0')
         })
     })
 
