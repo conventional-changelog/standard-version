@@ -149,6 +149,24 @@ describe('cli', function () {
       content.should.match(/first commit/)
       shell.exec('git tag').stdout.should.match(/1\.0\.1/)
     })
+
+    it('skipping changelog will not create a changelog file', function () {
+      writePackageJson('1.0.0')
+
+      commit('feat: first commit')
+      return execCliAsync('--skip.changelog true')
+        .then(function () {
+          getPackageVersion().should.equal('1.1.0')
+          let fileNotFound = false
+          try {
+            fs.readFileSync('CHANGELOG.md', 'utf-8')
+          } catch (err) {
+            fileNotFound = true
+          }
+
+          fileNotFound.should.equal(true)
+        })
+    })
   })
 
   describe('CHANGELOG.md exists', function () {
