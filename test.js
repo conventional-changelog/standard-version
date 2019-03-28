@@ -1030,6 +1030,13 @@ describe('standard-version', function () {
           output.stdout.should.include('v5.1.0')
         })
     })
+
+    it('does not display `npm publish` if there is no package.json', function () {
+      shell.rm('package.json')
+      const result = execCli()
+      result.code.should.equal(0)
+      result.stdout.should.not.match(/npm publish/)
+    })
   })
 
   describe('configuration', () => {
