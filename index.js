@@ -11,9 +11,9 @@ module.exports = function standardVersion (argv) {
   let pkg
   bump.pkgFiles.forEach((filename) => {
     if (pkg) return
-    var pkgPath = path.resolve(process.cwd(), filename)
+    let pkgPath = path.resolve(process.cwd(), filename)
     try {
-      var data = fs.readFileSync(pkgPath, 'utf8')
+      let data = fs.readFileSync(pkgPath, 'utf8')
       pkg = JSON.parse(data)
     } catch (err) {}
   })

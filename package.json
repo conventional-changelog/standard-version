@@ -4,7 +4,7 @@
   "description": "replacement for `npm version` with automatic CHANGELOG generation",
   "bin": "bin/cli.js",
   "scripts": {
-    "pretest": "standard",
+    "pretest": "eslint .",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "test": "nyc mocha --timeout=20000 test.js",
     "release": "bin/cli.js"
@@ -54,11 +54,16 @@
   "devDependencies": {
     "chai": "^3.5.0",
     "coveralls": "^3.0.1",
+    "eslint": "^5.16.0",
+    "eslint-config-standard": "^12.0.0",
+    "eslint-plugin-import": "^2.16.0",
+    "eslint-plugin-node": "^8.0.1",
+    "eslint-plugin-promise": "^4.0.1",
+    "eslint-plugin-standard": "^4.0.0",
     "mocha": "^5.2.0",
     "mock-git": "^1.0.3",
     "mockery": "^2.0.0",
     "nyc": "^13.3.0",
-    "shelljs": "^0.7.8",
-    "standard": "^12.0.1"
+    "shelljs": "^0.7.8"
   }
 }

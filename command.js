@@ -1,4 +1,4 @@
-var defaults = require('./defaults')
+let defaults = require('./defaults')
 
 module.exports = require('yargs')
   .usage('Usage: $0 [options]')
