@@ -667,6 +667,18 @@ describe('cli', function () {
     result.stdout.should.not.match(/npm publish/)
   })
 
+  it('does not display `all staged files` without the --commit-all flag', function () {
+    var result = execCli()
+    result.code.should.equal(0)
+    result.stdout.should.not.match(/and all staged files/)
+  })
+
+  it('does display `all staged files` if the --commit-all flag is passed', function () {
+    var result = execCli('--commit-all')
+    result.code.should.equal(0)
+    result.stdout.should.match(/and all staged files/)
+  })
+
   it('includes merge commits', function () {
     var branchName = 'new-feature'
     commit('feat: first commit')
