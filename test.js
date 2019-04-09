@@ -15,7 +15,7 @@ const standardVersion = require('./index')
 
 require('chai').should()
 
-var cliPath = path.resolve(__dirname, './bin/cli.js')
+let cliPath = path.resolve(__dirname, './bin/cli.js')
 
 function branch (branch) {
   shell.exec('git branch ' + branch)
@@ -43,31 +43,31 @@ function execCliAsync (argString) {
 
 function writePackageJson (version, option) {
   option = option || {}
-  var pkg = Object.assign(option, { version: version })
+  let pkg = Object.assign(option, { version: version })
   fs.writeFileSync('package.json', JSON.stringify(pkg), 'utf-8')
 }
 
 function writeBowerJson (version, option) {
   option = option || {}
-  var bower = Object.assign(option, { version: version })
+  let bower = Object.assign(option, { version: version })
   fs.writeFileSync('bower.json', JSON.stringify(bower), 'utf-8')
 }
 
 function writeManifestJson (version, option) {
   option = option || {}
-  var manifest = Object.assign(option, { version: version })
+  let manifest = Object.assign(option, { version: version })
   fs.writeFileSync('manifest.json', JSON.stringify(manifest), 'utf-8')
 }
 
 function writeNpmShrinkwrapJson (version, option) {
   option = option || {}
-  var shrinkwrap = Object.assign(option, { version: version })
+  let shrinkwrap = Object.assign(option, { version: version })
   fs.writeFileSync('npm-shrinkwrap.json', JSON.stringify(shrinkwrap), 'utf-8')
 }
 
 function writePackageLockJson (version, option) {
   option = option || {}
-  var pkgLock = Object.assign(option, { version: version })
+  let pkgLock = Object.assign(option, { version: version })
   fs.writeFileSync('package-lock.json', JSON.stringify(pkgLock), 'utf-8')
 }
 
@@ -82,7 +82,7 @@ function writePostBumpHook (causeError) {
 
 function writeHook (hookName, causeError, script) {
   shell.mkdir('-p', 'scripts')
-  var content = script || 'console.error("' + hookName + ' ran")'
+  let content = script || 'console.error("' + hookName + ' ran")'
   content += causeError ? '\nthrow new Error("' + hookName + '-failure")' : ''
   fs.writeFileSync('scripts/' + hookName + '.js', content, 'utf-8')
   fs.chmodSync('scripts/' + hookName + '.js', '755')
@@ -131,7 +131,7 @@ describe('cli', function () {
 
       execCli().code.should.equal(0)
 
-      var content = fs.readFileSync('CHANGELOG.md', 'utf-8')
+      let content = fs.readFileSync('CHANGELOG.md', 'utf-8')
       content.should.match(/patch release/)
       content.should.not.match(/first commit/)
     })
@@ -143,7 +143,7 @@ describe('cli', function () {
       commit('fix: patch release')
       execCli('--first-release').code.should.equal(0)
 
-      var content = fs.readFileSync('CHANGELOG.md', 'utf-8')
+      let content = fs.readFileSync('CHANGELOG.md', 'utf-8')
       content.should.match(/patch release/)
       content.should.match(/first commit/)
       shell.exec('git tag').stdout.should.match(/1\.0\.1/)
@@ -159,7 +159,7 @@ describe('cli', function () {
       commit('fix: patch release')
 
       execCli().code.should.equal(0)
-      var content = fs.readFileSync('CHANGELOG.md', 'utf-8')
+      let content = fs.readFileSync('CHANGELOG.md', 'utf-8')
       content.should.match(/1\.0\.1/)
       content.should.not.match(/legacy header format/)
     })
@@ -177,8 +177,8 @@ describe('cli', function () {
 
       execCli('--commit-all').code.should.equal(0)
 
-      var content = fs.readFileSync('CHANGELOG.md', 'utf-8')
-      var status = shell.exec('git status --porcelain') // see http://unix.stackexchange.com/questions/155046/determine-if-git-working-directory-is-clean-from-a-script
+      let content = fs.readFileSync('CHANGELOG.md', 'utf-8')
+      let status = shell.exec('git status --porcelain') // see http://unix.stackexchange.com/questions/155046/determine-if-git-working-directory-is-clean-from-a-script
 
       status.should.equal('')
       status.should.not.match(/STUFF.md/)
@@ -195,7 +195,7 @@ describe('cli', function () {
         .then(function (unmock) {
           execCli('--sign').code.should.equal(0)
 
-          var captured = shell.cat('gitcapture.log').stdout.split('\n').map(function (line) {
+          let captured = shell.cat('gitcapture.log').stdout.split('\n').map(function (line) {
             return line ? JSON.parse(line) : line
           })
           captured[captured.length - 3].should.deep.equal(['commit', '-S', 'CHANGELOG.md', 'package.json', '-m', 'chore(release): 1.0.1'])
@@ -209,7 +209,7 @@ describe('cli', function () {
       // mock git by throwing on attempt to commit
       return mockGit('console.error("commit yourself"); process.exit(128);', 'commit')
         .then(function (unmock) {
-          var result = execCli()
+          let result = execCli()
           result.code.should.equal(1)
           result.stderr.should.match(/commit yourself/)
 
@@ -221,7 +221,7 @@ describe('cli', function () {
       // mock git by throwing on attempt to add
       return mockGit('console.error("addition is hard"); process.exit(128);', 'add')
         .then(function (unmock) {
-          var result = execCli()
+          let result = execCli()
           result.code.should.equal(1)
           result.stderr.should.match(/addition is hard/)
 
@@ -233,7 +233,7 @@ describe('cli', function () {
       // mock git by throwing on attempt to commit
       return mockGit('console.error("tag, you\'re it"); process.exit(128);', 'tag')
         .then(function (unmock) {
-          var result = execCli()
+          let result = execCli()
           result.code.should.equal(1)
           result.stderr.should.match(/tag, you're it/)
 
@@ -247,7 +247,7 @@ describe('cli', function () {
         .then(function (unmock) {
           writePackageJson('1.0.0')
 
-          var result = execCli()
+          let result = execCli()
           result.code.should.equal(0)
           result.stderr.should.match(/haha, kidding, this is just a warning/)
 
@@ -270,7 +270,7 @@ describe('cli', function () {
         fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
 
         commit('feat: first commit')
-        var result = execCli('--patch')
+        let result = execCli('--patch')
         result.code.should.equal(0)
         result.stderr.should.match(/prerelease ran/)
       })
@@ -287,7 +287,7 @@ describe('cli', function () {
         fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
 
         commit('feat: first commit')
-        var result = execCli('--patch')
+        let result = execCli('--patch')
         result.code.should.equal(1)
         result.stderr.should.match(/prerelease ran/)
       })
@@ -306,7 +306,7 @@ describe('cli', function () {
         fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
 
         commit('feat: first commit')
-        var result = execCli('--patch')
+        let result = execCli('--patch')
         result.stdout.should.match(/9\.9\.9/)
         result.code.should.equal(0)
       })
@@ -325,7 +325,7 @@ describe('cli', function () {
         fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
 
         commit('feat: first commit')
-        var result = execCli('--patch')
+        let result = execCli('--patch')
         result.code.should.equal(0)
         result.stderr.should.match(/postbump ran/)
       })
@@ -342,7 +342,7 @@ describe('cli', function () {
         fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
 
         commit('feat: first commit')
-        var result = execCli('--patch')
+        let result = execCli('--patch')
         result.code.should.equal(1)
         result.stderr.should.match(/postbump-failure/)
       })
@@ -361,7 +361,7 @@ describe('cli', function () {
         fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
 
         commit('feat: first commit')
-        var result = execCli('--patch')
+        let result = execCli('--patch')
         result.code.should.equal(0)
         result.stderr.should.match(/precommit ran/)
       })
@@ -378,7 +378,7 @@ describe('cli', function () {
         fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
 
         commit('feat: first commit')
-        var result = execCli('--patch')
+        let result = execCli('--patch')
         result.code.should.equal(1)
         result.stderr.should.match(/precommit-failure/)
       })
@@ -395,7 +395,7 @@ describe('cli', function () {
         fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
 
         commit('feat: first commit')
-        var result = execCli('--patch')
+        let result = execCli('--patch')
         result.code.should.equal(0)
         shell.exec('git log --oneline -n1').should.match(/delivers #222/)
       })
@@ -450,11 +450,11 @@ describe('cli', function () {
     })
 
     describe('release-types', function () {
-      var regularTypes = ['major', 'minor', 'patch']
+      let regularTypes = ['major', 'minor', 'patch']
 
       regularTypes.forEach(function (type) {
         it('creates a ' + type + ' release', function () {
-          var originVer = '1.0.0'
+          let originVer = '1.0.0'
           writePackageJson(originVer)
           fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
 
@@ -462,7 +462,7 @@ describe('cli', function () {
 
           return execCliAsync('--release-as ' + type)
             .then(function () {
-              var version = {
+              let version = {
                 major: semver.major(originVer),
                 minor: semver.minor(originVer),
                 patch: semver.patch(originVer)
@@ -478,7 +478,7 @@ describe('cli', function () {
       // this is for pre-releases
       regularTypes.forEach(function (type) {
         it('creates a pre' + type + ' release', function () {
-          var originVer = '1.0.0'
+          let originVer = '1.0.0'
           writePackageJson(originVer)
           fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
 
@@ -486,7 +486,7 @@ describe('cli', function () {
 
           return execCliAsync('--release-as ' + type + ' --prerelease ' + type)
             .then(function () {
-              var version = {
+              let version = {
                 major: semver.major(originVer),
                 minor: semver.minor(originVer),
                 patch: semver.patch(originVer)
@@ -502,7 +502,7 @@ describe('cli', function () {
 
     describe('release-as-exact', function () {
       it('releases as v100.0.0', function () {
-        var originVer = '1.0.0'
+        let originVer = '1.0.0'
         writePackageJson(originVer)
         fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
 
@@ -515,7 +515,7 @@ describe('cli', function () {
       })
 
       it('releases as 200.0.0-amazing', function () {
-        var originVer = '1.0.0'
+        let originVer = '1.0.0'
         writePackageJson(originVer)
         fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
 
@@ -581,7 +581,7 @@ describe('cli', function () {
 
     execCli().code.should.equal(0)
 
-    var content = fs.readFileSync('CHANGELOG.md', 'utf-8')
+    let content = fs.readFileSync('CHANGELOG.md', 'utf-8')
     content.should.match(/this is my fairly long commit message which is testing whether or not we allow for long commit messages/)
   })
 
@@ -601,45 +601,45 @@ describe('cli', function () {
   it('appends line feed at end of package.json', function () {
     execCli().code.should.equal(0)
 
-    var pkgJson = fs.readFileSync('package.json', 'utf-8')
+    let pkgJson = fs.readFileSync('package.json', 'utf-8')
     pkgJson.should.equal(['{', '  "version": "1.0.1"', '}', ''].join('\n'))
   })
 
   it('preserves indentation of tabs in package.json', function () {
-    var indentation = '\t'
-    var newPkgJson = ['{', indentation + '"version": "1.0.0"', '}', ''].join('\n')
+    let indentation = '\t'
+    let newPkgJson = ['{', indentation + '"version": "1.0.0"', '}', ''].join('\n')
     fs.writeFileSync('package.json', newPkgJson, 'utf-8')
 
     execCli().code.should.equal(0)
-    var pkgJson = fs.readFileSync('package.json', 'utf-8')
+    let pkgJson = fs.readFileSync('package.json', 'utf-8')
     pkgJson.should.equal(['{', indentation + '"version": "1.0.1"', '}', ''].join('\n'))
   })
 
   it('preserves indentation of spaces in package.json', function () {
-    var indentation = '     '
-    var newPkgJson = ['{', indentation + '"version": "1.0.0"', '}', ''].join('\n')
+    let indentation = '     '
+    let newPkgJson = ['{', indentation + '"version": "1.0.0"', '}', ''].join('\n')
     fs.writeFileSync('package.json', newPkgJson, 'utf-8')
 
     execCli().code.should.equal(0)
-    var pkgJson = fs.readFileSync('package.json', 'utf-8')
+    let pkgJson = fs.readFileSync('package.json', 'utf-8')
     pkgJson.should.equal(['{', indentation + '"version": "1.0.1"', '}', ''].join('\n'))
   })
 
   it('preserves line feed in package.json', function () {
-    var newPkgJson = ['{', '  "version": "1.0.0"', '}', ''].join('\n')
+    let newPkgJson = ['{', '  "version": "1.0.0"', '}', ''].join('\n')
     fs.writeFileSync('package.json', newPkgJson, 'utf-8')
 
     execCli().code.should.equal(0)
-    var pkgJson = fs.readFileSync('package.json', 'utf-8')
+    let pkgJson = fs.readFileSync('package.json', 'utf-8')
     pkgJson.should.equal(['{', '  "version": "1.0.1"', '}', ''].join('\n'))
   })
 
   it('preserves carriage return + line feed in package.json', function () {
-    var newPkgJson = ['{', '  "version": "1.0.0"', '}', ''].join('\r\n')
+    let newPkgJson = ['{', '  "version": "1.0.0"', '}', ''].join('\r\n')
     fs.writeFileSync('package.json', newPkgJson, 'utf-8')
 
     execCli().code.should.equal(0)
-    var pkgJson = fs.readFileSync('package.json', 'utf-8')
+    let pkgJson = fs.readFileSync('package.json', 'utf-8')
     pkgJson.should.equal(['{', '  "version": "1.0.1"', '}', ''].join('\r\n'))
   })
 
@@ -653,7 +653,7 @@ describe('cli', function () {
   })
 
   it('does not print output when the --silent flag is passed', function () {
-    var result = execCli('--silent')
+    let result = execCli('--silent')
     result.code.should.equal(0)
     result.stdout.should.equal('')
     result.stderr.should.equal('')
@@ -662,7 +662,7 @@ describe('cli', function () {
   it('does not display `npm publish` if the package is private', function () {
     writePackageJson('1.0.0', { private: true })
 
-    var result = execCli()
+    let result = execCli()
     result.code.should.equal(0)
     result.stdout.should.not.match(/npm publish/)
   })
@@ -680,7 +680,7 @@ describe('cli', function () {
   })
 
   it('includes merge commits', function () {
-    var branchName = 'new-feature'
+    let branchName = 'new-feature'
     commit('feat: first commit')
     shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
     branch(branchName)
@@ -691,10 +691,10 @@ describe('cli', function () {
 
     execCli().code.should.equal(0)
 
-    var content = fs.readFileSync('CHANGELOG.md', 'utf-8')
+    let content = fs.readFileSync('CHANGELOG.md', 'utf-8')
     content.should.match(/new feature from branch/)
 
-    var pkgJson = fs.readFileSync('package.json', 'utf-8')
+    let pkgJson = fs.readFileSync('package.json', 'utf-8')
     pkgJson.should.equal(['{', '  "version": "1.1.0"', '}', ''].join('\n'))
   })
 
@@ -706,7 +706,7 @@ describe('cli', function () {
     })
 
     commit('feat: first commit')
-    var result = execCli()
+    let result = execCli()
     result.code.should.equal(1)
     result.stderr.should.match(/scripts must be an object/)
   })
@@ -719,7 +719,7 @@ describe('cli', function () {
     })
 
     commit('feat: first commit')
-    var result = execCli()
+    let result = execCli()
     result.code.should.equal(1)
     result.stderr.should.match(/skip must be an object/)
   })
@@ -759,7 +759,7 @@ describe('standard-version', function () {
     beforeEach(function () {
       mockery.enable({ warnOnUnregistered: false, useCleanCache: true })
       mockery.registerMock('conventional-changelog', function () {
-        var readable = new stream.Readable({ objectMode: true })
+        let readable = new stream.Readable({ objectMode: true })
         readable._read = function () {
         }
         setImmediate(readable.emit.bind(readable), 'error', new Error('changelog err'))
@@ -906,7 +906,7 @@ describe('standard-version', function () {
       return execCliAsync('--skip.bump true --skip.changelog true')
         .then(function () {
           getPackageVersion().should.equal('1.0.0')
-          var content = fs.readFileSync('CHANGELOG.md', 'utf-8')
+          let content = fs.readFileSync('CHANGELOG.md', 'utf-8')
           content.should.equal(changelogContent)
         })
     })
@@ -920,7 +920,7 @@ describe('standard-version', function () {
       return execCliAsync('--skip.commit true')
         .then(function () {
           getPackageVersion().should.equal('1.1.0')
-          var content = fs.readFileSync('CHANGELOG.md', 'utf-8')
+          let content = fs.readFileSync('CHANGELOG.md', 'utf-8')
           content.should.match(/new feature from branch/)
           // check last commit message
           shell.exec('git log --oneline -n1').stdout.should.match(/feat: new feature from branch/)
