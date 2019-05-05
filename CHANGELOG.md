@@ -1,6 +1,33 @@
-# Change Log
+# Changelog
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+
+# [6.0.0](/compare/v5.0.1...v6.0.0) (2019-05-05)
+
+
+### Bug Fixes
+
+* prevent duplicate headers from being added ([#305](https://github.com/conventional-changelog/standard-version/issues/305)) ([#307](https://github.com/conventional-changelog/standard-version/issues/307)) ([db2c6e5](https://github.com/conventional-changelog/standard-version/commit/db2c6e5))
+
+
+### Build System
+
+* add renovate.json ([#273](https://github.com/conventional-changelog/standard-version/issues/273)) ([bf41474](https://github.com/conventional-changelog/standard-version/commit/bf41474))
+
+
+* feat!: adds configurable conventionalcommits preset (#323) ([4fcd4a7](https://github.com/conventional-changelog/standard-version/commit/4fcd4a7)), closes [#323](https://github.com/conventional-changelog/standard-version/issues/323)
+
+
+### Features
+
+* update commit msg for when using commitAll ([#320](https://github.com/conventional-changelog/standard-version/issues/320)) ([74a040a](https://github.com/conventional-changelog/standard-version/commit/74a040a))
+
+
+### BREAKING CHANGES
+
+* we now use the conventionalcommits preset by default, which directly tracks conventionalcommits.org.
+
+
 
 ## [5.0.2](https://github.com/conventional-changelog/standard-version/compare/v5.0.1...v5.0.2) (2019-03-16)
 
