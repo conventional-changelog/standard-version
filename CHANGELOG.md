@@ -20,7 +20,6 @@ All notable changes to this project will be documented in this file. See [standa
 
 * add renovate.json ([#273](https://github.com/conventional-changelog/standard-version/issues/273)) ([bf41474](https://github.com/conventional-changelog/standard-version/commit/bf41474))
 * drop Node 6 from testing matrix ([#346](https://github.com/conventional-changelog/standard-version/issues/346)) ([6718428](https://github.com/conventional-changelog/standard-version/commit/6718428))
-* push timeout a bit further for appveyor ([3c1037a](https://github.com/conventional-changelog/standard-version/commit/3c1037a))
 
 
 ### Features
