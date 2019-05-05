@@ -290,7 +290,7 @@ describe('cli', function () {
           writePackageJson('1.0.0')
 
           let result = execCli()
-          result.code.should.equal(0)
+          result.code.should.equal(1)
           result.stderr.should.match(/haha, kidding, this is just a warning/)
 
           unmock()
