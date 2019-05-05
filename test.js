@@ -1059,7 +1059,7 @@ describe('standard-version', function () {
       getPackageVersion().should.equal('0.6.0')
     })
 
-    it('--release-as=major bumps major, if version < 1.0.0', function () {
+    it('bumps major if --release-as=major specified, if version < 1.0.0', function () {
       writePackageJson('0.5.0', {
         repository: {
           url: 'https://github.com/yargs/yargs.git'
