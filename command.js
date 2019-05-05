@@ -5,6 +5,7 @@ const { readFileSync } = require('fs')
 const configPath = findUp.sync(['.versionrc', '.version.json'])
 const config = configPath ? JSON.parse(readFileSync(configPath)) : {}
 const spec = require('conventional-changelog-config-spec')
+const { START_OF_LAST_RELEASE_PATTERN } = require('./lib/lifecycles/changelog')
 
 const yargs = require('yargs')
   .usage('Usage: $0 [options]')
@@ -87,6 +88,10 @@ const yargs = require('yargs')
     type: 'string',
     describe: 'Only populate commits made under this path'
   })
+  .option('changelogHeader', {
+    type: 'string',
+    describe: 'Use a custom header when generating and updating changelog.'
+  })
   .option('preset', {
     type: 'string',
     default: defaults.preset,
@@ -108,6 +113,13 @@ const yargs = require('yargs')
   .pkgConf('standard-version')
   .config(config)
   .wrap(97)
+  .check((args) => {
+    if (args.changelogHeader && args.changelogHeader.search(START_OF_LAST_RELEASE_PATTERN) !== -1) {
+      throw Error(`custom changelog header must not match ${START_OF_LAST_RELEASE_PATTERN}`)
+    } else {
+      return true
+    }
+  })
 
 Object.keys(spec.properties).forEach(propertyKey => {
   const property = spec.properties[propertyKey]
