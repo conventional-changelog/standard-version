@@ -94,6 +94,7 @@ function initInTempFolder () {
   shell.mkdir('tmp')
   shell.cd('tmp')
   shell.exec('git init')
+  shell.exec('git config commit.gpgSign false')
   commit('root-commit')
   writePackageJson('1.0.0')
 }
