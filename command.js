@@ -1,4 +1,4 @@
-var defaults = require('./defaults')
+let defaults = require('./defaults')
 
 module.exports = require('yargs')
   .usage('Usage: $0 [options]')
@@ -71,6 +71,20 @@ module.exports = require('yargs')
     type: 'boolean',
     default: defaults.dryRun,
     describe: 'See the commands that running standard-version would run'
+  })
+  .option('git-tag-fallback', {
+    type: 'boolean',
+    default: defaults.gitTagFallback,
+    describe: `fallback to git tags for version, if no meta-information file is found (e.g., package.json)`
+  })
+  .option('path', {
+    type: 'string',
+    describe: 'Only populate commits made under this path'
+  })
+  .option('preset', {
+    type: 'string',
+    default: defaults.preset,
+    describe: 'Commit message guideline preset (default: angular)'
   })
   .check((argv) => {
     if (typeof argv.scripts !== 'object' || Array.isArray(argv.scripts)) {

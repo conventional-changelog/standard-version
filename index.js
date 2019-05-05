@@ -1,30 +1,41 @@
-const path = require('path')
-const printError = require('./lib/print-error')
-
 const bump = require('./lib/lifecycles/bump')
 const changelog = require('./lib/lifecycles/changelog')
 const commit = require('./lib/lifecycles/commit')
+const fs = require('fs')
+const latestSemverTag = require('./lib/latest-semver-tag')
+const path = require('path')
+const printError = require('./lib/print-error')
 const tag = require('./lib/lifecycles/tag')
 
 module.exports = function standardVersion (argv) {
-  var pkg
+  let pkg
   bump.pkgFiles.forEach((filename) => {
     if (pkg) return
-    var pkgPath = path.resolve(process.cwd(), filename)
+    let pkgPath = path.resolve(process.cwd(), filename)
     try {
-      pkg = require(pkgPath)
+      let data = fs.readFileSync(pkgPath, 'utf8')
+      pkg = JSON.parse(data)
     } catch (err) {}
   })
-  if (!pkg) {
-    return Promise.reject(new Error('no package file found'))
-  }
-  var newVersion = pkg.version
-  var defaults = require('./defaults')
-  var args = Object.assign({}, defaults, argv)
+  let newVersion
+  let defaults = require('./defaults')
+  let args = Object.assign({}, defaults, argv)
 
   return Promise.resolve()
     .then(() => {
-      return bump(args, pkg)
+      if (!pkg && args.gitTagFallback) {
+        return latestSemverTag()
+      } else if (!pkg) {
+        throw new Error('no package file found')
+      } else {
+        return pkg.version
+      }
+    })
+    .then(version => {
+      newVersion = version
+    })
+    .then(() => {
+      return bump(args, newVersion)
     })
     .then((_newVersion) => {
       // if bump runs, it calculaes the new version that we
@@ -36,7 +47,7 @@ module.exports = function standardVersion (argv) {
       return commit(args, newVersion)
     })
     .then(() => {
-      return tag(newVersion, pkg.private, args)
+      return tag(newVersion, pkg ? pkg.private : false, args)
     })
     .catch((err) => {
       printError(args, err.message)

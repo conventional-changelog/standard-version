@@ -8,23 +8,23 @@
 
 _Having problems? want to contribute? join our [community slack](http://devtoolscommunity.herokuapp.com)_.
 
-> stop using `npm version`, use `standard-version` it rocks!
 
-Automatic versioning and CHANGELOG generation, using GitHub's squash button and
+Automate versioning and CHANGELOG generation, with [semver](https://semver.org/) and
 [conventional commit messages](https://conventionalcommits.org).
 
 _how it works:_
 
 1. when you land commits on your `master` branch, select the _Squash and Merge_ option.
 2. add a title and body that follows the [Conventional Commits Specification](https://conventionalcommits.org).
-3. when you're ready to release to npm:
+3. when you're ready to release:
   1. `git checkout master; git pull origin master`
   2. run `standard-version`
   3. `git push --follow-tags origin master && npm publish`
+     _(or, `docker push`, `gem push`, etc.)_
 
 `standard-version` does the following:
 
-1. bumps the version in _package.json/bower.json_ (based on your commit history)
+1. bumps the version in metadata files (package.json, composer.json, etc).
 2. uses [conventional-changelog](https://github.com/conventional-changelog/conventional-changelog) to update _CHANGELOG.md_
 3. commits _package.json (et al.)_ and _CHANGELOG.md_
 4. tags a new release
@@ -181,7 +181,7 @@ Simply add the following to your package.json to configure lifecycle scripts:
 }
 ```
 
-As an example to change from using GitHub to track your items to using your projects Jira use a 
+As an example to change from using GitHub to track your items to using your projects Jira use a
 `postchangelog` script to replace the url fragment containing 'https://github.com/`myproject`/issues/'
 with a link to your Jira - assuming you have already installed [replace](https://www.npmjs.com/package/replace)
 ```json
@@ -230,6 +230,16 @@ npm run release -- --dry-run
 standard-version --dry-run
 ```
 
+### Prefix Tags
+
+If you would like to prefix your tags with something, you can do so with the `-t` flag.
+
+```sh
+standard-version -t @scope/package\@
+```
+
+This will prefix your tags to look something like `@scope/package@2.0.0`
+
 ### CLI Help
 
 ```sh
@@ -245,18 +255,18 @@ Use the `silent` option to stop `standard-version` from printing anything
 to the console.
 
 ```js
-var standardVersion = require('standard-version')
+const standardVersion = require('standard-version')
 
 // Options are the same as command line, except camelCase
+// standardVersion returns a Promise
 standardVersion({
   noVerify: true,
   infile: 'docs/CHANGELOG.md',
   silent: true
-}, function (err) {
-  if (err) {
-    console.error(`standard-version failed with message: ${err.message}`)
-  }
+}).then(() => {
   // standard-version is done
+}).catch(err => {
+    console.error(`standard-version failed with message: ${err.message}`)
 })
 ```
 
@@ -308,7 +318,7 @@ Tell your users that you adhere to the Conventional Commits specification:
 
 [`semantic-release`](https://github.com/semantic-release/semantic-release) is a fully automated library/system for versioning, changelog generation, git tagging, and publishing to the npm registry.
 
-`standard-version` is different because it handles the versioning, changelog generation, and git tagging for you **without** automatic pushing (to GitHub) or publishing (to an npm registry). Use of `standard-version` only affects your local git repo - it doesn't affect remote resources at all. After you run `standard-version`, you still have to ability to review things and correct mistakes if you want to.
+`standard-version` is different because it handles the versioning, changelog generation, and git tagging for you **without** automatic pushing (to GitHub) or publishing (to an npm registry). Use of `standard-version` only affects your local git repo - it doesn't affect remote resources at all. After you run `standard-version`, you still have the ability to review things and correct mistakes if you want to.
 
 They are both based on the same foundation of structured commit messages (using [Angular format](https://github.com/bcoe/conventional-changelog-standard/blob/master/convention.md)), but `standard-version` is a good choice for folks who are not yet comfortable letting publishes go out automatically. In this way, you can view `standard-version` as an incremental step to adopting `semantic-release`.
 

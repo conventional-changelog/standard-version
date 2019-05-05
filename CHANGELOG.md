@@ -2,6 +2,49 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.0.2](https://github.com/conventional-changelog/standard-version/compare/v5.0.1...v5.0.2) (2019-03-16)
+
+
+
+## [5.0.1](https://github.com/conventional-changelog/standard-version/compare/v5.0.0...v5.0.1) (2019-02-28)
+
+
+### Bug Fixes
+
+* make pattern for finding CHANGELOG sections work for non anchors ([#292](https://github.com/conventional-changelog/standard-version/issues/292)) ([b684c78](https://github.com/conventional-changelog/standard-version/commit/b684c78))
+
+
+
+# [5.0.0](https://github.com/conventional-changelog/standard-version/compare/v4.4.0...v5.0.0) (2019-02-14)
+
+
+### Bug Fixes
+
+* bin now enforces Node.js > 4 ([#274](https://github.com/conventional-changelog/standard-version/issues/274)) ([e1b5780](https://github.com/conventional-changelog/standard-version/commit/e1b5780))
+* no --tag prerelease for private module ([#296](https://github.com/conventional-changelog/standard-version/issues/296)) ([27e2ab4](https://github.com/conventional-changelog/standard-version/commit/27e2ab4)), closes [#294](https://github.com/conventional-changelog/standard-version/issues/294)
+* show correct pre-release tag in help output ([#259](https://github.com/conventional-changelog/standard-version/issues/259)) ([d90154a](https://github.com/conventional-changelog/standard-version/commit/d90154a))
+
+
+### chore
+
+* update testing matrix ([1d46627](https://github.com/conventional-changelog/standard-version/commit/1d46627))
+
+
+### Features
+
+* adds support for bumping for composer versions ([#262](https://github.com/conventional-changelog/standard-version/issues/262)) ([fee872f](https://github.com/conventional-changelog/standard-version/commit/fee872f))
+* cli application accept path/preset option ([#279](https://github.com/conventional-changelog/standard-version/issues/279)) ([69c62cf](https://github.com/conventional-changelog/standard-version/commit/69c62cf))
+* fallback to tags if no meta-information file found ([#275](https://github.com/conventional-changelog/standard-version/issues/275)) ([844cde6](https://github.com/conventional-changelog/standard-version/commit/844cde6))
+* preserve formatting when writing to package.json ([#282](https://github.com/conventional-changelog/standard-version/issues/282)) ([96216da](https://github.com/conventional-changelog/standard-version/commit/96216da))
+
+
+### BREAKING CHANGES
+
+* if no package.json, bower.json, etc., is found, we now fallback to git tags
+* removed Node 4/5 from testing matrix
+
+
+
 <a name="4.4.0"></a>
 # [4.4.0](https://github.com/conventional-changelog/standard-version/compare/v4.3.0...v4.4.0) (2018-05-21)
 

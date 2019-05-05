@@ -9,5 +9,7 @@
   "tagPrefix": "v",
   "scripts": {},
   "skip": {},
-  "dryRun": false
+  "dryRun": false,
+  "gitTagFallback": true,
+  "preset": "angular"
 }
