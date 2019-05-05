@@ -54,7 +54,7 @@
     "yargs": "13.2.2"
   },
   "devDependencies": {
-    "chai": "3.5.0",
+    "chai": "4.2.0",
     "coveralls": "3.0.3",
     "eslint": "5.16.0",
     "eslint-config-standard": "12.0.0",
