@@ -1058,5 +1058,16 @@ describe('standard-version', function () {
       execCli()
       getPackageVersion().should.equal('0.6.0')
     })
+
+    it('--release-as=major bumps major, if version < 1.0.0', function () {
+      writePackageJson('0.5.0', {
+        repository: {
+          url: 'https://github.com/yargs/yargs.git'
+        }
+      })
+      commit('feat!: this is a breaking change')
+      execCli('-r major')
+      getPackageVersion().should.equal('1.0.0')
+    })
   })
 })
