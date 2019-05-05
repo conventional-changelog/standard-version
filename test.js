@@ -1034,17 +1034,6 @@ describe('standard-version', function () {
 
   describe('configuration', () => {
     it('reads config from .versionrc', function () {
-      // we currently skip several replacments in CHANGELOG
-      // generation if repository URL isn't set.
-      //
-      // TODO: consider modifying this logic in conventional-commits
-      // perhaps we should only skip the replacement if we rely on
-      // the {{host}} field?
-      writePackageJson('1.0.0', {
-        repository: {
-          url: 'https://github.com/yargs/yargs.git'
-        }
-      })
       // write configuration that overrides default issue
       // URL format.
       fs.writeFileSync('.versionrc', JSON.stringify({
@@ -1055,6 +1044,30 @@ describe('standard-version', function () {
       // CHANGELOG should have the new issue URL format.
       const content = fs.readFileSync('CHANGELOG.md', 'utf-8')
       content.should.include('http://www.foo.com/1')
+    })
+  })
+
+  describe('pre-major', () => {
+    it('bumps the minor rather than major, if version < 1.0.0', function () {
+      writePackageJson('0.5.0', {
+        repository: {
+          url: 'https://github.com/yargs/yargs.git'
+        }
+      })
+      commit('feat!: this is a breaking change')
+      execCli()
+      getPackageVersion().should.equal('0.6.0')
+    })
+
+    it('bumps major if --release-as=major specified, if version < 1.0.0', function () {
+      writePackageJson('0.5.0', {
+        repository: {
+          url: 'https://github.com/yargs/yargs.git'
+        }
+      })
+      commit('feat!: this is a breaking change')
+      execCli('-r major')
+      getPackageVersion().should.equal('1.0.0')
     })
   })
 })
