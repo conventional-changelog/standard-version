@@ -1,12 +1,11 @@
 language: node_js
 os:
   - linux
-  - osx
   - windows
 node_js:
   - "6"
   - "10"
-  - "stable"
+  - "node"
 before_script:
   - git config --global user.name 'Travis-CI'
   - git config --global user.email 'dummy@example.org'
