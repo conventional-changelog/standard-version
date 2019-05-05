@@ -6,7 +6,7 @@
   "scripts": {
     "posttest": "eslint .",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
-    "test": "nyc mocha --timeout=20000 test.js",
+    "test": "nyc mocha --timeout=30000 test.js",
     "release": "bin/cli.js"
   },
   "nyc": {
@@ -42,7 +42,7 @@
     "conventional-changelog": "3.1.8",
     "conventional-changelog-config-spec": "1.0.0",
     "conventional-recommended-bump": "5.0.0",
-    "detect-indent": "5.0.0",
+    "detect-indent": "6.0.0",
     "detect-newline": "3.0.0",
     "dotgitignore": "2.1.0",
     "figures": "3.0.0",
@@ -63,7 +63,7 @@
     "eslint-plugin-promise": "4.1.1",
     "eslint-plugin-standard": "4.0.0",
     "mocha": "6.1.4",
-    "mock-git": "1.0.3",
+    "mock-git": "2.0.0",
     "mockery": "2.1.0",
     "nyc": "14.1.0",
     "shelljs": "0.7.8"

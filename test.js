@@ -240,8 +240,8 @@ describe('cli', function () {
           let captured = shell.cat('gitcapture.log').stdout.split('\n').map(function (line) {
             return line ? JSON.parse(line) : line
           })
-          captured[captured.length - 3].should.deep.equal(['commit', '-S', 'CHANGELOG.md', 'package.json', '-m', 'chore(release): 1.0.1'])
-          captured[captured.length - 2].should.deep.equal(['tag', '-s', 'v1.0.1', '-m', 'chore(release): 1.0.1'])
+          captured[captured.length - 4].should.deep.equal(['commit', '-S', 'CHANGELOG.md', 'package.json', '-m', 'chore(release): 1.0.1'])
+          captured[captured.length - 3].should.deep.equal(['tag', '-s', 'v1.0.1', '-m', 'chore(release): 1.0.1'])
 
           unmock()
         })
@@ -290,7 +290,7 @@ describe('cli', function () {
           writePackageJson('1.0.0')
 
           let result = execCli()
-          result.code.should.equal(0)
+          result.code.should.equal(1)
           result.stderr.should.match(/haha, kidding, this is just a warning/)
 
           unmock()

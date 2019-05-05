@@ -265,13 +265,15 @@ standard-version --dry-run
 
 ### Prefix Tags
 
-If you would like to prefix your tags with something, you can do so with the `-t` flag.
+Tags are prefixed with `v` by default. If you would like to prefix your tags with something else, you can do so with the `-t` flag.
 
 ```sh
 standard-version -t @scope/package\@
 ```
 
 This will prefix your tags to look something like `@scope/package@2.0.0`
+
+If you do not want to have any tag prefix you can use the `-t` flag without value.
 
 ### CLI Help
 
