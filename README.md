@@ -65,6 +65,39 @@ Now you can use `standard-version` in place of `npm version`.
 
 This has the benefit of allowing you to use `standard-version` on any repo/package without adding a dev dependency to each one.
 
+## Configuration
+
+You can configure `standard-version` either by:
+
+1. Placing a `standard-version` stanza in your `package.json` (assuming
+   your project is JavaScript).
+1. Creating a `.versionrc` or `.versionrc.json`.
+
+Any of the command line paramters accepted by `standard-version` can instead
+be provided via configuration.
+
+### Customizing CHANGELOG Generation
+
+By default, `standard-version` uses the [conventionalcommits preset](https://github.com/conventional-changelog/conventional-changelog/tree/master/packages/conventional-changelog-conventionalcommits).
+
+This preset:
+
+* adheres closely to the [conventionalcommits.org](https://www.conventionalcommits.org)
+  specification.
+* is highly configurable, following the configuration specification
+  [maintained here](https://github.com/conventional-changelog/conventional-changelog-config-spec).
+  * _we've documented these config settings as a recommendation to other tooling makers._
+
+There are a variety of dials and knobs you can turn related to CHANGELOG generation.
+
+As an example, suppose you're using GitLab, rather than GitHub, you might modify the following variables:
+
+* `commitUrlFormat`: the URL format of commit SHAs detected in commit messages.
+* `compareUrlFormat`: the URL format used to compare two tags.
+* `issueUrlFormat`: the URL format used to link to issues.
+
+Making these URLs match GitLab's format, rather than GitHub's.
+
 ## CLI Usage
 
 ### First Release

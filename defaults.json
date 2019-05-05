@@ -11,5 +11,5 @@
   "skip": {},
   "dryRun": false,
   "gitTagFallback": true,
-  "preset": "angular"
+  "preset": "conventionalcommits"
 }
