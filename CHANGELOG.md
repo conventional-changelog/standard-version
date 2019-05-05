@@ -1,6 +1,50 @@
-# Change Log
+# Changelog
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+
+## [6.0.0](https://github.com/conventional-changelog/standard-version/compare/v5.0.2...v6.0.0) (2019-05-05)
+
+
+### Bug Fixes
+
+* always pass version to changelog context ([#327](https://github.com/conventional-changelog/standard-version/issues/327)) ([00e3381](https://github.com/conventional-changelog/standard-version/commit/00e3381))
+* **deps:** update dependency detect-indent to v6 ([#341](https://github.com/conventional-changelog/standard-version/issues/341)) ([234d9dd](https://github.com/conventional-changelog/standard-version/commit/234d9dd))
+* **deps:** update dependency detect-newline to v3 ([#342](https://github.com/conventional-changelog/standard-version/issues/342)) ([02a6093](https://github.com/conventional-changelog/standard-version/commit/02a6093))
+* **deps:** update dependency figures to v3 ([#343](https://github.com/conventional-changelog/standard-version/issues/343)) ([7208ded](https://github.com/conventional-changelog/standard-version/commit/7208ded))
+* **deps:** update dependency semver to v6 ([#344](https://github.com/conventional-changelog/standard-version/issues/344)) ([c40487a](https://github.com/conventional-changelog/standard-version/commit/c40487a))
+* **deps:** update dependency yargs to v13 ([#345](https://github.com/conventional-changelog/standard-version/issues/345)) ([b2c8e59](https://github.com/conventional-changelog/standard-version/commit/b2c8e59))
+* prevent duplicate headers from being added ([#305](https://github.com/conventional-changelog/standard-version/issues/305)) ([#307](https://github.com/conventional-changelog/standard-version/issues/307)) ([db2c6e5](https://github.com/conventional-changelog/standard-version/commit/db2c6e5))
+
+
+### Build System
+
+* add renovate.json ([#273](https://github.com/conventional-changelog/standard-version/issues/273)) ([bf41474](https://github.com/conventional-changelog/standard-version/commit/bf41474))
+* drop Node 6 from testing matrix ([#346](https://github.com/conventional-changelog/standard-version/issues/346)) ([6718428](https://github.com/conventional-changelog/standard-version/commit/6718428))
+* push timeout a bit further for appveyor ([3c1037a](https://github.com/conventional-changelog/standard-version/commit/3c1037a))
+
+
+### Features
+
+* adds configurable conventionalcommits preset ([#323](https://github.com/conventional-changelog/standard-version/issues/323)) ([4fcd4a7](https://github.com/conventional-changelog/standard-version/commit/4fcd4a7))
+* allow a user to provide a custom changelog header ([#335](https://github.com/conventional-changelog/standard-version/issues/335)) ([1c51064](https://github.com/conventional-changelog/standard-version/commit/1c51064))
+* bump minor rather than major, if release is < 1.0.0 ([#347](https://github.com/conventional-changelog/standard-version/issues/347)) ([5d972cf](https://github.com/conventional-changelog/standard-version/commit/5d972cf))
+* suggest branch name other than master ([#331](https://github.com/conventional-changelog/standard-version/issues/331)) ([304b49a](https://github.com/conventional-changelog/standard-version/commit/304b49a))
+* update commit msg for when using commitAll ([#320](https://github.com/conventional-changelog/standard-version/issues/320)) ([74a040a](https://github.com/conventional-changelog/standard-version/commit/74a040a))
+
+
+### Tests
+
+* disable gpg signing in temporary test repositories. ([#311](https://github.com/conventional-changelog/standard-version/issues/311)) ([bd0fcdf](https://github.com/conventional-changelog/standard-version/commit/bd0fcdf))
+* use const based on new eslint rules ([#329](https://github.com/conventional-changelog/standard-version/issues/329)) ([b6d3d13](https://github.com/conventional-changelog/standard-version/commit/b6d3d13))
+
+
+### BREAKING CHANGES
+
+* we now bump the minor rather than major if version < 1.0.0; --release-as can be used to bump to 1.0.0.
+* tests are no longer run for Node 6
+* we now use the conventionalcommits preset by default, which directly tracks conventionalcommits.org.
+
+
 
 ## [5.0.2](https://github.com/conventional-changelog/standard-version/compare/v5.0.1...v5.0.2) (2019-03-16)
 
