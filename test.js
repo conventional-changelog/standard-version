@@ -165,22 +165,27 @@ describe('cli', function () {
     })
 
     it('appends the new release above the last release, removing the old header (new format)', function () {
+      // we don't create a package.json, so no {{host}} and {{repo}} tag
+      // will be populated, let's use a compareUrlFormat without these.
+      const cliArgs = '--compareUrlFormat=/compare/{{previousTag}}...{{currentTag}}'
+
       commit('feat: first commit')
       shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
       commit('fix: patch release')
 
-      execCli().code.should.equal(0)
-      var content = fs.readFileSync('CHANGELOG.md', 'utf-8')
+      execCli(cliArgs).code.should.equal(0)
+      let content = fs.readFileSync('CHANGELOG.md', 'utf-8')
 
       // remove commit hashes and dates to make testing against a static string easier:
       content = content.replace(/patch release [0-9a-f]{6,8}/g, 'patch release ABCDEFXY').replace(/\([0-9]{4}-[0-9]{2}-[0-9]{2}\)/g, '(YYYY-MM-DD)')
-      content.should.equal('# Change Log\n\nAll notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.\n\n## [1.0.1](/compare/v1.0.0...v1.0.1) (YYYY-MM-DD)\n\n\n### Bug Fixes\n\n* patch release ABCDEFXY\n')
+      content.should.equal('# Changelog\n\nAll notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.\n\n## [1.0.1](/compare/v1.0.0...v1.0.1) (YYYY-MM-DD)\n\n\n### Bug Fixes\n\n* patch release ABCDEFXY\n')
 
       commit('fix: another patch release')
-      execCli().code.should.equal(0)
+      // we've populated no package.json, so no {{host}} and
+      execCli(cliArgs).code.should.equal(0)
       content = fs.readFileSync('CHANGELOG.md', 'utf-8')
       content = content.replace(/patch release [0-9a-f]{6,8}/g, 'patch release ABCDEFXY').replace(/\([0-9]{4}-[0-9]{2}-[0-9]{2}\)/g, '(YYYY-MM-DD)')
-      content.should.equal('# Change Log\n\nAll notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.\n\n## [1.0.2](/compare/v1.0.1...v1.0.2) (YYYY-MM-DD)\n\n\n### Bug Fixes\n\n* another patch release ABCDEFXY\n\n\n\n## [1.0.1](/compare/v1.0.0...v1.0.1) (YYYY-MM-DD)\n\n\n### Bug Fixes\n\n* patch release ABCDEFXY\n')
+      content.should.equal('# Changelog\n\nAll notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.\n\n## [1.0.2](/compare/v1.0.1...v1.0.2) (YYYY-MM-DD)\n\n\n### Bug Fixes\n\n* another patch release ABCDEFXY\n\n\n\n## [1.0.1](/compare/v1.0.0...v1.0.1) (YYYY-MM-DD)\n\n\n### Bug Fixes\n\n* patch release ABCDEFXY\n')
     })
 
     it('commits all staged files', function () {

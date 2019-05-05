@@ -87,6 +87,10 @@ const yargs = require('yargs')
     type: 'string',
     describe: 'Only populate commits made under this path'
   })
+  .option('changelogHeader', {
+    type: 'string',
+    describe: 'Use a custom header when generating and updating changelog.'
+  })
   .option('preset', {
     type: 'string',
     default: defaults.preset,
