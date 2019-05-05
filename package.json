@@ -63,7 +63,7 @@
     "eslint-plugin-promise": "4.1.1",
     "eslint-plugin-standard": "4.0.0",
     "mocha": "5.2.0",
-    "mock-git": "1.0.3",
+    "mock-git": "2.0.0",
     "mockery": "2.1.0",
     "nyc": "14.1.0",
     "shelljs": "0.7.8"
