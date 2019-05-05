@@ -210,6 +210,20 @@ describe('cli', function () {
       content.should.match(/1\.0\.1/)
       content.should.not.match(/legacy header format/)
     })
+
+    it('allows for a custom changelog header', function () {
+      fs.writeFileSync('CHANGELOG.md', '', 'utf-8')
+      commit('feat: first commit')
+      execCli('--changelogHeader="# Pork Chop Log"').code.should.equal(0)
+      let content = fs.readFileSync('CHANGELOG.md', 'utf-8')
+      content.should.match(/# Pork Chop Log/)
+    })
+
+    it('exits with error if changelog header matches last version search regex', function () {
+      fs.writeFileSync('CHANGELOG.md', '', 'utf-8')
+      commit('feat: first commit')
+      execCli('--changelogHeader="## 3.0.2"').code.should.equal(1)
+    })
   })
 
   describe('with mocked git', function () {
