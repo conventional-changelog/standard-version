@@ -668,13 +668,13 @@ describe('cli', function () {
   })
 
   it('does not display `all staged files` without the --commit-all flag', function () {
-    var result = execCli()
+    let result = execCli()
     result.code.should.equal(0)
     result.stdout.should.not.match(/and all staged files/)
   })
 
   it('does display `all staged files` if the --commit-all flag is passed', function () {
-    var result = execCli('--commit-all')
+    let result = execCli('--commit-all')
     result.code.should.equal(0)
     result.stdout.should.match(/and all staged files/)
   })
@@ -987,6 +987,32 @@ describe('standard-version', function () {
           const output = shell.exec('git tag')
           output.stdout.should.include('v5.1.0')
         })
+    })
+  })
+
+  describe('configuration', () => {
+    it('reads config from .versionrc', function () {
+      // we currently skip several replacments in CHANGELOG
+      // generation if repository URL isn't set.
+      //
+      // TODO: consider modifying this logic in conventional-commits
+      // perhaps we should only skip the replacement if we rely on
+      // the {{host}} field?
+      writePackageJson('1.0.0', {
+        repository: {
+          url: 'https://github.com/yargs/yargs.git'
+        }
+      })
+      // write configuration that overrides default issue
+      // URL format.
+      fs.writeFileSync('.versionrc', JSON.stringify({
+        issueUrlFormat: 'http://www.foo.com/{{id}}'
+      }), 'utf-8')
+      commit('feat: another commit addresses issue #1')
+      execCli()
+      // CHANGELOG should have the new issue URL format.
+      const content = fs.readFileSync('CHANGELOG.md', 'utf-8')
+      content.should.include('http://www.foo.com/1')
     })
   })
 })

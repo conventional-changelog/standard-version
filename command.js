@@ -1,6 +1,12 @@
-let defaults = require('./defaults')
+const findUp = require('find-up')
+const defaults = require('./defaults')
+const { readFileSync } = require('fs')
 
-module.exports = require('yargs')
+const configPath = findUp.sync(['.versionrc', '.version.json'])
+const config = configPath ? JSON.parse(readFileSync(configPath)) : {}
+const spec = require('conventional-changelog-config-spec')
+
+const yargs = require('yargs')
   .usage('Usage: $0 [options]')
   .option('release-as', {
     alias: 'r',
@@ -95,11 +101,25 @@ module.exports = require('yargs')
       return true
     }
   })
-  .version()
   .alias('version', 'v')
-  .help()
   .alias('help', 'h')
   .example('$0', 'Update changelog and tag release')
   .example('$0 -m "%s: see changelog for details"', 'Update changelog and tag release with custom commit message')
   .pkgConf('standard-version')
+  .config(config)
   .wrap(97)
+
+Object.keys(spec.properties).forEach(propertyKey => {
+  const property = spec.properties[propertyKey]
+  yargs.option(propertyKey, {
+    type: property.type,
+    describe: property.description,
+    default: property.default,
+    group: 'Preset Configuration:'
+  })
+})
+
+module.exports = yargs
+
+// TODO: yargs should be populated with keys/descriptions from
+// https://github.com/conventional-changelog/conventional-changelog-config-spec
