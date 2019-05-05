@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+# [6.0.0](https://github.com/conventional-changelog/standard-version/compare/v5.0.1...v6.0.0) (2019-05-05)
+
+
+### Features
+
+* adds new conventionalcommits configurable preset ([289700c](https://github.com/conventional-changelog/standard-version/commit/289700c))
+* update commit msg for when using commitAll ([#320](https://github.com/conventional-changelog/standard-version/issues/320)) ([74a040a](https://github.com/conventional-changelog/standard-version/commit/74a040a))
+
+
+### BREAKING CHANGES
+
+* we are moving from the angular to the conventionalcommits preset.
+
+
+
 ## [5.0.2](https://github.com/conventional-changelog/standard-version/compare/v5.0.1...v5.0.2) (2019-03-16)
 
 

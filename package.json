@@ -1,6 +1,6 @@
 {
   "name": "standard-version",
-  "version": "5.0.2",
+  "version": "6.0.0",
   "description": "replacement for `npm version` with automatic CHANGELOG generation",
   "bin": "bin/cli.js",
   "scripts": {
@@ -40,6 +40,7 @@
   "dependencies": {
     "chalk": "^2.4.1",
     "conventional-changelog": "^3.1.2",
+    "conventional-changelog-config-spec": "^1.0.0",
     "conventional-recommended-bump": "^4.1.1",
     "detect-indent": "^5.0.0",
     "detect-newline": "^2.1.0",
