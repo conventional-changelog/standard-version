@@ -114,7 +114,7 @@ const yargs = require('yargs')
   .config(config)
   .wrap(97)
   .check((args) => {
-    if (args.changelogHeader.search(START_OF_LAST_RELEASE_PATTERN) !== -1) {
+    if (args.changelogHeader && args.changelogHeader.search(START_OF_LAST_RELEASE_PATTERN) !== -1) {
       throw Error(`custom changelog header must not match ${START_OF_LAST_RELEASE_PATTERN}`)
     } else {
       return true
