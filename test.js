@@ -1052,6 +1052,20 @@ describe('standard-version', function () {
       const content = fs.readFileSync('CHANGELOG.md', 'utf-8')
       content.should.include('http://www.foo.com/1')
     })
+
+    it('releaseCommitMessageFormat', function () {
+      // write configuration that overrides default issue
+      // URL format.
+      fs.writeFileSync('.versionrc', JSON.stringify({
+        releaseCommitMessageFormat: 'This commit represents release: {{currentTag}}'
+      }), 'utf-8')
+      commit('feat: another commit addresses issue #1')
+      execCli()
+      // CHANGELOG should have the new issue URL format.
+      const content = fs.readFileSync('CHANGELOG.md', 'utf-8')
+
+      shell.exec('git log --oneline -n1').should.include('This commit represents release: 1.0.0')
+    })
   })
 
   describe('pre-major', () => {
