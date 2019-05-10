@@ -40,7 +40,7 @@
   "dependencies": {
     "chalk": "2.4.2",
     "conventional-changelog": "3.1.8",
-    "conventional-changelog-config-spec": "1.0.0",
+    "conventional-changelog-config-spec": "2.0.0",
     "conventional-recommended-bump": "5.0.0",
     "detect-indent": "6.0.0",
     "detect-newline": "3.0.0",
