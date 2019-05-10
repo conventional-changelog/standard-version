@@ -1071,7 +1071,7 @@ describe('standard-version', function () {
       content.should.include('http://www.foo.com/1')
     })
 
-    it('releaseCommitMessageFormat', function () {
+    it('.versionrc : releaseCommitMessageFormat', function () {
       // write configuration that overrides default issue
       // URL format.
       fs.writeFileSync('.versionrc', JSON.stringify({
@@ -1079,10 +1079,19 @@ describe('standard-version', function () {
       }), 'utf-8')
       commit('feat: another commit addresses issue #1')
       execCli()
-      // CHANGELOG should have the new issue URL format.
-      const content = fs.readFileSync('CHANGELOG.md', 'utf-8')
+      shell.exec('git log --oneline -n1').should.include('This commit represents release: 1.1.0')
+    })
 
-      shell.exec('git log --oneline -n1').should.include('This commit represents release: 1.0.0')
+    it('--releaseCommitMessageFormat', function () {
+      commit('feat: another commit addresses issue #1')
+      execCli('--releaseCommitMessageFormat="{{currentTag}} is the version."')
+      shell.exec('git log --oneline -n1').should.include('1.1.0 is the version.')
+    })
+
+    it('supports --message', function () {
+      commit('feat: another commit addresses issue #1')
+      execCli('--message="V:%s"')
+      shell.exec('git log --oneline -n1').should.include('V:1.1.0')
     })
   })
 
