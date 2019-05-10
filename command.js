@@ -26,7 +26,7 @@ const yargs = require('yargs')
     default: defaults.infile
   })
   .option('message', {
-    alias: 'm',
+    alias: ['m', 'releaseCommitMessageFormat'],
     describe: 'Commit message, replaces %s with new version',
     type: 'string',
     default: defaults.message
