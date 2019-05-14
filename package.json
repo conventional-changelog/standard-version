@@ -46,7 +46,7 @@
     "detect-newline": "3.0.0",
     "dotgitignore": "2.1.0",
     "figures": "3.0.0",
-    "find-up": "3.0.0",
+    "find-up": "4.0.0",
     "fs-access": "1.0.1",
     "git-semver-tags": "2.0.2",
     "semver": "6.0.0",
