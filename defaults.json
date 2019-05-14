@@ -1,6 +1,5 @@
 {
   "infile": "CHANGELOG.md",
-  "message": "chore(release): %s",
   "firstRelease": false,
   "sign": false,
   "noVerify": false,
