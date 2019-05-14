@@ -8,6 +8,22 @@ const printError = require('./lib/print-error')
 const tag = require('./lib/lifecycles/tag')
 
 module.exports = function standardVersion (argv) {
+  /**
+   * `--message` (`-m`) support will be removed in the next major version.
+   */
+  const message = argv.m || argv.message
+  if (message) {
+    /**
+     * The `--message` flag uses `%s` for version substitutions, we swap this
+     * for the substitution defined in the config-spec for future-proofing upstream
+     * handling.
+     */
+    argv.releaseCommitMessageFormat = message.replace(/%s/g, '{{currentTag}}')
+    if (!argv.silent) {
+      console.warn('[standard-version]: --message (-m) will be removed in the next major release. Use --releaseCommitMessageFormat.')
+    }
+  }
+
   let pkg
   bump.pkgFiles.forEach((filename) => {
     if (pkg) return

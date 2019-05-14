@@ -7,15 +7,6 @@ const config = configPath ? JSON.parse(readFileSync(configPath)) : {}
 const spec = require('conventional-changelog-config-spec')
 const { START_OF_LAST_RELEASE_PATTERN } = require('./lib/lifecycles/changelog')
 
-function checkForDeprecatedArgs (args) {
-  if (args.m || args.message) {
-    args.releaseCommitMessageFormat = (args.m || args.message).replace(/%s/g, '{{currentTag}}')
-    if (!args.silent) {
-      console.warn('[standard-version]: --message (-m) will be removed in the next major release. Use --releaseCommitMessageFormat.')
-    }
-  }
-}
-
 const yargs = require('yargs')
   .usage('Usage: $0 [options]')
   .option('release-as', {
@@ -36,7 +27,7 @@ const yargs = require('yargs')
   })
   .option('message', {
     alias: ['m'],
-    describe: '[DEPRECATED] Commit message, replaces %s with new version. This option will be removed in the next major version, please use --releaseCommitMessageFormat.',
+    describe: '[DEPRECATED] Commit message, replaces %s with new version.\nThis option will be removed in the next major version, please use --releaseCommitMessageFormat.',
     type: 'string'
   })
   .option('first-release', {
@@ -122,7 +113,6 @@ const yargs = require('yargs')
   .config(config)
   .wrap(97)
   .check((args) => {
-    checkForDeprecatedArgs(args)
     if (args.changelogHeader && args.changelogHeader.search(START_OF_LAST_RELEASE_PATTERN) !== -1) {
       throw Error(`custom changelog header must not match ${START_OF_LAST_RELEASE_PATTERN}`)
     } else {
@@ -141,6 +131,3 @@ Object.keys(spec.properties).forEach(propertyKey => {
 })
 
 module.exports = yargs
-
-// TODO: yargs should be populated with keys/descriptions from
-// https://github.com/conventional-changelog/conventional-changelog-config-spec
