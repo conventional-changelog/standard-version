@@ -26,10 +26,9 @@ const yargs = require('yargs')
     default: defaults.infile
   })
   .option('message', {
-    alias: 'm',
-    describe: 'Commit message, replaces %s with new version',
-    type: 'string',
-    default: defaults.message
+    alias: ['m'],
+    describe: '[DEPRECATED] Commit message, replaces %s with new version.\nThis option will be removed in the next major version, please use --releaseCommitMessageFormat.',
+    type: 'string'
   })
   .option('first-release', {
     alias: 'f',
@@ -132,6 +131,3 @@ Object.keys(spec.properties).forEach(propertyKey => {
 })
 
 module.exports = yargs
-
-// TODO: yargs should be populated with keys/descriptions from
-// https://github.com/conventional-changelog/conventional-changelog-config-spec

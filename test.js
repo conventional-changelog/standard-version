@@ -109,14 +109,14 @@ function getPackageVersion () {
 }
 
 describe('format-commit-message', function () {
-  it('works for no %s', function () {
+  it('works for no {{currentTag}}', function () {
     formatCommitMessage('chore(release): 1.0.0', '1.0.0').should.equal('chore(release): 1.0.0')
   })
-  it('works for one %s', function () {
-    formatCommitMessage('chore(release): %s', '1.0.0').should.equal('chore(release): 1.0.0')
+  it('works for one {{currentTag}}', function () {
+    formatCommitMessage('chore(release): {{currentTag}}', '1.0.0').should.equal('chore(release): 1.0.0')
   })
-  it('works for two %s', function () {
-    formatCommitMessage('chore(release): %s \n\n* CHANGELOG: https://github.com/conventional-changelog/standard-version/blob/v%s/CHANGELOG.md', '1.0.0').should.equal('chore(release): 1.0.0 \n\n* CHANGELOG: https://github.com/conventional-changelog/standard-version/blob/v1.0.0/CHANGELOG.md')
+  it('works for two {{currentTag}}', function () {
+    formatCommitMessage('chore(release): {{currentTag}} \n\n* CHANGELOG: https://github.com/conventional-changelog/standard-version/blob/v{{currentTag}}/CHANGELOG.md', '1.0.0').should.equal('chore(release): 1.0.0 \n\n* CHANGELOG: https://github.com/conventional-changelog/standard-version/blob/v1.0.0/CHANGELOG.md')
   })
 })
 
@@ -1069,6 +1069,35 @@ describe('standard-version', function () {
       // CHANGELOG should have the new issue URL format.
       const content = fs.readFileSync('CHANGELOG.md', 'utf-8')
       content.should.include('http://www.foo.com/1')
+    })
+
+    it('.versionrc : releaseCommitMessageFormat', function () {
+      // write configuration that overrides default issue
+      // URL format.
+      fs.writeFileSync('.versionrc', JSON.stringify({
+        releaseCommitMessageFormat: 'This commit represents release: {{currentTag}}'
+      }), 'utf-8')
+      commit('feat: another commit addresses issue #1')
+      execCli()
+      shell.exec('git log --oneline -n1').should.include('This commit represents release: 1.1.0')
+    })
+
+    it('--releaseCommitMessageFormat', function () {
+      commit('feat: another commit addresses issue #1')
+      execCli('--releaseCommitMessageFormat="{{currentTag}} is the version."')
+      shell.exec('git log --oneline -n1').should.include('1.1.0 is the version.')
+    })
+
+    it('[LEGACY] supports --message (and single %s replacement)', function () {
+      commit('feat: another commit addresses issue #1')
+      execCli('--message="V:%s"')
+      shell.exec('git log --oneline -n1').should.include('V:1.1.0')
+    })
+
+    it('[LEGACY] supports -m (and multiple %s replacements)', function () {
+      commit('feat: another commit addresses issue #1')
+      execCli('--message="V:%s is the %s."')
+      shell.exec('git log --oneline -n1').should.include('V:1.1.0 is the 1.1.0.')
     })
   })
 
