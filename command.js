@@ -1,7 +1,6 @@
 const spec = require('conventional-changelog-config-spec')
 const { getConfiguration } = require('./lib/configuration')
 const defaults = require('./defaults')
-const { START_OF_LAST_RELEASE_PATTERN } = require('./lib/lifecycles/changelog')
 
 const yargs = require('yargs')
   .usage('Usage: $0 [options]')
@@ -85,7 +84,7 @@ const yargs = require('yargs')
   })
   .option('changelogHeader', {
     type: 'string',
-    describe: 'Use a custom header when generating and updating changelog.'
+    describe: '[DEPRECATED] Use a custom header when generating and updating changelog.\nThis option will be removed in the next major version, please use --header.'
   })
   .option('preset', {
     type: 'string',
@@ -108,20 +107,13 @@ const yargs = require('yargs')
   .pkgConf('standard-version')
   .config(getConfiguration())
   .wrap(97)
-  .check((args) => {
-    if (args.changelogHeader && args.changelogHeader.search(START_OF_LAST_RELEASE_PATTERN) !== -1) {
-      throw Error(`custom changelog header must not match ${START_OF_LAST_RELEASE_PATTERN}`)
-    } else {
-      return true
-    }
-  })
 
 Object.keys(spec.properties).forEach(propertyKey => {
   const property = spec.properties[propertyKey]
   yargs.option(propertyKey, {
     type: property.type,
     describe: property.description,
-    default: property.default,
+    default: defaults[propertyKey] ? defaults[propertyKey] : property.default,
     group: 'Preset Configuration:'
   })
 })

@@ -24,6 +24,17 @@ module.exports = function standardVersion (argv) {
     }
   }
 
+  if (argv.changelogHeader) {
+    argv.header = argv.changelogHeader
+    if (!argv.silent) {
+      console.warn('[standard-version]: --changelogHeader will be removed in the next major release. Use --header.')
+    }
+  }
+
+  if (argv.header && argv.header.search(changelog.START_OF_LAST_RELEASE_PATTERN) !== -1) {
+    throw Error(`custom changelog header must not match ${changelog.START_OF_LAST_RELEASE_PATTERN}`)
+  }
+
   let pkg
   bump.pkgFiles.forEach((filename) => {
     if (pkg) return
