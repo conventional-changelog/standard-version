@@ -23,4 +23,17 @@ Object.keys(spec.properties).forEach(propertyKey => {
   defaults[propertyKey] = property.default
 })
 
+defaults.packageFiles = [
+  'package.json',
+  'bower.json',
+  'manifest.json',
+  'composer.json'
+]
+
+defaults.bumpFiles = defaults.packageFiles.concat([
+  'package-lock.json',
+  'npm-shrinkwrap.json',
+  'composer.lock'
+])
+
 module.exports = defaults

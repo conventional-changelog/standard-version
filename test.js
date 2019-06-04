@@ -922,6 +922,28 @@ describe('standard-version', function () {
     })
   })
 
+  describe('custom `bumpFiles` support', function () {
+    it('mix.exs', function () {
+      // @todo This file path is relative to the `tmp` directory, which is a little confusing
+      fs.copyFileSync('../test/mocks/mix.exs', 'mix.exs')
+      commit('feat: first commit')
+      shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
+      commit('feat: new feature!')
+      return require('./index')({
+        silent: true,
+        bumpFiles: [
+          {
+            filename: 'mix.exs',
+            replacer: /version: "(.*)"/
+          }
+        ]
+      })
+        .then(() => {
+          fs.readFileSync('mix.exs', 'utf-8').should.contain('version: "1.1.0"')
+        })
+    })
+  })
+
   describe('npm-shrinkwrap.json support', function () {
     beforeEach(function () {
       writeNpmShrinkwrapJson('1.0.0')
