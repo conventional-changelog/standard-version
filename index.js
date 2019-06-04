@@ -8,6 +8,7 @@ const printError = require('./lib/print-error')
 const tag = require('./lib/lifecycles/tag')
 
 module.exports = function standardVersion (argv) {
+  let defaults = require('./defaults')
   /**
    * `--message` (`-m`) support will be removed in the next major version.
    */
@@ -24,8 +25,9 @@ module.exports = function standardVersion (argv) {
     }
   }
 
+  let args = Object.assign({}, defaults, argv)
   let pkg
-  bump.pkgFiles.forEach((filename) => {
+  args.packageFiles.forEach((filename) => {
     if (pkg) return
     let pkgPath = path.resolve(process.cwd(), filename)
     try {
@@ -34,8 +36,6 @@ module.exports = function standardVersion (argv) {
     } catch (err) {}
   })
   let newVersion
-  let defaults = require('./defaults')
-  let args = Object.assign({}, defaults, argv)
 
   return Promise.resolve()
     .then(() => {

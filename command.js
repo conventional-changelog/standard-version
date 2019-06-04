@@ -5,6 +5,14 @@ const { START_OF_LAST_RELEASE_PATTERN } = require('./lib/lifecycles/changelog')
 
 const yargs = require('yargs')
   .usage('Usage: $0 [options]')
+  .option('packageFiles', {
+    default: defaults.packageFiles,
+    array: true
+  })
+  .option('bumpFiles', {
+    default: defaults.bumpFiles,
+    array: true
+  })
   .option('release-as', {
     alias: 'r',
     describe: 'Specify the release type manually (like npm version <major|minor|patch>)',
