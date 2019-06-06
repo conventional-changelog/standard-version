@@ -97,13 +97,28 @@ const yargs = require('yargs')
     describe: 'Commit message guideline preset (default: angular)'
   })
   .check((argv) => {
-    if (typeof argv.scripts !== 'object' || Array.isArray(argv.scripts)) {
-      throw Error('scripts must be an object')
-    } else if (typeof argv.skip !== 'object' || Array.isArray(argv.skip)) {
-      throw Error('skip must be an object')
-    } else {
-      return true
+    // validate --scripts
+    try {
+      argv.scripts =
+        argv.scripts != defaults.scripts
+          ? JSON.parse(argv.scripts)
+          : defaults.scripts;
+    } catch (e) {
+      throw Error('scripts must be a valid json object');
     }
+    if (typeof argv.scripts !== 'object')
+      throw Error('scripts must be an object');
+
+    // validate --skip
+    try {
+      argv.skip =
+        argv.skip != defaults.skip ? JSON.parse(argv.skip) : defaults.skip;
+    } catch (e) {
+      throw Error('skip must be a valid json object');
+    }
+    if (typeof argv.skip !== 'object') throw Error('skip must be an object');
+
+    return true;
   })
   .alias('version', 'v')
   .alias('help', 'h')
