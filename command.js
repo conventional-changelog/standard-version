@@ -94,7 +94,7 @@ const yargs = require('yargs')
   .option('preset', {
     type: 'string',
     default: defaults.preset,
-    describe: 'Commit message guideline preset (default: angular)'
+    describe: 'Commit message guideline preset'
   })
   .check((argv) => {
     if (typeof argv.scripts !== 'object' || Array.isArray(argv.scripts)) {
