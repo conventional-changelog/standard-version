@@ -100,6 +100,8 @@ Making these URLs match GitLab's format, rather than GitHub's.
 
 ## CLI Usage
 
+> NOTE: To pass nested configurations to the CLI without defining them in the `package.json` use [yargs dot notation](http://adilapapaya.com/docs/yargs/#dotnotation).
+
 ### First Release
 
 To generate your changelog for your first release, simply do:
