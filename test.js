@@ -923,23 +923,27 @@ describe('standard-version', function () {
   })
 
   describe('custom `bumpFiles` support', function () {
-    it('mix.exs', function () {
+    it('mix.exs + version.txt', function () {
       // @todo This file path is relative to the `tmp` directory, which is a little confusing
       fs.copyFileSync('../test/mocks/mix.exs', 'mix.exs')
+      fs.copyFileSync('../test/mocks/version.txt', 'version.txt')
+      fs.copyFileSync('../test/mocks/updater/customer-updater.js', 'custom-updater.js')
       commit('feat: first commit')
       shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
       commit('feat: new feature!')
       return require('./index')({
         silent: true,
         bumpFiles: [
+          'version.txt',
           {
             filename: 'mix.exs',
-            replacer: /version: "(.*)"/
+            updater: 'custom-updater.js'
           }
         ]
       })
         .then(() => {
           fs.readFileSync('mix.exs', 'utf-8').should.contain('version: "1.1.0"')
+          fs.readFileSync('version.txt', 'utf-8').should.equal('1.1.0')
         })
     })
   })
