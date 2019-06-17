@@ -409,6 +409,21 @@ describe('cli', function () {
     })
 
     describe('precommit hook', function () {
+      it('should run the precommit hook when provided via .versionrc.json (#371)', function () {
+        fs.writeFileSync('.versionrc.json', JSON.stringify({
+          'scripts': {
+            'precommit': 'node scripts/precommit'
+          }
+        }), 'utf-8')
+
+        writeHook('precommit')
+        fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
+        commit('feat: first commit')
+        let result = execCli()
+        result.code.should.equal(0)
+        result.stderr.should.match(/precommit ran/)
+      })
+
       it('should run the precommit hook when provided', function () {
         writePackageJson('1.0.0', {
           'standard-version': {
@@ -1062,6 +1077,19 @@ describe('standard-version', function () {
       // write configuration that overrides default issue
       // URL format.
       fs.writeFileSync('.versionrc', JSON.stringify({
+        issueUrlFormat: 'http://www.foo.com/{{id}}'
+      }), 'utf-8')
+      commit('feat: another commit addresses issue #1')
+      execCli()
+      // CHANGELOG should have the new issue URL format.
+      const content = fs.readFileSync('CHANGELOG.md', 'utf-8')
+      content.should.include('http://www.foo.com/1')
+    })
+
+    it('reads config from .versionrc.json', function () {
+      // write configuration that overrides default issue
+      // URL format.
+      fs.writeFileSync('.versionrc.json', JSON.stringify({
         issueUrlFormat: 'http://www.foo.com/{{id}}'
       }), 'utf-8')
       commit('feat: another commit addresses issue #1')
