@@ -100,7 +100,7 @@ Making these URLs match GitLab's format, rather than GitHub's.
 
 ## CLI Usage
 
-> NOTE: To pass nested configurations to the CLI without defining them in the `package.json` use [yargs dot notation](http://adilapapaya.com/docs/yargs/#dotnotation).
+> **NOTE:** To pass nested configurations to the CLI without defining them in the `package.json` use dot notation as the parameters `e.g. --skip.changelog`.
 
 ### First Release
 
