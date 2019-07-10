@@ -74,7 +74,7 @@ You can configure `standard-version` either by:
 1. Creating a `.versionrc` or `.versionrc.json`.
 
 Any of the command line paramters accepted by `standard-version` can instead
-be provided via configuration.
+be provided via configuration. Please refer to the [conventional-changelog-config-spec](https://github.com/conventional-changelog/conventional-changelog-config-spec/) for details on available configuration options.
 
 ### Customizing CHANGELOG Generation
 
