@@ -207,7 +207,7 @@ describe('cli', function () {
       execCli(cliArgs).code.should.equal(0)
       content = fs.readFileSync('CHANGELOG.md', 'utf-8')
       content = content.replace(/patch release [0-9a-f]{6,8}/g, 'patch release ABCDEFXY').replace(/\([0-9]{4}-[0-9]{2}-[0-9]{2}\)/g, '(YYYY-MM-DD)')
-      content.should.equal('# Changelog\n\nAll notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.\n\n### [1.0.2](/compare/v1.0.1...v1.0.2) (YYYY-MM-DD)\n\n\n### Bug Fixes\n\n* another patch release ABCDEFXY\n\n\n\n### [1.0.1](/compare/v1.0.0...v1.0.1) (YYYY-MM-DD)\n\n\n### Bug Fixes\n\n* patch release ABCDEFXY\n')
+      content.should.equal('# Changelog\n\nAll notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.\n\n### [1.0.2](/compare/v1.0.1...v1.0.2) (YYYY-MM-DD)\n\n\n### Bug Fixes\n\n* another patch release ABCDEFXY\n\n### [1.0.1](/compare/v1.0.0...v1.0.1) (YYYY-MM-DD)\n\n\n### Bug Fixes\n\n* patch release ABCDEFXY\n')
     })
 
     it('commits all staged files', function () {
