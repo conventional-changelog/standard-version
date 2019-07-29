@@ -39,9 +39,9 @@
   "homepage": "https://github.com/conventional-changelog/standard-version#readme",
   "dependencies": {
     "chalk": "2.4.2",
-    "conventional-changelog": "3.1.9",
+    "conventional-changelog": "^3.1.10",
     "conventional-changelog-config-spec": "2.0.0",
-    "conventional-recommended-bump": "5.0.0",
+    "conventional-recommended-bump": "^6.0.0",
     "detect-indent": "6.0.0",
     "detect-newline": "3.0.0",
     "dotgitignore": "2.1.0",
