@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [7.0.0](https://github.com/conventional-changelog/standard-version/compare/v6.0.1...v7.0.0) (2019-07-30)
+
+
+### ⚠ BREAKING CHANGES
+
+* we were accepting .version.json as a config file, rather than .versionrc.json
+
+### Bug Fixes
+
+* **bump:** transmit tag prefix argument to conventionalRecommendedBump ([#393](https://github.com/conventional-changelog/standard-version/issues/393)) ([8205222](https://github.com/conventional-changelog/standard-version/commit/8205222))
+* **cli:** display only one, correct default for --preset flag ([#377](https://github.com/conventional-changelog/standard-version/issues/377)) ([d17fc81](https://github.com/conventional-changelog/standard-version/commit/d17fc81))
+* **commit:** don't try to process and add changelog if skipped ([#318](https://github.com/conventional-changelog/standard-version/issues/318)) ([3e4fdec](https://github.com/conventional-changelog/standard-version/commit/3e4fdec))
+* **deps:** update dependency conventional-changelog-config-spec to v2 ([#352](https://github.com/conventional-changelog/standard-version/issues/352)) ([f586844](https://github.com/conventional-changelog/standard-version/commit/f586844))
+* **deps:** update dependency conventional-recommended-bump to v6 ([#417](https://github.com/conventional-changelog/standard-version/issues/417)) ([4c5cad1](https://github.com/conventional-changelog/standard-version/commit/4c5cad1))
+* **deps:** update dependency find-up to v4 ([#355](https://github.com/conventional-changelog/standard-version/issues/355)) ([73b35f8](https://github.com/conventional-changelog/standard-version/commit/73b35f8))
+* **deps:** update dependency find-up to v4.1.0 ([#383](https://github.com/conventional-changelog/standard-version/issues/383)) ([b621a4a](https://github.com/conventional-changelog/standard-version/commit/b621a4a))
+* **deps:** update dependency git-semver-tags to v3 ([#418](https://github.com/conventional-changelog/standard-version/issues/418)) ([1ce3f4a](https://github.com/conventional-changelog/standard-version/commit/1ce3f4a))
+* **deps:** update dependency semver to v6.3.0 ([#366](https://github.com/conventional-changelog/standard-version/issues/366)) ([cd866c7](https://github.com/conventional-changelog/standard-version/commit/cd866c7))
+* **deps:** update dependency yargs to v13.3.0 ([#401](https://github.com/conventional-changelog/standard-version/issues/401)) ([3d0e8c7](https://github.com/conventional-changelog/standard-version/commit/3d0e8c7))
+* adds support for `releaseCommitMessageFormat` ([#351](https://github.com/conventional-changelog/standard-version/issues/351)) ([a7133cc](https://github.com/conventional-changelog/standard-version/commit/a7133cc))
+* stop suggesting npm publish if package.json was not updated ([#319](https://github.com/conventional-changelog/standard-version/issues/319)) ([a5ac845](https://github.com/conventional-changelog/standard-version/commit/a5ac845))
+* Updates package.json to _actual_ supported (tested) NodeJS versions. ([#379](https://github.com/conventional-changelog/standard-version/issues/379)) ([15eec8a](https://github.com/conventional-changelog/standard-version/commit/15eec8a))
+* **deps:** update dependency yargs to v13.2.4 ([#356](https://github.com/conventional-changelog/standard-version/issues/356)) ([00b2ce6](https://github.com/conventional-changelog/standard-version/commit/00b2ce6))
+* update config file name in command based on README.md ([#357](https://github.com/conventional-changelog/standard-version/issues/357)) ([ce44dd2](https://github.com/conventional-changelog/standard-version/commit/ce44dd2))
+
 ### [6.0.1](https://github.com/conventional-changelog/standard-version/compare/v6.0.0...v6.0.1) (2019-05-05)
 
 
