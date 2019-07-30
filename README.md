@@ -351,13 +351,13 @@ Tell your users that you adhere to the Conventional Commits specification:
 
 ### How is `standard-version` different from `semantic-release`?
 
-[`semantic-release`](https://github.com/semantic-release/semantic-release) is a fully automated library/system for versioning, changelog generation, git tagging, and publishing to the npm registry.
+[`semantic-release`](https://github.com/semantic-release/semantic-release) is described as:
 
-`standard-version` is different because it handles the versioning, changelog generation, and git tagging for you **without** automatic pushing (to GitHub) or publishing (to an npm registry). Use of `standard-version` only affects your local git repo - it doesn't affect remote resources at all. After you run `standard-version`, you still have the ability to review things and correct mistakes if you want to.
+> semantic-release automates the whole package release workflow including: determining the next version number, generating the release notes and publishing the package.
 
-They are both based on the same foundation of structured commit messages, but `standard-version` is a good choice for folks who are not yet comfortable letting publishes go out automatically. In this way, you can view `standard-version` as an incremental step to adopting `semantic-release`.
+While both are based on the same foundation of structured commit messages, `standard-version`  takes a different approach by handling versioning, changelog generation, and git tagging for you **without** automatic pushing (to GitHub) or publishing (to an npm registry). Use of `standard-version` only affects your local git repo - it doesn't affect remote resources at all. After you run `standard-version`, you can review your release state, correct mistakes and follow the release strategy that makes the most sense for your codebase.
 
-We think they are both fantastic tools, and we encourage folks to use `semantic-release` instead of `standard-version` if it makes sense for them.
+We think they are both fantastic tools, and we encourage folks to use `semantic-release` instead of `standard-version` if it makes sense for their use-case.
 
 ### Should I always squash commits when merging PRs?
 
