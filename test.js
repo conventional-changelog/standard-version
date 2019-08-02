@@ -12,6 +12,7 @@ const semver = require('semver')
 const formatCommitMessage = require('./lib/format-commit-message')
 const cli = require('./command')
 const standardVersion = require('./index')
+const defaults = require('./defaults')
 
 require('chai').should()
 
@@ -822,7 +823,7 @@ describe('standard-version', function () {
       shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
       commit('feat: new feature!')
 
-      require('./index')({ silent: true })
+      require('./index')(Object.assign({}, defaults, { silent: true }))
         .catch((err) => {
           err.message.should.match(/bump err/)
           done()
@@ -852,7 +853,7 @@ describe('standard-version', function () {
       shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
       commit('feat: new feature!')
 
-      require('./index')({ silent: true })
+      require('./index')(Object.assign({}, defaults, { silent: true }))
         .catch((err) => {
           err.message.should.match(/changelog err/)
           return done()
@@ -865,7 +866,7 @@ describe('standard-version', function () {
     shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
     commit('feat: new feature!')
 
-    require('./index')({ silent: true })
+    require('./index')(Object.assign({}, defaults, { silent: true }))
       .then(() => {
         // check last commit message
         shell.exec('git log --oneline -n1').stdout.should.match(/chore\(release\): 1\.1\.0/)
@@ -878,10 +879,10 @@ describe('standard-version', function () {
   describe('without a package file to bump', function () {
     it('should exit with error', function () {
       shell.rm('package.json')
-      return require('./index')({
+      return require('./index')(Object.assign({}, defaults, {
         silent: true,
         gitTagFallback: false
-      })
+      }))
         .catch((err) => {
           err.message.should.equal('no package file found')
         })
@@ -897,7 +898,7 @@ describe('standard-version', function () {
       commit('feat: first commit')
       shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
       commit('feat: new feature!')
-      return require('./index')({ silent: true })
+      return require('./index')(Object.assign({}, defaults, { silent: true }))
         .then(() => {
           JSON.parse(fs.readFileSync('bower.json', 'utf-8')).version.should.equal('1.1.0')
           getPackageVersion().should.equal('1.1.0')
@@ -914,7 +915,7 @@ describe('standard-version', function () {
       commit('feat: first commit')
       shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
       commit('feat: new feature!')
-      return require('./index')({ silent: true })
+      return require('./index')(Object.assign({}, defaults, { silent: true }))
         .then(() => {
           JSON.parse(fs.readFileSync('manifest.json', 'utf-8')).version.should.equal('1.1.0')
           getPackageVersion().should.equal('1.1.0')
@@ -931,7 +932,7 @@ describe('standard-version', function () {
       commit('feat: first commit')
       shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
       commit('feat: new feature!')
-      require('./index')({ silent: true })
+      require('./index')(Object.assign({}, defaults, { silent: true }))
         .then(() => {
           JSON.parse(fs.readFileSync('npm-shrinkwrap.json', 'utf-8')).version.should.equal('1.1.0')
           getPackageVersion().should.equal('1.1.0')
@@ -950,7 +951,7 @@ describe('standard-version', function () {
       commit('feat: first commit')
       shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
       commit('feat: new feature!')
-      return require('./index')({ silent: true })
+      return require('./index')(Object.assign({}, defaults, { silent: true }))
         .then(() => {
           JSON.parse(fs.readFileSync('package-lock.json', 'utf-8')).version.should.equal('1.1.0')
           getPackageVersion().should.equal('1.1.0')
@@ -1014,7 +1015,7 @@ describe('standard-version', function () {
       commit('feat: first commit')
       shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
       commit('feat: new feature!')
-      return require('./index')({ silent: true })
+      return require('./index')(Object.assign({}, defaults, { silent: true }))
         .then(() => {
           JSON.parse(fs.readFileSync('bower.json', 'utf-8')).version.should.equal('1.0.0')
           getPackageVersion().should.equal('1.1.0')
@@ -1033,7 +1034,7 @@ describe('standard-version', function () {
       commit('feat: first commit')
       shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
       commit('feat: new feature!')
-      return require('./index')({ silent: true })
+      return require('./index')(Object.assign({}, defaults, { silent: true }))
         .then(() => {
           JSON.parse(fs.readFileSync('bower.json', 'utf-8')).version.should.equal('1.0.0')
           getPackageVersion().should.equal('1.1.0')
@@ -1045,7 +1046,7 @@ describe('standard-version', function () {
     it('defaults to 1.0.0 if no tags in git history', () => {
       shell.rm('package.json')
       commit('feat: first commit')
-      return require('./index')({ silent: true })
+      return require('./index')(Object.assign({}, defaults, { silent: true }))
         .then(() => {
           const output = shell.exec('git tag')
           output.stdout.should.include('v1.1.0')
@@ -1057,7 +1058,7 @@ describe('standard-version', function () {
       shell.exec('git tag -a v5.0.0 -m "a release"')
       shell.exec('git tag -a v3.0.0 -m "another release"')
       commit('feat: another commit')
-      return require('./index')({ silent: true })
+      return require('./index')(Object.assign({}, defaults, { silent: true }))
         .then(() => {
           const output = shell.exec('git tag')
           output.stdout.should.include('v5.1.0')

@@ -25,7 +25,7 @@ module.exports = function standardVersion (argv) {
   }
 
   let pkg
-  bump.pkgFiles.forEach((filename) => {
+  argv.pkgFiles.forEach((filename) => {
     if (pkg) return
     let pkgPath = path.resolve(process.cwd(), filename)
     try {

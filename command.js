@@ -96,6 +96,16 @@ const yargs = require('yargs')
     default: defaults.preset,
     describe: 'Commit message guideline preset'
   })
+  .option('pkg-files', {
+    type: 'string',
+    default: defaults.pkgFiles,
+    describe: 'Configure metadata files'
+  })
+  .option('lock-files', {
+    type: 'string',
+    default: defaults.lockFiles,
+    describe: 'Configure metadata-lock files'
+  })
   .check((argv) => {
     if (typeof argv.scripts !== 'object' || Array.isArray(argv.scripts)) {
       throw Error('scripts must be an object')

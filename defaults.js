@@ -12,7 +12,18 @@ const defaults = {
   skip: {},
   dryRun: false,
   gitTagFallback: true,
-  preset: 'conventionalcommits'
+  preset: 'conventionalcommits',
+  pkgFiles: [
+    'package.json',
+    'bower.json',
+    'manifest.json',
+    'composer.json'
+  ],
+  lockFiles: [
+    'package-lock.json',
+    'npm-shrinkwrap.json',
+    'composer.lock'
+  ]
 }
 
 /**
