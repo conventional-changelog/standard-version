@@ -391,9 +391,13 @@ An `updater` is expected to be a Javascript module with _atleast_ two methods ex
 
 This method is used to read the version from the provided file contents.
 
+The return value is expected to be a semantic version string.
+
 ##### `writeVersion(contents = string, version: string): string`
 
 This method is used to write the version to the provided contents.
+
+The return value will be written directly (overwrite) to the provided file.
 
 ---
 
