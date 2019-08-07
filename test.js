@@ -946,6 +946,23 @@ describe('standard-version', function () {
           fs.readFileSync('version.txt', 'utf-8').should.equal('1.1.0')
         })
     })
+
+    it('bumps a custom `plain-text` file', function () {
+      fs.copyFileSync('../test/mocks/VERSION-1.0.0.txt', 'VERSION_TRACKER.txt')
+      commit('feat: first commit')
+      return require('./index')({
+        silent: true,
+        bumpFiles: [
+          {
+            filename: 'VERSION_TRACKER.txt',
+            type: 'plain-text'
+          }
+        ]
+      })
+        .then(() => {
+          fs.readFileSync('VERSION_TRACKER.txt', 'utf-8').should.equal('1.1.0')
+        })
+    })
   })
 
   describe('npm-shrinkwrap.json support', function () {
