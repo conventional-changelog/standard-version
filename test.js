@@ -1116,6 +1116,27 @@ describe('standard-version', function () {
       shell.exec('git log --oneline -n1').should.include('1.1.0 is the version.')
     })
 
+    it('.versionrc : issuePrefixes', function () {
+      // write configuration that overrides default issuePrefixes
+      // and reference prefix in issue URL format.
+      fs.writeFileSync('.versionrc', JSON.stringify({
+        issueUrlFormat: 'http://www.foo.com/{{prefix}}{{id}}',
+        issuePrefixes: ['ABC-']
+      }), 'utf-8')
+      commit('feat: another commit addresses issue ABC-1')
+      execCli()
+      // CHANGELOG should have the new issue URL format.
+      const content = fs.readFileSync('CHANGELOG.md', 'utf-8')
+      content.should.include('http://www.foo.com/ABC-1')
+    })
+
+    it('--issuePrefixes and --issueUrlFormat', function () {
+      commit('feat: another commit addresses issue ABC-1')
+      execCli('--issuePrefixes="[\\"ABC-\\"]" --issueUrlFormat="http://www.foo.com/{{prefix}}{{id}}"')
+      const content = fs.readFileSync('CHANGELOG.md', 'utf-8')
+      content.should.include('http://www.foo.com/ABC-1')
+    })
+
     it('[LEGACY] supports --message (and single %s replacement)', function () {
       commit('feat: another commit addresses issue #1')
       execCli('--message="V:%s"')
