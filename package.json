@@ -48,6 +48,7 @@
     "figures": "3.0.0",
     "find-up": "4.1.0",
     "fs-access": "1.0.1",
+    "git-log-parser": "1.2.0",
     "git-semver-tags": "3.0.0",
     "semver": "6.3.0",
     "stringify-package": "1.0.0",

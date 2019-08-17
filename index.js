@@ -6,6 +6,15 @@ const latestSemverTag = require('./lib/latest-semver-tag')
 const path = require('path')
 const printError = require('./lib/print-error')
 const tag = require('./lib/lifecycles/tag')
+const commits = require('./lib/commits');
+
+(async function () {
+  const commitsSinceLastTag = await commits()
+  console.log(commitsSinceLastTag)
+
+  // TODO: Update logic to handle bump based on commit messages
+  // TODO: integrate with the normal standard-version API (do we add a flag? or break current API & Tests as suggested in thread??)
+})()
 
 module.exports = function standardVersion (argv) {
   /**
