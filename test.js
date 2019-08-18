@@ -1073,6 +1073,19 @@ describe('standard-version', function () {
   })
 
   describe('configuration', () => {
+    it('reads config from .versionrc.js', function () {
+      // write configuration that overrides default issue
+      // URL format.
+      fs.writeFileSync('.versionrc.js', 'module.exports = ' + JSON.stringify({
+        issueUrlFormat: 'http://www.foo.com/{{id}}'
+      }), 'utf-8')
+      commit('feat: another commit addresses issue #1')
+      execCli()
+      // CHANGELOG should have the new issue URL format.
+      const content = fs.readFileSync('CHANGELOG.md', 'utf-8')
+      content.should.include('http://www.foo.com/1')
+    })
+
     it('reads config from .versionrc', function () {
       // write configuration that overrides default issue
       // URL format.

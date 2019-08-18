@@ -1,9 +1,11 @@
+const path = require('path')
 const findUp = require('find-up')
 const defaults = require('./defaults')
 const { readFileSync } = require('fs')
 
-const configPath = findUp.sync(['.versionrc', '.versionrc.json'])
-const config = configPath ? JSON.parse(readFileSync(configPath)) : {}
+const configPath = findUp.sync(['.versionrc.js', '.versionrc', '.versionrc.json'])
+const configExt = path.extname(configPath)
+const config = configPath ? configExt === '.js' ? require(configPath) : JSON.parse(readFileSync(configPath)) : {}
 const spec = require('conventional-changelog-config-spec')
 const { START_OF_LAST_RELEASE_PATTERN } = require('./lib/lifecycles/changelog')
 

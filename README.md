@@ -71,9 +71,9 @@ You can configure `standard-version` either by:
 
 1. Placing a `standard-version` stanza in your `package.json` (assuming
    your project is JavaScript).
-1. Creating a `.versionrc` or `.versionrc.json`.
+2. Creating a `.versionrc`, `.versionrc.js` or `.versionrc.json`.
 
-Any of the command line paramters accepted by `standard-version` can instead
+Any of the command line parameters accepted by `standard-version` can instead
 be provided via configuration. Please refer to the [conventional-changelog-config-spec](https://github.com/conventional-changelog/conventional-changelog-config-spec/) for details on available configuration options.
 
 ### Customizing CHANGELOG Generation
