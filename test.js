@@ -965,6 +965,31 @@ describe('standard-version', function () {
     })
   })
 
+  describe('custom `packageFiles` support', function () {
+    it('reads and writes to a custom `plain-text` file', function () {
+      fs.copyFileSync('../test/mocks/VERSION-6.3.1.txt', 'VERSION_TRACKER.txt')
+      commit('feat: yet another commit')
+      return require('./index')({
+        silent: true,
+        packageFiles: [
+          {
+            filename: 'VERSION_TRACKER.txt',
+            type: 'plain-text'
+          }
+        ],
+        bumpFiles: [
+          {
+            filename: 'VERSION_TRACKER.txt',
+            type: 'plain-text'
+          }
+        ]
+      })
+        .then(() => {
+          fs.readFileSync('VERSION_TRACKER.txt', 'utf-8').should.equal('6.4.0')
+        })
+    })
+  })
+
   describe('npm-shrinkwrap.json support', function () {
     beforeEach(function () {
       writeNpmShrinkwrapJson('1.0.0')
