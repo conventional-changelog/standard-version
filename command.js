@@ -1,10 +1,6 @@
-const findUp = require('find-up')
-const defaults = require('./defaults')
-const { readFileSync } = require('fs')
-
-const configPath = findUp.sync(['.versionrc', '.versionrc.json'])
-const config = configPath ? JSON.parse(readFileSync(configPath)) : {}
 const spec = require('conventional-changelog-config-spec')
+const { getConfiguration } = require('./lib/configuration')
+const defaults = require('./defaults')
 const { START_OF_LAST_RELEASE_PATTERN } = require('./lib/lifecycles/changelog')
 
 const yargs = require('yargs')
@@ -110,7 +106,7 @@ const yargs = require('yargs')
   .example('$0', 'Update changelog and tag release')
   .example('$0 -m "%s: see changelog for details"', 'Update changelog and tag release with custom commit message')
   .pkgConf('standard-version')
-  .config(config)
+  .config(getConfiguration())
   .wrap(97)
   .check((args) => {
     if (args.changelogHeader && args.changelogHeader.search(START_OF_LAST_RELEASE_PATTERN) !== -1) {
