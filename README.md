@@ -159,7 +159,7 @@ this will tag the version `1.0.1-alpha.0`
 
 ### Release as a target type imperatively like `npm version`
 
-To forgo the automated version bump use `--release-as` with the argument `major`, `minor` or `patch`:
+To forgo the automated version bump use `--release-as` with the argument `major`, `minor` or `patch`.
 
 Suppose the last version of your code is `1.0.0`, you've only landed `fix:` commits, but
 you would like your next release to be a `minor`. Simply do:
@@ -171,7 +171,7 @@ npm run release -- --release-as minor
 npm run release -- --release-as 1.1.0
 ```
 
-you will get version `1.1.0` rather than the auto generated version `1.0.1`.
+You will get version `1.1.0` rather than the auto generated version `1.0.1`.
 
 > **NOTE:** you can combine `--release-as` and `--prerelease` to generate a release. This is useful when publishing experimental feature(s).
 
