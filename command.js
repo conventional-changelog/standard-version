@@ -16,6 +16,11 @@ const yargs = require('yargs')
     describe: 'make a pre-release with optional option value to specify a tag id',
     string: true
   })
+  .option('use-current-version', {
+    describe: 'Specify the current version to bump',
+    requiresArg: true,
+    string: true
+  })
   .option('infile', {
     alias: 'i',
     describe: 'Read the CHANGELOG from this file',

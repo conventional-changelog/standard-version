@@ -39,7 +39,9 @@ module.exports = function standardVersion (argv) {
 
   return Promise.resolve()
     .then(() => {
-      if (!pkg && args.gitTagFallback) {
+      if (args.useCurrentVersion) {
+        return args.useCurrentVersion
+      } else if (!pkg && args.gitTagFallback) {
         return latestSemverTag()
       } else if (!pkg) {
         throw new Error('no package file found')
