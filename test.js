@@ -1099,6 +1099,54 @@ describe('standard-version', function () {
       content.should.include('http://www.foo.com/1')
     })
 
+    it('evaluates a config-function from .versionrc.js', function () {
+      // write configuration that overrides default issue
+      // URL format.
+      fs.writeFileSync(
+        '.versionrc.js',
+        `module.exports = function() {
+          return {
+            issueUrlFormat: 'http://www.versionrc.js/function/{{id}}'
+          }
+        }`,
+        'utf-8'
+      )
+      commit('feat: another commit addresses issue #1')
+      execCli()
+      // CHANGELOG should have the new issue URL format.
+      const content = fs.readFileSync('CHANGELOG.md', 'utf-8')
+      content.should.include('http://www.versionrc.js/function/1')
+    })
+
+    it('evaluates a config-object from .versionrc.js', function () {
+      // write configuration that overrides default issue
+      // URL format.
+      fs.writeFileSync(
+        '.versionrc.js',
+        `module.exports = {
+          issueUrlFormat: 'http://www.versionrc.js/object/{{id}}'
+        }`,
+        'utf-8'
+      )
+      commit('feat: another commit addresses issue #1')
+      execCli()
+      // CHANGELOG should have the new issue URL format.
+      const content = fs.readFileSync('CHANGELOG.md', 'utf-8')
+      content.should.include('http://www.versionrc.js/object/1')
+    })
+
+    it('throws an error when a non-object is returned from .versionrc.js', function () {
+      // write configuration that overrides default issue
+      // URL format.
+      fs.writeFileSync(
+        '.versionrc.js',
+        `module.exports = 3`,
+        'utf-8'
+      )
+      commit('feat: another commit addresses issue #1')
+      execCli().code.should.equal(1)
+    })
+
     it('.versionrc : releaseCommitMessageFormat', function () {
       // write configuration that overrides default issue
       // URL format.
