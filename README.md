@@ -110,7 +110,7 @@ To generate your changelog for your first release, simply do:
 
 ```sh
 # npm run script
-npm run release -- --first-release
+npm run release --first-release
 # or global bin
 standard-version --first-release
 ```
