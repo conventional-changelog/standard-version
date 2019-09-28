@@ -963,6 +963,73 @@ describe('standard-version', function () {
           fs.readFileSync('VERSION_TRACKER.txt', 'utf-8').should.equal('1.1.0')
         })
     })
+
+    it('bumps a custom `regex` file', function () {
+      fs.copyFileSync('../test/mocks/release.bundle', 'release.bundle')
+      commit('feat: first commit')
+      return require('./index')({
+        silent: true,
+        packageFiles: [
+          {
+            filename: 'release.bundle',
+            type: 'regex',
+            options: {
+              match: /version = '(?<version>.*)'/
+            }
+          }
+        ],
+        bumpFiles: [
+          {
+            filename: 'release.bundle',
+            type: 'regex',
+            options: {
+              match: /version = '(?<version>.*)'/,
+              replace: [
+                /(?<=version = ').*(?=')/
+              ]
+            }
+          }
+        ]
+      })
+        .then(() => {
+          fs.readFileSync('release.bundle', 'utf-8').should.contain(`version = '0.0.2'`)
+        })
+    })
+
+    it('bumps a custom `regex` file with multiple `replace`', function () {
+      fs.copyFileSync('../test/mocks/VERSION-METADATA.txt', 'VERSION-METADATA.txt')
+      commit('feat: first commit')
+      return require('./index')({
+        silent: true,
+        packageFiles: [
+          {
+            filename: 'VERSION-METADATA.txt',
+            type: 'regex',
+            options: {
+              match: /version = '(?<version>.*)'/
+            }
+          }
+        ],
+        bumpFiles: [
+          {
+            filename: 'VERSION-METADATA.txt',
+            type: 'regex',
+            options: {
+              match: /version = '(?<version>.*)'/,
+              replace: [
+                /(?<=version = ').*(?=')/,
+                /(?<=standard-version@).*(?=')/g
+              ]
+            }
+          }
+        ]
+      })
+        .then(() => {
+          fs.readFileSync('VERSION-METADATA.txt', 'utf-8')
+            .should
+            .eq(`name = 'standard-version@0.0.2'\nversion = '0.0.2'\ntags = ['standard-version@0.0.2']`)
+        })
+    })
   })
 
   describe('custom `packageFiles` support', function () {

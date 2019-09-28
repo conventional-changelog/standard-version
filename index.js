@@ -37,7 +37,7 @@ module.exports = function standardVersion (argv) {
     try {
       let contents = fs.readFileSync(pkgPath, 'utf8')
       pkg = {
-        version: updater.updater.readVersion(contents),
+        version: updater.updater.readVersion(contents, updater.options),
         private: typeof updater.updater.isPrivate === 'function' ? updater.updater.isPrivate(contents) : false
       }
     } catch (err) {}
