@@ -996,7 +996,7 @@ describe('standard-version', function () {
         })
     })
 
-    it('bumps a custom `regex` file with multiple `replace`', function () {
+    it('bumps a custom `regex` file with global flag `replace`', function () {
       fs.copyFileSync('../test/mocks/VERSION-METADATA.txt', 'VERSION-METADATA.txt')
       commit('feat: first commit')
       return require('./index')({
@@ -1016,10 +1016,7 @@ describe('standard-version', function () {
             type: 'regex',
             options: {
               match: /version = '(?<version>.*)'/,
-              replace: [
-                /(?<=version = ').*(?=')/,
-                /(?<=standard-version@).*(?=')/g
-              ]
+              replace: /((?<=version = ')|(?<=standard-version@)).*(?=')/g
             }
           }
         ]
