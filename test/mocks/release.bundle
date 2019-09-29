@@ -1,0 +1,4 @@
+name = 'release.bundle'
+author = 'conventional-changelog'
+version = '0.0.1'
+metadata = ['standard-version']
