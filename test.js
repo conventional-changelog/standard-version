@@ -1180,7 +1180,7 @@ describe('standard-version', function () {
 
     it('--issuePrefixes and --issueUrlFormat', function () {
       commit('feat: another commit addresses issue ABC-1')
-      execCli('--issuePrefixes="[\\"ABC-\\"]" --issueUrlFormat="http://www.foo.com/{{prefix}}{{id}}"')
+      execCli('--issuePrefixes="ABC-" --issueUrlFormat="http://www.foo.com/{{prefix}}{{id}}"')
       const content = fs.readFileSync('CHANGELOG.md', 'utf-8')
       content.should.include('http://www.foo.com/ABC-1')
     })
