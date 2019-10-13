@@ -27,15 +27,15 @@ module.exports = function standardVersion (argv) {
   let pkg
   bump.pkgFiles.forEach((filename) => {
     if (pkg) return
-    let pkgPath = path.resolve(process.cwd(), filename)
+    const pkgPath = path.resolve(process.cwd(), filename)
     try {
-      let data = fs.readFileSync(pkgPath, 'utf8')
+      const data = fs.readFileSync(pkgPath, 'utf8')
       pkg = JSON.parse(data)
     } catch (err) {}
   })
   let newVersion
-  let defaults = require('./defaults')
-  let args = Object.assign({}, defaults, argv)
+  const defaults = require('./defaults')
+  const args = Object.assign({}, defaults, argv)
 
   return Promise.resolve()
     .then(() => {
