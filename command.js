@@ -77,7 +77,7 @@ const yargs = require('yargs')
   .option('git-tag-fallback', {
     type: 'boolean',
     default: defaults.gitTagFallback,
-    describe: `fallback to git tags for version, if no meta-information file is found (e.g., package.json)`
+    describe: 'fallback to git tags for version, if no meta-information file is found (e.g., package.json)'
   })
   .option('path', {
     type: 'string',
