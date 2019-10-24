@@ -41,7 +41,7 @@
     "chalk": "2.4.2",
     "conventional-changelog": "3.1.15",
     "conventional-changelog-config-spec": "2.1.0",
-    "conventional-changelog-conventionalcommits": "^4.2.1",
+    "conventional-changelog-conventionalcommits": "4.2.1",
     "conventional-recommended-bump": "6.0.5",
     "detect-indent": "6.0.0",
     "detect-newline": "3.0.0",
