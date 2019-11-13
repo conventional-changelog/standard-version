@@ -43,7 +43,7 @@
     "conventional-changelog-config-spec": "2.1.0",
     "conventional-recommended-bump": "6.0.2",
     "detect-indent": "6.0.0",
-    "detect-newline": "3.0.0",
+    "detect-newline": "3.1.0",
     "dotgitignore": "2.1.0",
     "figures": "3.0.0",
     "find-up": "4.1.0",
