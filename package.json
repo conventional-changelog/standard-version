@@ -39,7 +39,7 @@
   "homepage": "https://github.com/conventional-changelog/standard-version#readme",
   "dependencies": {
     "chalk": "2.4.2",
-    "conventional-changelog": "3.1.12",
+    "conventional-changelog": "3.1.15",
     "conventional-changelog-config-spec": "2.1.0",
     "conventional-recommended-bump": "6.0.2",
     "detect-indent": "6.0.0",
