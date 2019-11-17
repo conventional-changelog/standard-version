@@ -41,7 +41,7 @@
     "chalk": "2.4.2",
     "conventional-changelog": "3.1.12",
     "conventional-changelog-config-spec": "2.1.0",
-    "conventional-recommended-bump": "6.0.2",
+    "conventional-recommended-bump": "6.0.5",
     "detect-indent": "6.0.0",
     "detect-newline": "3.0.0",
     "dotgitignore": "2.1.0",
