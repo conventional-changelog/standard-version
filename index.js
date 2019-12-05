@@ -9,7 +9,7 @@ const tag = require('./lib/lifecycles/tag')
 const { resolveUpdaterObjectFromArgument } = require('./lib/updaters')
 
 module.exports = function standardVersion (argv) {
-  let defaults = require('./defaults')
+  const defaults = require('./defaults')
   /**
    * `--message` (`-m`) support will be removed in the next major version.
    */
