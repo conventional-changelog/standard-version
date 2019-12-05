@@ -55,7 +55,7 @@
   },
   "devDependencies": {
     "chai": "4.2.0",
-    "coveralls": "3.0.7",
+    "coveralls": "3.0.9",
     "eslint": "6.2.2",
     "eslint-config-standard": "14.1.0",
     "eslint-plugin-import": "2.18.2",
