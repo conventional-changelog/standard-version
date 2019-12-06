@@ -1073,6 +1073,22 @@ describe('standard-version', function () {
   })
 
   describe('configuration', () => {
+    it('reads config from package.json', function () {
+      writePackageJson('1.0.0', {
+        repository: {
+          url: 'git+https://company@scm.org/office/app.git'
+        },
+        'standard-version': {
+          issueUrlFormat: 'https://standard-version.company.net/browse/{{id}}'
+        }
+      })
+      commit('feat: another commit addresses issue #1')
+      execCli()
+      // CHANGELOG should have the new issue URL format.
+      const content = fs.readFileSync('CHANGELOG.md', 'utf-8')
+      content.should.include('https://standard-version.company.net/browse/1')
+    })
+
     it('reads config from .versionrc', function () {
       // write configuration that overrides default issue
       // URL format.
