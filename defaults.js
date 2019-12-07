@@ -12,7 +12,7 @@ const defaults = {
   skip: {},
   dryRun: false,
   gitTagFallback: true,
-  preset: 'conventionalcommits'
+  preset: require.resolve('conventional-changelog-conventionalcommits')
 }
 
 /**
@@ -28,5 +28,18 @@ Object.keys(spec.properties).forEach(propertyKey => {
  * compatibility. This should be removed in the next major version.
  */
 defaults.header = '# Changelog\n\nAll notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.\n'
+
+defaults.packageFiles = [
+  'package.json',
+  'bower.json',
+  'manifest.json',
+  'composer.json'
+]
+
+defaults.bumpFiles = defaults.packageFiles.concat([
+  'package-lock.json',
+  'npm-shrinkwrap.json',
+  'composer.lock'
+])
 
 module.exports = defaults

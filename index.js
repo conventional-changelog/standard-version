@@ -6,8 +6,10 @@ const latestSemverTag = require('./lib/latest-semver-tag')
 const path = require('path')
 const printError = require('./lib/print-error')
 const tag = require('./lib/lifecycles/tag')
+const { resolveUpdaterObjectFromArgument } = require('./lib/updaters')
 
 module.exports = function standardVersion (argv) {
+  const defaults = require('./defaults')
   /**
    * `--message` (`-m`) support will be removed in the next major version.
    */
@@ -35,19 +37,21 @@ module.exports = function standardVersion (argv) {
     throw Error(`custom changelog header must not match ${changelog.START_OF_LAST_RELEASE_PATTERN}`)
   }
 
+  const args = Object.assign({}, defaults, argv)
   let pkg
-  bump.pkgFiles.forEach((filename) => {
+  args.packageFiles.forEach((packageFile) => {
     if (pkg) return
-    const pkgPath = path.resolve(process.cwd(), filename)
+    const updater = resolveUpdaterObjectFromArgument(packageFile)
+    const pkgPath = path.resolve(process.cwd(), updater.filename)
     try {
-      const data = fs.readFileSync(pkgPath, 'utf8')
-      pkg = JSON.parse(data)
+      const contents = fs.readFileSync(pkgPath, 'utf8')
+      pkg = {
+        version: updater.updater.readVersion(contents),
+        private: typeof updater.updater.isPrivate === 'function' ? updater.updater.isPrivate(contents) : false
+      }
     } catch (err) {}
   })
   let newVersion
-  const defaults = require('./defaults')
-  const args = Object.assign({}, defaults, argv)
-
   return Promise.resolve()
     .then(() => {
       if (!pkg && args.gitTagFallback) {

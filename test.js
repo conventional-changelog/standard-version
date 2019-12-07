@@ -922,6 +922,74 @@ describe('standard-version', function () {
     })
   })
 
+  describe('custom `bumpFiles` support', function () {
+    it('mix.exs + version.txt', function () {
+      // @todo This file path is relative to the `tmp` directory, which is a little confusing
+      fs.copyFileSync('../test/mocks/mix.exs', 'mix.exs')
+      fs.copyFileSync('../test/mocks/version.txt', 'version.txt')
+      fs.copyFileSync('../test/mocks/updater/customer-updater.js', 'custom-updater.js')
+      commit('feat: first commit')
+      shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
+      commit('feat: new feature!')
+      return require('./index')({
+        silent: true,
+        bumpFiles: [
+          'version.txt',
+          {
+            filename: 'mix.exs',
+            updater: 'custom-updater.js'
+          }
+        ]
+      })
+        .then(() => {
+          fs.readFileSync('mix.exs', 'utf-8').should.contain('version: "1.1.0"')
+          fs.readFileSync('version.txt', 'utf-8').should.equal('1.1.0')
+        })
+    })
+
+    it('bumps a custom `plain-text` file', function () {
+      fs.copyFileSync('../test/mocks/VERSION-1.0.0.txt', 'VERSION_TRACKER.txt')
+      commit('feat: first commit')
+      return require('./index')({
+        silent: true,
+        bumpFiles: [
+          {
+            filename: 'VERSION_TRACKER.txt',
+            type: 'plain-text'
+          }
+        ]
+      })
+        .then(() => {
+          fs.readFileSync('VERSION_TRACKER.txt', 'utf-8').should.equal('1.1.0')
+        })
+    })
+  })
+
+  describe('custom `packageFiles` support', function () {
+    it('reads and writes to a custom `plain-text` file', function () {
+      fs.copyFileSync('../test/mocks/VERSION-6.3.1.txt', 'VERSION_TRACKER.txt')
+      commit('feat: yet another commit')
+      return require('./index')({
+        silent: true,
+        packageFiles: [
+          {
+            filename: 'VERSION_TRACKER.txt',
+            type: 'plain-text'
+          }
+        ],
+        bumpFiles: [
+          {
+            filename: 'VERSION_TRACKER.txt',
+            type: 'plain-text'
+          }
+        ]
+      })
+        .then(() => {
+          fs.readFileSync('VERSION_TRACKER.txt', 'utf-8').should.equal('6.4.0')
+        })
+    })
+  })
+
   describe('npm-shrinkwrap.json support', function () {
     beforeEach(function () {
       writeNpmShrinkwrapJson('1.0.0')
@@ -1073,6 +1141,22 @@ describe('standard-version', function () {
   })
 
   describe('configuration', () => {
+    it('reads config from package.json', function () {
+      writePackageJson('1.0.0', {
+        repository: {
+          url: 'git+https://company@scm.org/office/app.git'
+        },
+        'standard-version': {
+          issueUrlFormat: 'https://standard-version.company.net/browse/{{id}}'
+        }
+      })
+      commit('feat: another commit addresses issue #1')
+      execCli()
+      // CHANGELOG should have the new issue URL format.
+      const content = fs.readFileSync('CHANGELOG.md', 'utf-8')
+      content.should.include('https://standard-version.company.net/browse/1')
+    })
+
     it('reads config from .versionrc', function () {
       // write configuration that overrides default issue
       // URL format.
