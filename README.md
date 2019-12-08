@@ -38,7 +38,7 @@ _How It Works:_
 
 By default, `standard-version` assumes you're working in a NodeJS based project... because of this, for the majority of projects you might never need to interact with these options.
 
-That said, if you find your self asking ["How can I use `standard-version` for additional metadata files, languages or version files?"](#how-can-I-use-standard-version-for-additional metadata-files-languages-or-version-files) – these configuration options will help!
+That said, if you find your self asking [How can I use standard-version for additional metadata files, languages or version files?](#can-i-use-standard-version-for-additional-metadata-files-languages-or-version-files) – these configuration options will help!
 
 ## Installing `standard-version`
 
