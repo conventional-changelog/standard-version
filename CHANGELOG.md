@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [7.1.0](https://github.com/conventional-changelog/standard-version/compare/v7.0.1...v7.1.0) (2019-12-08)
+
+
+### Features
+
+* Adds support for `header` (--header) configuration based on the spec. ([#364](https://github.com/conventional-changelog/standard-version/issues/364)) ([ba80a0c](https://github.com/conventional-changelog/standard-version/commit/ba80a0c27029f54c751fe845560504925b45eab8))
+* custom 'bumpFiles' and 'packageFiles' support ([#372](https://github.com/conventional-changelog/standard-version/issues/372)) ([564d948](https://github.com/conventional-changelog/standard-version/commit/564d9482a459d5d7a2020c2972b4d39167ded4bf))
+
+
+### Bug Fixes
+
+* **deps:** update dependency conventional-changelog to v3.1.15 ([#479](https://github.com/conventional-changelog/standard-version/issues/479)) ([492e721](https://github.com/conventional-changelog/standard-version/commit/492e72192ebf35d7c58c00526b1e6bd2abac7f13))
+* **deps:** update dependency conventional-changelog-conventionalcommits to v4.2.3 ([#496](https://github.com/conventional-changelog/standard-version/issues/496)) ([bc606f8](https://github.com/conventional-changelog/standard-version/commit/bc606f8e96bcef1d46b28305622fc76dfbf306cf))
+* **deps:** update dependency conventional-recommended-bump to v6.0.5 ([#480](https://github.com/conventional-changelog/standard-version/issues/480)) ([1e1e215](https://github.com/conventional-changelog/standard-version/commit/1e1e215a633963188cdb02be1316b5506e3b99b7))
+* **deps:** update dependency yargs to v15 ([#484](https://github.com/conventional-changelog/standard-version/issues/484)) ([35b90c3](https://github.com/conventional-changelog/standard-version/commit/35b90c3f24cfb8237e94482fd20997900569193e))
+* use require.resolve for the default preset ([#465](https://github.com/conventional-changelog/standard-version/issues/465)) ([d557372](https://github.com/conventional-changelog/standard-version/commit/d55737239530f5eee684e9cbf959f7238d609fd4))
+* **deps:** update dependency detect-newline to v3.1.0 ([#482](https://github.com/conventional-changelog/standard-version/issues/482)) ([04ab36a](https://github.com/conventional-changelog/standard-version/commit/04ab36a12be58915cfa9c60771890e074d1f5685))
+* **deps:** update dependency figures to v3.1.0 ([#468](https://github.com/conventional-changelog/standard-version/issues/468)) ([63300a9](https://github.com/conventional-changelog/standard-version/commit/63300a935c0079fd03e8e1acc55fd5b1dcea677f))
+* **deps:** update dependency git-semver-tags to v3.0.1 ([#485](https://github.com/conventional-changelog/standard-version/issues/485)) ([9cc188c](https://github.com/conventional-changelog/standard-version/commit/9cc188cbb84ee3ae80d5e66f5c54727877313b14))
+* **deps:** update dependency yargs to v14.2.1 ([#483](https://github.com/conventional-changelog/standard-version/issues/483)) ([dc1fa61](https://github.com/conventional-changelog/standard-version/commit/dc1fa6170ffe12d4f8b44b70d23688a64d2ad0fb))
+* **deps:** update dependency yargs to v14.2.2 ([#488](https://github.com/conventional-changelog/standard-version/issues/488)) ([ecf26b6](https://github.com/conventional-changelog/standard-version/commit/ecf26b6fc9421a78fb81793c4a932f579f7e9d4a))
+
 ### [7.0.1](https://github.com/conventional-changelog/standard-version/compare/v7.0.0...v7.0.1) (2019-11-07)
 
 

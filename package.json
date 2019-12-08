@@ -1,6 +1,6 @@
 {
   "name": "standard-version",
-  "version": "7.0.1",
+  "version": "7.1.0",
   "description": "replacement for `npm version` with automatic CHANGELOG generation",
   "bin": "bin/cli.js",
   "scripts": {
