@@ -1,37 +1,48 @@
 # Standard Version
 
+A utility for versioning using [semver](https://semver.org/) and CHANGELOG generation powered by [Conventional Commits](https://conventionalcommits.org).
+
 [![Build Status](https://travis-ci.org/conventional-changelog/standard-version.svg?branch=master)](https://travis-ci.org/conventional-changelog/standard-version)
 [![NPM version](https://img.shields.io/npm/v/standard-version.svg)](https://www.npmjs.com/package/standard-version)
 [![Coverage Status](https://coveralls.io/repos/conventional-changelog/standard-version/badge.svg?branch=)](https://coveralls.io/r/conventional-changelog/standard-version?branch=master)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
-[![community slack](http://devtoolscommunity.herokuapp.com/badge.svg)](http://devtoolscommunity.herokuapp.com)
+[![Community slack](http://devtoolscommunity.herokuapp.com/badge.svg)](http://devtoolscommunity.herokuapp.com)
 
-_Having problems? want to contribute? join our [community slack](http://devtoolscommunity.herokuapp.com)_.
+_Having problems? Want to contribute? Join us on the [node-tooling community Slack](http://devtoolscommunity.herokuapp.com)_.
 
 
-Automate versioning and CHANGELOG generation, with [semver](https://semver.org/) and
-[conventional commit messages](https://conventionalcommits.org).
+_How It Works:_
 
-_how it works:_
+1. Follow the [Conventional Commits Specification](https://conventionalcommits.org) in your repository.
+2. When you're ready to release, run `standard-version`.
 
-1. when you land commits on your `master` branch, select the _Squash and Merge_ option.
-2. add a title and body that follows the [Conventional Commits Specification](https://conventionalcommits.org).
-3. when you're ready to release:
-  1. `git checkout master; git pull origin master`
-  2. run `standard-version`
-  3. `git push --follow-tags origin master && npm publish`
-     _(or, `docker push`, `gem push`, etc.)_
+`standard-version` will then do the following:
 
-`standard-version` does the following:
+1. Retreive the current version of your repository by looking at `bumpFiles`[1](), falling back to the last `git tag`.
+2. `bump` the version in `bumpFiles`[1]() based on your commits.
+4. Generates a `changelog` based on your commints (uses [conventional-changelog](https://github.com/conventional-changelog/conventional-changelog) under the hood).
+5. Creates a new `commit` including your `bumpFiles`[1]() and updated CHANGELOG.
+6. Creates a new `tag` with the new version number.
 
-1. bumps the version in metadata files (package.json, composer.json, etc).
-2. uses [conventional-changelog](https://github.com/conventional-changelog/conventional-changelog) to update _CHANGELOG.md_
-3. commits _package.json (et al.)_ and _CHANGELOG.md_
-4. tags a new release
 
-## Installation
+### `bumpFiles`, `packageFiles` and `updaters`
 
-### As `npm run` script
+`standard-version` uses a few key concepts for handling version bumping in your project.
+
+- **`packageFiles`** – User-defined files where versions can be read from _and_ "bumped".
+  - Examples: `package.json`, `manifest.json`
+  - In most cases (including the default), `packageFiles` are a subset of `bumpFiles`.
+- **`bumpFiles`** – User-defined files where versions should be "bumped", but not explicitly read from.
+  - Examples: `package-lock.json`, `npm-shrinkwrap.json`
+- **`updaters`** – Simple modules used for reading `packageFiles` and writing to `bumpFiles`.
+
+By default, `standard-version` assumes you're working in a NodeJS based project... because of this, for the majority of projects you might never need to interact with these options.
+
+That said, if you find your self asking ["How can I use `standard-version` for additional metadata files, languages or version files?"](#how-can-I-use-standard-version-for-additional metadata-files-languages-or-version-files) – these configuration options will help!
+
+## Installing `standard-version`
+
+### As a local `npm run` script
 
 Install and add to `devDependencies`:
 
@@ -39,7 +50,7 @@ Install and add to `devDependencies`:
 npm i --save-dev standard-version
 ```
 
-Add an [`npm run` script](https://docs.npmjs.com/cli/run-script) to your _package.json_:
+Add an [`npm run` script](https://docs.npmjs.com/cli/run-script) to your `package.json`:
 
 ```json
 {
@@ -53,7 +64,7 @@ Now you can use `npm run release` in place of `npm version`.
 
 This has the benefit of making your repo/package more portable, so that other developers can cut releases without having to globally install `standard-version` on their machine.
 
-### As global bin
+### As global `bin`
 
 Install globally (add to your `PATH`):
 
@@ -64,6 +75,12 @@ npm i -g standard-version
 Now you can use `standard-version` in place of `npm version`.
 
 This has the benefit of allowing you to use `standard-version` on any repo/package without adding a dev dependency to each one.
+
+### Using `npx`
+
+As of `npm@5.2.0`, `npx` is installed alongside `npm`. Using `npx` you can use `standard-version` without having to keep a `package.json` file by running: `npx standard-version`.
+
+This method is especially useful when using `standard-version` in non-JavaScript projects.
 
 ## Configuration
 
@@ -80,15 +97,15 @@ be provided via configuration. Please refer to the [conventional-changelog-confi
 
 ### Customizing CHANGELOG Generation
 
-By default, `standard-version` uses the [conventionalcommits preset](https://github.com/conventional-changelog/conventional-changelog/tree/master/packages/conventional-changelog-conventionalcommits).
+By default (as of `6.0.0`), `standard-version` uses the [conventionalcommits preset](https://github.com/conventional-changelog/conventional-changelog/tree/master/packages/conventional-changelog-conventionalcommits).
 
 This preset:
 
-* adheres closely to the [conventionalcommits.org](https://www.conventionalcommits.org)
+* Adheres closely to the [conventionalcommits.org](https://www.conventionalcommits.org)
   specification.
-* is highly configurable, following the configuration specification
+* Is highly configurable, following the configuration specification
   [maintained here](https://github.com/conventional-changelog/conventional-changelog-config-spec).
-  * _we've documented these config settings as a recommendation to other tooling makers._
+  * _We've documented these config settings as a recommendation to other tooling makers._
 
 There are a variety of dials and knobs you can turn related to CHANGELOG generation.
 
@@ -111,15 +128,17 @@ To generate your changelog for your first release, simply do:
 ```sh
 # npm run script
 npm run release -- --first-release
-# or global bin
+# global bin
 standard-version --first-release
+# npx
+npx standard-version --first-release
 ```
 
-This will tag a release **without bumping the version in package.json (_et al._)**.
+This will tag a release **without bumping the version `bumpFiles`[1]()**.
 
-When ready, push the git tag and `npm publish` your first release. \o/
+When you are ready, push the git tag and `npm publish` your first release. \o/
 
-### Cut a Release
+### Cutting Releases
 
 If you typically use `npm version` to cut a new release, do this instead:
 
@@ -134,7 +153,7 @@ As long as your git commit messages are conventional and accurate, you no longer
 
 After you cut a release, you can push the new git tag and `npm publish` (or `npm publish --tag next`) when you're ready.
 
-### Release as a pre-release
+### Release as a Pre-Release
 
 Use the flag `--prerelease` to generate pre-releases:
 
@@ -144,7 +163,7 @@ Suppose the last version of your code is `1.0.0`, and your code to be committed 
 # npm run script
 npm run release -- --prerelease
 ```
-you will get version `1.0.1-0`.
+This will tag your version as: `1.0.1-0`.
 
 If you want to name the pre-release, you specify the name via `--prerelease <name>`.
 
@@ -155,14 +174,14 @@ For example, suppose your pre-release should contain the `alpha` prefix:
 npm run release -- --prerelease alpha
 ```
 
-this will tag the version `1.0.1-alpha.0`
+This will tag the version as: `1.0.1-alpha.0`
 
-### Release as a target type imperatively like `npm version`
+### Release as a Target Type Imperatively (`npm version`-like)
 
 To forgo the automated version bump use `--release-as` with the argument `major`, `minor` or `patch`.
 
 Suppose the last version of your code is `1.0.0`, you've only landed `fix:` commits, but
-you would like your next release to be a `minor`. Simply do:
+you would like your next release to be a `minor`. Simply run the following:
 
 ```bash
 # npm run script
@@ -171,7 +190,7 @@ npm run release -- --release-as minor
 npm run release -- --release-as 1.1.0
 ```
 
-You will get version `1.1.0` rather than the auto generated version `1.0.1`.
+You will get version `1.1.0` rather than what would be the auto-generated version `1.0.1`.
 
 > **NOTE:** you can combine `--release-as` and `--prerelease` to generate a release. This is useful when publishing experimental feature(s).
 
@@ -186,11 +205,11 @@ npm run release -- --no-verify
 standard-version --no-verify
 ```
 
-### Signing commits and tags
+### Signing Commits and Tags
 
 If you have your GPG key set up, add the `--sign` or `-s` flag to your `standard-version` command.
 
-### Lifecycle scripts
+### Lifecycle Scripts
 
 `standard-version` supports lifecycle scripts. These allow you to execute your
 own supplementary commands during the release. The following
@@ -231,7 +250,7 @@ with a link to your Jira - assuming you have already installed [replace](https:/
 }
 ```
 
-### Skipping lifecycle steps
+### Skipping Lifecycle Steps
 
 You can skip any of the lifecycle steps (`bump`, `changelog`, `commit`, `tag`),
 by adding the following to your package.json:
@@ -246,7 +265,7 @@ by adding the following to your package.json:
 }
 ```
 
-### Committing generated artifacts in the release commit
+### Committing Generated Artifacts in the Release Commit
 
 If you want to commit generated artifacts in the release commit (e.g. [#96](https://github.com/conventional-changelog/standard-version/issues/96)), you can use the `--commit-all` or `-a` flag. You will need to stage the artifacts you want to commit, so your `release` command could look like this:
 
@@ -255,7 +274,7 @@ If you want to commit generated artifacts in the release commit (e.g. [#96](http
 "release": "git add <file(s) to commit> && standard-version -a"
 ```
 
-### Dry run mode
+### Dry Run Mode
 
 running `standard-version` with the flag `--dry-run` allows you to see what
 commands would be run, without committing to git or updating files.
@@ -288,10 +307,7 @@ npm run release -- --help
 standard-version --help
 ```
 
-## Code usage
-
-Use the `silent` option to stop `standard-version` from printing anything
-to the console.
+## Code Usage
 
 ```js
 const standardVersion = require('standard-version')
@@ -309,47 +325,7 @@ standardVersion({
 })
 ```
 
-## Commit Message Convention, at a Glance
-
-_patches:_
-
-```sh
-git commit -a -m "fix(parsing): fixed a bug in our parser"
-```
-
-_features:_
-
-```sh
-git commit -a -m "feat(parser): we now have a parser \o/"
-```
-
-_breaking changes:_
-
-```sh
-git commit -a -m "feat(new-parser): introduces a new parsing library
-BREAKING CHANGE: new library does not support foo-construct"
-```
-
-_other changes:_
-
-You decide, e.g., docs, chore, etc.
-
-```sh
-git commit -a -m "docs: fixed up the docs a bit"
-```
-
-_but wait, there's more!_
-
-Github usernames (`@bcoe`) and issue references (#133) will be swapped out for the
-appropriate URLs in your CHANGELOG.
-
-## Badges!
-
-Tell your users that you adhere to the Conventional Commits specification:
-
-```markdown
-[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
-```
+_TIP: Use the `silent` option to prevent `standard-version` from printing to the `console`._
 
 ## FAQ
 
@@ -372,6 +348,92 @@ If you have multiple features or fixes landing in a single PR and each commit us
 Although this will allow each commit to be included as separate entries in your CHANGELOG, the entries will **not** be able to reference the PR that pulled the changes in because the preserved commit messages do not include the PR number.
 
 For this reason, we recommend keeping the scope of each PR to one general feature or fix. In practice, this allows you to use unstructured commit messages when committing each little change and then squash them into a single commit with a structured message (referencing the PR number) once they have been reviewed and accepted.
+
+### Can I use `standard-version` for additional metadata files, languages or version files?
+
+YES! Using `bumpFiles` (and `packageFiles`) configurations you should be able to configure `standard-version` to work for you.
+
+1. Specify a custom `bumpFile` "`file`", this is the path to the file you want to "bump"
+2. Specify the `bumpFile` "`updater`", this is _how_ the file will be bumped.
+  
+    a. If your using a common type, you can use one of  `standard-version`'s built-in `updaters` by specifying a `type`.
+
+    b. If your using an less-common version file, you can create your own `updater`.
+
+```json
+// .versionrc
+{
+  "bumpFiles": [
+    {
+      "file": "MY_VERSION_TRACKER.txt",
+      // The `plain-text` updater assumes the file contents represents the version.
+      "type": "plain-text"
+    },
+    {
+      "file": "a/deep/package/dot/json/file/package.json",
+      // The `json` updater assumes the version is available under a `version` key in the provided JSON document.
+      "type": "json"
+    }
+    {
+      "file": "VERSION_TRACKER.json",
+      //  See "Custom `updater`s" for more details.
+      "updater": "standard-version-updater.js"
+    }
+  ]
+}
+```
+
+#### Custom `updater`s
+
+An `updater` is expected to be a Javascript module with _atleast_ two methods exposed: `readVersion` and `writeVersion`.
+
+##### `readVersion(contents = string): string`
+
+This method is used to read the version from the provided file contents.
+
+The return value is expected to be a semantic version string.
+
+##### `writeVersion(contents = string, version: string): string`
+
+This method is used to write the version to the provided contents.
+
+The return value will be written directly (overwrite) to the provided file.
+
+---
+
+Let's assume our `VERSION_TRACKER.json` has the following contents:
+
+```json
+{
+  "tracker": {
+    "package": {
+      "version": "1.0.0"
+    }
+  }
+}
+
+```
+
+An acceptable `standard-version-updater.js` would be:
+
+```js
+// standard-version-updater.js
+const stringifyPackage = require('stringify-package')
+const detectIndent = require('detect-indent')
+const detectNewline = require('detect-newline')
+
+module.exports.readVersion = function (contents) {
+  return JSON.parse(contents).tracker.package.version;
+}
+
+module.exports.writeVersion = function (contents, version) {
+  const json = JSON.parse(contents)
+  let indent = detectIndent(contents).indent
+  let newline = detectNewline(contents)
+  json.tracker.package.version = version
+  return stringifyPackage(json, indent, newline)
+}
+```
 
 ## License
 

@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [7.0.1](https://github.com/conventional-changelog/standard-version/compare/v7.0.0...v7.0.1) (2019-11-07)
+
+
+### Bug Fixes
+
+* **deps:** update dependency conventional-changelog to v3.1.12 ([#463](https://github.com/conventional-changelog/standard-version/issues/463)) ([f04161a](https://github.com/conventional-changelog/standard-version/commit/f04161ae624705e68f9018d563e9f3c09ccf6f30))
+* **deps:** update dependency conventional-changelog-config-spec to v2.1.0 ([#442](https://github.com/conventional-changelog/standard-version/issues/442)) ([a2c5747](https://github.com/conventional-changelog/standard-version/commit/a2c574735ac5a165a190661b7735ea284bdc7dda))
+* **deps:** update dependency conventional-recommended-bump to v6.0.2 ([#462](https://github.com/conventional-changelog/standard-version/issues/462)) ([84bb581](https://github.com/conventional-changelog/standard-version/commit/84bb581209b50357761cbec45bb8253f6a182801))
+* **deps:** update dependency stringify-package to v1.0.1 ([#459](https://github.com/conventional-changelog/standard-version/issues/459)) ([e06a835](https://github.com/conventional-changelog/standard-version/commit/e06a835c8296a92f4fa7c07f98057d765c1a91e5))
+* **deps:** update dependency yargs to v14 ([#440](https://github.com/conventional-changelog/standard-version/issues/440)) ([fe37e73](https://github.com/conventional-changelog/standard-version/commit/fe37e7390760d8d16d1b94ca58d8123e292c46a8))
+* **deps:** update dependency yargs to v14.2.0 ([#461](https://github.com/conventional-changelog/standard-version/issues/461)) ([fb21851](https://github.com/conventional-changelog/standard-version/commit/fb2185107a90ba4b9dc7c9c1d873ed1283706ac1))
+
 ## [7.0.0](https://github.com/conventional-changelog/standard-version/compare/v6.0.1...v7.0.0) (2019-07-30)
 
 
