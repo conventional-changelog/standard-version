@@ -18,10 +18,10 @@ _How It Works:_
 
 `standard-version` will then do the following:
 
-1. Retreive the current version of your repository by looking at `bumpFiles`[1](), falling back to the last `git tag`.
-2. `bump` the version in `bumpFiles`[1]() based on your commits.
+1. Retreive the current version of your repository by looking at `bumpFiles`[[1]](#bumpfiles-packagefiles-and-updaters), falling back to the last `git tag`.
+2. `bump` the version in `bumpFiles`[[1]](#bumpfiles-packagefiles-and-updaters) based on your commits.
 4. Generates a `changelog` based on your commits (uses [conventional-changelog](https://github.com/conventional-changelog/conventional-changelog) under the hood).
-5. Creates a new `commit` including your `bumpFiles`[1]() and updated CHANGELOG.
+5. Creates a new `commit` including your `bumpFiles`[[1]](#bumpfiles-packagefiles-and-updaters) and updated CHANGELOG.
 6. Creates a new `tag` with the new version number.
 
 
@@ -29,7 +29,7 @@ _How It Works:_
 
 `standard-version` uses a few key concepts for handling version bumping in your project.
 
-- **`packageFiles`** – User-defined files where versions can be read from _and_ "bumped".
+- **`packageFiles`** – User-defined files where versions can be read from _and_ be "bumped".
   - Examples: `package.json`, `manifest.json`
   - In most cases (including the default), `packageFiles` are a subset of `bumpFiles`.
 - **`bumpFiles`** – User-defined files where versions should be "bumped", but not explicitly read from.
@@ -360,7 +360,7 @@ YES! Using `bumpFiles` (and `packageFiles`) configurations you should be able to
 
     b. If your using an less-common version file, you can create your own `updater`.
 
-```json
+```js
 // .versionrc
 {
   "bumpFiles": [
