@@ -20,7 +20,7 @@ _How It Works:_
 
 1. Retreive the current version of your repository by looking at `bumpFiles`[1](), falling back to the last `git tag`.
 2. `bump` the version in `bumpFiles`[1]() based on your commits.
-4. Generates a `changelog` based on your commints (uses [conventional-changelog](https://github.com/conventional-changelog/conventional-changelog) under the hood).
+4. Generates a `changelog` based on your commits (uses [conventional-changelog](https://github.com/conventional-changelog/conventional-changelog) under the hood).
 5. Creates a new `commit` including your `bumpFiles`[1]() and updated CHANGELOG.
 6. Creates a new `tag` with the new version number.
 
