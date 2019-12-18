@@ -365,17 +365,17 @@ YES! Using `bumpFiles` (and `packageFiles`) configurations you should be able to
 {
   "bumpFiles": [
     {
-      "file": "MY_VERSION_TRACKER.txt",
+      "filename": "MY_VERSION_TRACKER.txt",
       // The `plain-text` updater assumes the file contents represents the version.
       "type": "plain-text"
     },
     {
-      "file": "a/deep/package/dot/json/file/package.json",
+      "filename": "a/deep/package/dot/json/file/package.json",
       // The `json` updater assumes the version is available under a `version` key in the provided JSON document.
       "type": "json"
-    }
+    },
     {
-      "file": "VERSION_TRACKER.json",
+      "filename": "VERSION_TRACKER.json",
       //  See "Custom `updater`s" for more details.
       "updater": "standard-version-updater.js"
     }
