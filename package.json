@@ -6,7 +6,7 @@
   "scripts": {
     "posttest": "eslint .",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
-    "test": "mocha --timeout=30000 test.js",
+    "test": "nyc mocha --timeout=30000 test.js",
     "release": "bin/cli.js"
   },
   "nyc": {
