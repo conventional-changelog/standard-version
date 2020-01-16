@@ -32,14 +32,12 @@ defaults.header = '# Changelog\n\nAll notable changes to this project will be do
 defaults.packageFiles = [
   'package.json',
   'bower.json',
-  'manifest.json',
-  'composer.json'
+  'manifest.json'
 ]
 
 defaults.bumpFiles = defaults.packageFiles.concat([
   'package-lock.json',
-  'npm-shrinkwrap.json',
-  'composer.lock'
+  'npm-shrinkwrap.json'
 ])
 
 module.exports = defaults
