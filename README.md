@@ -18,7 +18,7 @@ _How It Works:_
 
 `standard-version` will then do the following:
 
-1. Retreive the current version of your repository by looking at `bumpFiles`[[1]](#bumpfiles-packagefiles-and-updaters), falling back to the last `git tag`.
+1. Retrieve the current version of your repository by looking at `bumpFiles`[[1]](#bumpfiles-packagefiles-and-updaters), falling back to the last `git tag`.
 2. `bump` the version in `bumpFiles`[[1]](#bumpfiles-packagefiles-and-updaters) based on your commits.
 4. Generates a `changelog` based on your commits (uses [conventional-changelog](https://github.com/conventional-changelog/conventional-changelog) under the hood).
 5. Creates a new `commit` including your `bumpFiles`[[1]](#bumpfiles-packagefiles-and-updaters) and updated CHANGELOG.
@@ -351,9 +351,9 @@ For this reason, we recommend keeping the scope of each PR to one general featur
 
 ### Can I use `standard-version` for additional metadata files, languages or version files?
 
-YES! Using `bumpFiles` (and `packageFiles`) configurations you should be able to configure `standard-version` to work for you.
+As of version `7.1.0` you can configure multiple `bumpFiles` and `packageFiles`.
 
-1. Specify a custom `bumpFile` "`file`", this is the path to the file you want to "bump"
+1. Specify a custom `bumpFile` "`filename`", this is the path to the file you want to "bump"
 2. Specify the `bumpFile` "`updater`", this is _how_ the file will be bumped.
   
     a. If your using a common type, you can use one of  `standard-version`'s built-in `updaters` by specifying a `type`.
