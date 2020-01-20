@@ -190,7 +190,7 @@ npm run release -- --release-as minor
 npm run release -- --release-as 1.1.0
 ```
 
-you will get version `1.1.0` rather than what would be the auto-generated version `1.0.1`.
+You will get version `1.1.0` rather than what would be the auto-generated version `1.0.1`.
 
 > **NOTE:** you can combine `--release-as` and `--prerelease` to generate a release. This is useful when publishing experimental feature(s).
 
