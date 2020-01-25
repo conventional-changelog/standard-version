@@ -568,6 +568,32 @@ describe('standard-version', function () {
     })
   })
 
+  it('`packageFiles` are bumped along with `bumpFiles` defaults [standard-version#533]', async function () {
+    mock({
+      bump: 'minor',
+      fs: {
+        '.gitignore': '',
+        'package-lock.json': JSON.stringify({ version: '1.0.0' }),
+        'manifest.json': fs.readFileSync('./test/mocks/manifest-6.3.1.json')
+      },
+      tags: ['v1.0.0']
+    })
+
+    await exec({
+      silent: true,
+      packageFiles: [
+        {
+          filename: 'manifest.json',
+          type: 'json'
+        }
+      ]
+    })
+
+    JSON.parse(fs.readFileSync('manifest.json', 'utf-8')).version.should.equal('6.4.0')
+    JSON.parse(fs.readFileSync('package.json', 'utf-8')).version.should.equal('6.4.0')
+    JSON.parse(fs.readFileSync('package-lock.json', 'utf-8')).version.should.equal('6.4.0')
+  })
+
   it('bumps version # in npm-shrinkwrap.json', async function () {
     mock({
       bump: 'minor',
