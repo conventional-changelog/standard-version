@@ -42,7 +42,7 @@ module.exports = function standardVersion (argv) {
   args.packageFiles.forEach((packageFile) => {
     if (pkg) return
     const updater = resolveUpdaterObjectFromArgument(packageFile)
-    const pkgPath = path.resolve(process.cwd(), updater.filename)
+    const pkgPath = path.resolve(args.path || process.cwd(), updater.filename)
     try {
       const contents = fs.readFileSync(pkgPath, 'utf8')
       pkg = {
