@@ -124,6 +124,22 @@ describe('cli', function () {
   beforeEach(initInTempFolder)
   afterEach(finishTemp)
 
+  it('should take a context', function () {
+    commit('feat: first commit')
+    shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
+    commit('fix: patch release')
+    execCli('--context \'{ "owner": "owner", "repository": "repository" }\'').code.should.equal(0)
+    const changelog = fs.readFileSync('CHANGELOG.md', 'utf8')
+    changelog.should.include('[1.0.1](/owner/repository/compare/v1.0.0...v1.0.1)')
+  })
+
+  it('should error on invalid context', function () {
+    commit('feat: first commit')
+    shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
+    commit('fix: patch release')
+    execCli('--context \'{ "owner": "owner", "repository":  }\'').code.should.equal(1)
+  })
+
   describe('CHANGELOG.md does not exist', function () {
     it('populates changelog with commits since last tag by default', function () {
       commit('feat: first commit')
@@ -858,6 +874,20 @@ describe('standard-version', function () {
           return done()
         })
     })
+  })
+
+  it('should pass a custom context', function (done) {
+    commit('feat: first commit')
+    shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
+    commit('feat: new feature!')
+    require('./index')({
+      silent: true,
+      context: { owner: 'owner', repository: 'respository' }
+    }).then(() => {
+      const changelog = fs.readFileSync('CHANGELOG.md', 'utf8')
+      changelog.should.include('[1.1.0](/owner/respository/compare/v1.0.0...v1.1.0)')
+      done()
+    }).catch(done)
   })
 
   it('formats the commit and tag messages appropriately', function (done) {

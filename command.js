@@ -4,6 +4,10 @@ const defaults = require('./defaults')
 
 const yargs = require('yargs')
   .usage('Usage: $0 [options]')
+  .option('context', {
+    type: 'string',
+    describe: 'Pass a custom context to inject during the changelog generation'
+  })
   .option('packageFiles', {
     default: defaults.packageFiles,
     array: true
@@ -20,7 +24,7 @@ const yargs = require('yargs')
   })
   .option('prerelease', {
     alias: 'p',
-    describe: 'make a pre-release with optional option value to specify a tag id',
+    describe: 'Make a pre-release with optional option value to specify a tag id',
     string: true
   })
   .option('infile', {

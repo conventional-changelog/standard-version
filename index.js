@@ -26,6 +26,16 @@ module.exports = function standardVersion (argv) {
     }
   }
 
+  if (argv.context) {
+    if (typeof argv.context === 'string') {
+      try {
+        argv.context = JSON.parse(argv.context)
+      } catch (error) {
+        throw new Error(`Error while parsing context: ${error.message}`)
+      }
+    }
+  }
+
   if (argv.changelogHeader) {
     argv.header = argv.changelogHeader
     if (!argv.silent) {
