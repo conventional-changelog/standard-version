@@ -52,7 +52,7 @@
     "git-semver-tags": "3.0.1",
     "semver": "7.1.1",
     "stringify-package": "1.0.1",
-    "yargs": "15.1.0"
+    "yargs": "15.2.0"
   },
   "devDependencies": {
     "chai": "4.2.0",
