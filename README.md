@@ -355,7 +355,7 @@ As of version `7.1.0` you can configure multiple `bumpFiles` and `packageFiles`.
 
 1. Specify a custom `bumpFile` "`filename`", this is the path to the file you want to "bump"
 2. Specify the `bumpFile` "`updater`", this is _how_ the file will be bumped.
-  
+
     a. If your using a common type, you can use one of  `standard-version`'s built-in `updaters` by specifying a `type`.
 
     b. If your using an less-common version file, you can create your own `updater`.
@@ -393,7 +393,7 @@ This method is used to read the version from the provided file contents.
 
 The return value is expected to be a semantic version string.
 
-##### `writeVersion(contents = string, version: string): string`
+##### `writeVersion(contents = string, version: string, filePath: string): string`
 
 This method is used to write the version to the provided contents.
 
@@ -426,7 +426,7 @@ module.exports.readVersion = function (contents) {
   return JSON.parse(contents).tracker.package.version;
 }
 
-module.exports.writeVersion = function (contents, version) {
+module.exports.writeVersion = function (contents, version, filePath) {
   const json = JSON.parse(contents)
   let indent = detectIndent(contents).indent
   let newline = detectNewline(contents)
