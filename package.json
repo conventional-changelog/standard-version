@@ -14,10 +14,7 @@
       "tmp/**"
     ]
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/conventional-changelog/standard-version.git"
-  },
+  "repository": "conventional-changelog/standard-version",
   "engines": {
     "node": ">=8.0"
   },
