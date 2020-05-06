@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [8.0.0](https://www.github.com/conventional-changelog/standard-version/compare/v7.1.0...v8.0.0) (2020-05-06)
+
+
+### ⚠ BREAKING CHANGES
+
+* `composer.json` and `composer.lock` will no longer be read from or bumped by default. If you need to obtain a version or write a version to these files, please use `bumpFiles` and/or `packageFiles` options accordingly.
+
+### Bug Fixes
+
+* composer.json and composer.lock have been removed from default package and bump files. ([c934f3a](https://www.github.com/conventional-changelog/standard-version/commit/c934f3a38da4e7234d9dba3b2405f3b7e4dc5aa8)), closes [#495](https://www.github.com/conventional-changelog/standard-version/issues/495) [#394](https://www.github.com/conventional-changelog/standard-version/issues/394)
+* **deps:** update dependency conventional-changelog to v3.1.18 ([#510](https://www.github.com/conventional-changelog/standard-version/issues/510)) ([e6aeb77](https://www.github.com/conventional-changelog/standard-version/commit/e6aeb779fe53ffed2a252e6cfd69cfcb786b9ef9))
+* **deps:** update dependency yargs to v15.1.0 ([#518](https://www.github.com/conventional-changelog/standard-version/issues/518)) ([8f36f9e](https://www.github.com/conventional-changelog/standard-version/commit/8f36f9e073119fcbf5ad843237fb06a4ca42a0f9))
+* **deps:** update dependency yargs to v15.3.1 ([#559](https://www.github.com/conventional-changelog/standard-version/issues/559)) ([d98cd46](https://www.github.com/conventional-changelog/standard-version/commit/d98cd4674b4d074c0b7f4d50d052ae618cf494c6))
+
 ## [7.1.0](https://github.com/conventional-changelog/standard-version/compare/v7.0.1...v7.1.0) (2019-12-08)
 
 
