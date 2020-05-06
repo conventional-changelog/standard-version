@@ -13,6 +13,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: git fetch --prune --unshallow
+      - run: git config --global user.name 'Actions'
+      - run: git config --global user.email 'dummy@example.org'
       - uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node }}
@@ -24,6 +26,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: git fetch --prune --unshallow
+      - run: git config --global user.name 'Actions'
+      - run: git config --global user.email 'dummy@example.org'
       - uses: actions/setup-node@v1
         with:
           node-version: 12
