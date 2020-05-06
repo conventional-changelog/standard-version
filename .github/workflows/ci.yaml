@@ -11,7 +11,8 @@ jobs:
       matrix:
         node: [8, 10, 12, 14]
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
+      - run: git fetch --prune --unshallow
       - uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node }}
@@ -22,6 +23,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
+      - run: git fetch --prune --unshallow
       - uses: actions/setup-node@v1
         with:
           node-version: 12
