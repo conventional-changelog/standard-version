@@ -990,6 +990,30 @@ describe('standard-version', function () {
     })
   })
 
+  it('reads and writes to Java Maven `pom.xml` file', function () {
+    fs.copyFileSync('../test/mocks/pom-6.3.1.xml', 'pom.xml')
+    commit('feat: yet another commit')
+    return require('./index')({
+      silent: true,
+      packageFiles: [
+        {
+          filename: 'pom.xml',
+          type: 'pom'
+        }
+      ],
+      bumpFiles: [
+        {
+          filename: 'pom.xml',
+          type: 'pom'
+        }
+      ]
+    })
+      .then(() => {
+        const expected = fs.readFileSync('../test/mocks/pom-6.4.0.xml', 'utf-8')
+        fs.readFileSync('pom.xml', 'utf-8').should.equal(expected)
+      })
+  })
+
   describe('npm-shrinkwrap.json support', function () {
     beforeEach(function () {
       writeNpmShrinkwrapJson('1.0.0')
