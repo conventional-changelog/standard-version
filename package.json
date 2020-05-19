@@ -6,6 +6,7 @@
   "scripts": {
     "posttest": "eslint .",
     "test": "nyc mocha --timeout=30000 test.js",
+    "test:debug": "env DEBUG=conventional-recommended-bump mocha --inspect-brk --timeout=30000 test.js",
     "release": "bin/cli.js"
   },
   "nyc": {

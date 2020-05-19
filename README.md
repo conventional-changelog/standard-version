@@ -48,6 +48,12 @@ Out of the box, `standard-version` supports Maven projects, just provide the pat
 standard-version --packageFiles pom.xml --bumpFiles pom.xml
 ```
 
+If you are using Gradle, then just point to your `build.gradle` file!
+
+```sh
+standard-version --packageFiles build.gradle --bumpFiles build.gradle
+```
+
 ## Installing `standard-version`
 
 ### As a local `npm run` script
