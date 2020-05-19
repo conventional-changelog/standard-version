@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [8.1.1](https://github.com/conventional-changelog/standard-version/compare/v8.1.0...v8.1.1) (2020-05-19)
+
 ## [8.1.0](https://github.com/conventional-changelog/standard-version/compare/v8.0.0...v8.1.0) (2020-05-19)
 
 
