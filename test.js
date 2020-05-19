@@ -1014,6 +1014,30 @@ describe('standard-version', function () {
       })
   })
 
+  it('reads and writes to Java Gradle `build.gradle` file', function () {
+    fs.copyFileSync('../test/mocks/build-6.3.1.gradle', 'build.gradle')
+    commit('feat: yet another commit')
+    return require('./index')({
+      silent: true,
+      packageFiles: [
+        {
+          filename: 'build.gradle',
+          type: 'gradle'
+        }
+      ],
+      bumpFiles: [
+        {
+          filename: 'build.gradle',
+          type: 'gradle'
+        }
+      ]
+    })
+      .then(() => {
+        const expected = fs.readFileSync('../test/mocks/build-6.4.0.gradle', 'utf-8')
+        fs.readFileSync('build.gradle', 'utf-8').should.equal(expected)
+      })
+  })
+
   describe('npm-shrinkwrap.json support', function () {
     beforeEach(function () {
       writeNpmShrinkwrapJson('1.0.0')
