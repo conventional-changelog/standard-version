@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [8.1.0](https://github.com/conventional-changelog/standard-version/compare/v8.0.0...v8.1.0) (2020-05-19)
+
+
+### Features
+
+* **Java:** add support for pom.xml files for Java Maven projects ([8d68c46](https://github.com/conventional-changelog/standard-version/commit/8d68c463d272c58ac3f6809686d8572ca4d120f5))
+
 ## [8.0.0](https://www.github.com/conventional-changelog/standard-version/compare/v7.1.0...v8.0.0) (2020-05-06)
 
 
