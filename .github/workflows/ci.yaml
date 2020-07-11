@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: [8, 10, 12, 14]
+        node: [10, 12, 14]
     steps:
       - uses: actions/checkout@v2
       - run: git fetch --prune --unshallow
