@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [8.0.1](https://www.github.com/conventional-changelog/standard-version/compare/v8.0.0...v8.0.1) (2020-07-12)
+
+
+### Bug Fixes
+
+* **deps:** update dependency conventional-changelog to v3.1.21 ([#586](https://www.github.com/conventional-changelog/standard-version/issues/586)) ([fd456c9](https://www.github.com/conventional-changelog/standard-version/commit/fd456c995f3f88497fbb912fb8aabb8a42d97dbb))
+* **deps:** update dependency conventional-changelog-conventionalcommits to v4.3.0 ([#587](https://www.github.com/conventional-changelog/standard-version/issues/587)) ([b3b5eed](https://www.github.com/conventional-changelog/standard-version/commit/b3b5eedea3eaf062d74d1004a55a0a6b1e3ca6c6))
+* **deps:** update dependency conventional-recommended-bump to v6.0.9 ([#588](https://www.github.com/conventional-changelog/standard-version/issues/588)) ([d4d2ac2](https://www.github.com/conventional-changelog/standard-version/commit/d4d2ac2a99c095227118da795e1c9e19d06c9a0a))
+* **deps:** update dependency git-semver-tags to v4 ([#589](https://www.github.com/conventional-changelog/standard-version/issues/589)) ([a0f0e81](https://www.github.com/conventional-changelog/standard-version/commit/a0f0e813b2be4a2065600a19075fda4d6f331ef8))
+* Vulnerability Report GHSL-2020-11101 ([9d978ac](https://www.github.com/conventional-changelog/standard-version/commit/9d978ac9d4f64be4c7b9d514712ab3757732d561))
+
 ## [8.0.0](https://www.github.com/conventional-changelog/standard-version/compare/v7.1.0...v8.0.0) (2020-05-06)
 
 
