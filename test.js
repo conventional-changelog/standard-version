@@ -258,9 +258,10 @@ describe('cli', function () {
           const captured = shell.cat('gitcapture.log').stdout.split('\n').map(function (line) {
             return line ? JSON.parse(line) : line
           })
-          captured[captured.length - 4].should.deep.equal(['commit', '-S', 'CHANGELOG.md', 'package.json', '-m', 'chore(release): 1.0.1'])
-          captured[captured.length - 3].should.deep.equal(['tag', '-s', 'v1.0.1', '-m', 'chore(release): 1.0.1'])
-
+          /* eslint-disable no-useless-escape */
+          captured[captured.length - 4].should.deep.equal(['commit', '-S', 'CHANGELOG.md', 'package.json', '-m', '\"chore(release): 1.0.1\"'])
+          captured[captured.length - 3].should.deep.equal(['tag', '-s', 'v1.0.1', '-m', '\"chore(release): 1.0.1\"'])
+          /* eslint-enable no-useless-escape */
           unmock()
         })
     })
@@ -1311,6 +1312,22 @@ describe('standard-version', function () {
       commit('feat!: this is a breaking change')
       execCli('-r major')
       getPackageVersion().should.equal('1.0.0')
+    })
+  })
+})
+
+describe('GHSL-2020-111', function () {
+  beforeEach(initInTempFolder)
+  afterEach(finishTemp)
+  it('does not allow command injection via basic configuration', function () {
+    return standardVersion({
+      silent: true,
+      noVerify: true,
+      infile: 'foo.txt',
+      releaseCommitMessageFormat: 'bla `touch exploit`'
+    }).then(function () {
+      const stat = shell.test('-f', './exploit')
+      stat.should.equal(false)
     })
   })
 })
