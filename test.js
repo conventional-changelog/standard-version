@@ -13,6 +13,8 @@ const formatCommitMessage = require('./lib/format-commit-message')
 const cli = require('./command')
 const standardVersion = require('./index')
 
+const isWindows = process.platform === 'win32'
+
 require('chai').should()
 
 const cliPath = path.resolve(__dirname, './bin/cli.js')
@@ -248,74 +250,77 @@ describe('cli', function () {
     })
   })
 
-  describe('with mocked git', function () {
-    it('--sign signs the commit and tag', function () {
-      // mock git with file that writes args to gitcapture.log
-      return mockGit('require("fs").appendFileSync("gitcapture.log", JSON.stringify(process.argv.splice(2)) + "\\n")')
-        .then(function (unmock) {
-          execCli('--sign').code.should.equal(0)
+  // TODO: investigate why mock-git does not play well with execFile on Windows.
+  if (!isWindows) {
+    describe('with mocked git', function () {
+      it('--sign signs the commit and tag', function () {
+        // mock git with file that writes args to gitcapture.log
+        return mockGit('require("fs").appendFileSync("gitcapture.log", JSON.stringify(process.argv.splice(2)) + "\\n")')
+          .then(function (unmock) {
+            execCli('--sign').code.should.equal(0)
 
-          const captured = shell.cat('gitcapture.log').stdout.split('\n').map(function (line) {
-            return line ? JSON.parse(line) : line
+            const captured = shell.cat('gitcapture.log').stdout.split('\n').map(function (line) {
+              return line ? JSON.parse(line) : line
+            })
+            /* eslint-disable no-useless-escape */
+            captured[captured.length - 4].should.deep.equal(['commit', '-S', 'CHANGELOG.md', 'package.json', '-m', '\"chore(release): 1.0.1\"'])
+            captured[captured.length - 3].should.deep.equal(['tag', '-s', 'v1.0.1', '-m', '\"chore(release): 1.0.1\"'])
+            /* eslint-enable no-useless-escape */
+            unmock()
           })
-          /* eslint-disable no-useless-escape */
-          captured[captured.length - 4].should.deep.equal(['commit', '-S', 'CHANGELOG.md', 'package.json', '-m', '\"chore(release): 1.0.1\"'])
-          captured[captured.length - 3].should.deep.equal(['tag', '-s', 'v1.0.1', '-m', '\"chore(release): 1.0.1\"'])
-          /* eslint-enable no-useless-escape */
-          unmock()
-        })
+      })
+
+      it('exits with error code if git commit fails', function () {
+        // mock git by throwing on attempt to commit
+        return mockGit('console.error("commit yourself"); process.exit(128);', 'commit')
+          .then(function (unmock) {
+            const result = execCli()
+            result.code.should.equal(1)
+            result.stderr.should.match(/commit yourself/)
+
+            unmock()
+          })
+      })
+
+      it('exits with error code if git add fails', function () {
+        // mock git by throwing on attempt to add
+        return mockGit('console.error("addition is hard"); process.exit(128);', 'add')
+          .then(function (unmock) {
+            const result = execCli()
+            result.code.should.equal(1)
+            result.stderr.should.match(/addition is hard/)
+
+            unmock()
+          })
+      })
+
+      it('exits with error code if git tag fails', function () {
+        // mock git by throwing on attempt to commit
+        return mockGit('console.error("tag, you\'re it"); process.exit(128);', 'tag')
+          .then(function (unmock) {
+            const result = execCli()
+            result.code.should.equal(1)
+            result.stderr.should.match(/tag, you're it/)
+
+            unmock()
+          })
+      })
+
+      it('doesn\'t fail fast on stderr output from git', function () {
+        // mock git by throwing on attempt to commit
+        return mockGit('console.error("haha, kidding, this is just a warning"); process.exit(0);', 'add')
+          .then(function (unmock) {
+            writePackageJson('1.0.0')
+
+            const result = execCli()
+            result.code.should.equal(1)
+            result.stderr.should.match(/haha, kidding, this is just a warning/)
+
+            unmock()
+          })
+      })
     })
-
-    it('exits with error code if git commit fails', function () {
-      // mock git by throwing on attempt to commit
-      return mockGit('console.error("commit yourself"); process.exit(128);', 'commit')
-        .then(function (unmock) {
-          const result = execCli()
-          result.code.should.equal(1)
-          result.stderr.should.match(/commit yourself/)
-
-          unmock()
-        })
-    })
-
-    it('exits with error code if git add fails', function () {
-      // mock git by throwing on attempt to add
-      return mockGit('console.error("addition is hard"); process.exit(128);', 'add')
-        .then(function (unmock) {
-          const result = execCli()
-          result.code.should.equal(1)
-          result.stderr.should.match(/addition is hard/)
-
-          unmock()
-        })
-    })
-
-    it('exits with error code if git tag fails', function () {
-      // mock git by throwing on attempt to commit
-      return mockGit('console.error("tag, you\'re it"); process.exit(128);', 'tag')
-        .then(function (unmock) {
-          const result = execCli()
-          result.code.should.equal(1)
-          result.stderr.should.match(/tag, you're it/)
-
-          unmock()
-        })
-    })
-
-    it('doesn\'t fail fast on stderr output from git', function () {
-      // mock git by throwing on attempt to commit
-      return mockGit('console.error("haha, kidding, this is just a warning"); process.exit(0);', 'add')
-        .then(function (unmock) {
-          writePackageJson('1.0.0')
-
-          const result = execCli()
-          result.code.should.equal(1)
-          result.stderr.should.match(/haha, kidding, this is just a warning/)
-
-          unmock()
-        })
-    })
-  })
+  }
 
   describe('lifecycle scripts', () => {
     describe('prerelease hook', function () {
