@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [8.0.2](https://www.github.com/conventional-changelog/standard-version/compare/v8.0.1...v8.0.2) (2020-07-14)
+
+
+### Bug Fixes
+
+* Commit message and tag name is no longer enclosed in quotes. ([#619](https://www.github.com/conventional-changelog/standard-version/issues/619)) ([ae032bf](https://www.github.com/conventional-changelog/standard-version/commit/ae032bfa9268a0a14351b0d78b6deedee7891e3a)), closes [#621](https://www.github.com/conventional-changelog/standard-version/issues/621) [#620](https://www.github.com/conventional-changelog/standard-version/issues/620)
+
 ### [8.0.1](https://www.github.com/conventional-changelog/standard-version/compare/v8.0.0...v8.0.1) (2020-07-12)
 
 
