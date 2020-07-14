@@ -263,8 +263,8 @@ describe('cli', function () {
               return line ? JSON.parse(line) : line
             })
             /* eslint-disable no-useless-escape */
-            captured[captured.length - 4].should.deep.equal(['commit', '-S', 'CHANGELOG.md', 'package.json', '-m', '\"chore(release): 1.0.1\"'])
-            captured[captured.length - 3].should.deep.equal(['tag', '-s', 'v1.0.1', '-m', '\"chore(release): 1.0.1\"'])
+            captured[captured.length - 4].should.deep.equal(['commit', '-S', 'CHANGELOG.md', 'package.json', '-m', 'chore(release): 1.0.1'])
+            captured[captured.length - 3].should.deep.equal(['tag', '-s', 'v1.0.1', '-m', 'chore(release): 1.0.1'])
             /* eslint-enable no-useless-escape */
             unmock()
           })
