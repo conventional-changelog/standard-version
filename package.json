@@ -16,7 +16,7 @@
   },
   "repository": "conventional-changelog/standard-version",
   "engines": {
-    "node": ">=8.0"
+    "node": ">=10"
   },
   "keywords": [
     "conventional-changelog",
