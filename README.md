@@ -18,7 +18,7 @@ _How It Works:_
 
 `standard-version` will then do the following:
 
-1. Retrieve the current version of your repository by looking at `bumpFiles`[[1]](#bumpfiles-packagefiles-and-updaters), falling back to the last `git tag`.
+1. Retrieve the current version of your repository by looking at `packageFiles`[[1]](#bumpfiles-packagefiles-and-updaters), falling back to the last `git tag`.
 2. `bump` the version in `bumpFiles`[[1]](#bumpfiles-packagefiles-and-updaters) based on your commits.
 4. Generates a `changelog` based on your commits (uses [conventional-changelog](https://github.com/conventional-changelog/conventional-changelog) under the hood).
 5. Creates a new `commit` including your `bumpFiles`[[1]](#bumpfiles-packagefiles-and-updaters) and updated CHANGELOG.
