@@ -1122,25 +1122,6 @@ describe('standard-version', function () {
     })
   })
 
-  describe('.gitignore', () => {
-    beforeEach(function () {
-      writeBowerJson('1.0.0')
-    })
-
-    it('does not update files present in .gitignore', () => {
-      fs.writeFileSync('.gitignore', 'bower.json', 'utf-8')
-
-      commit('feat: first commit')
-      shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
-      commit('feat: new feature!')
-      return require('./index')({ silent: true })
-        .then(() => {
-          JSON.parse(fs.readFileSync('bower.json', 'utf-8')).version.should.equal('1.0.0')
-          getPackageVersion().should.equal('1.1.0')
-        })
-    })
-  })
-
   describe('gitTagFallback', () => {
     it('defaults to 1.0.0 if no tags in git history', () => {
       shell.rm('package.json')
