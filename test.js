@@ -8,6 +8,7 @@ const path = require('path')
 const { Readable } = require('stream')
 const mockGit = require('mock-git')
 const mockery = require('mockery')
+const stdMocks = require('std-mocks')
 const semver = require('semver')
 const formatCommitMessage = require('./lib/format-commit-message')
 
@@ -109,7 +110,7 @@ function getPackageVersion () {
  * changelog?: string | Error | Array<string | Error | (opt) => string | null>
  * tags?: string[] | Error
  */
-function mock ({ bump, changelog, tags }) {
+function mock ({ bump, changelog, tags } = {}) {
   mockery.enable({ warnOnUnregistered: false, useCleanCache: true })
   if (bump) {
     mockery.registerMock('conventional-recommended-bump', function (opt, cb) {
@@ -143,11 +144,21 @@ function mock ({ bump, changelog, tags }) {
       else cb(null, tags)
     })
   }
+
+  stdMocks.use()
+  return () => stdMocks.flush()
 }
 
 function unmock () {
   mockery.deregisterAll()
   mockery.disable()
+  stdMocks.restore()
+
+  // push out prints from the Mocha reporter
+  const { stdout } = stdMocks.flush()
+  for (const str of stdout) {
+    if (str.startsWith(' ')) process.stdout.write(str)
+  }
 }
 
 describe('format-commit-message', function () {
@@ -640,6 +651,7 @@ describe('cli', function () {
   })
 
   it('appends line feed at end of package.json', async function () {
+    mock()
     await exec()
     const pkgJson = fs.readFileSync('package.json', 'utf-8')
     pkgJson.should.equal(['{', '  "version": "1.0.1"', '}', ''].join('\n'))
@@ -650,6 +662,7 @@ describe('cli', function () {
     const newPkgJson = ['{', indentation + '"version": "1.0.0"', '}', ''].join('\n')
     fs.writeFileSync('package.json', newPkgJson, 'utf-8')
 
+    mock()
     await exec()
     const pkgJson = fs.readFileSync('package.json', 'utf-8')
     pkgJson.should.equal(['{', indentation + '"version": "1.0.1"', '}', ''].join('\n'))
@@ -660,6 +673,7 @@ describe('cli', function () {
     const newPkgJson = ['{', indentation + '"version": "1.0.0"', '}', ''].join('\n')
     fs.writeFileSync('package.json', newPkgJson, 'utf-8')
 
+    mock()
     await exec()
     const pkgJson = fs.readFileSync('package.json', 'utf-8')
     pkgJson.should.equal(['{', indentation + '"version": "1.0.1"', '}', ''].join('\n'))
@@ -669,6 +683,7 @@ describe('cli', function () {
     const newPkgJson = ['{', '  "version": "1.0.0"', '}', ''].join('\n')
     fs.writeFileSync('package.json', newPkgJson, 'utf-8')
 
+    mock()
     await exec()
     const pkgJson = fs.readFileSync('package.json', 'utf-8')
     pkgJson.should.equal(['{', '  "version": "1.0.1"', '}', ''].join('\n'))
@@ -678,6 +693,7 @@ describe('cli', function () {
     const newPkgJson = ['{', '  "version": "1.0.0"', '}', ''].join('\r\n')
     fs.writeFileSync('package.json', newPkgJson, 'utf-8')
 
+    mock()
     await exec()
     const pkgJson = fs.readFileSync('package.json', 'utf-8')
     pkgJson.should.equal(['{', '  "version": "1.0.1"', '}', ''].join('\r\n'))
@@ -754,6 +770,7 @@ describe('standard-version', function () {
 
   it('should exit with error without a package file to bump', async function () {
     shell.rm('package.json')
+    mock()
     try {
       await exec({ gitTagFallback: false })
       throw new Error('Unexpected success')
@@ -871,6 +888,7 @@ describe('standard-version', function () {
       fs.writeFileSync('CHANGELOG.md', changelogContent, 'utf-8')
 
       commit('feat: new feature from branch')
+      mock()
       await exec('--skip.commit true')
       getPackageVersion().should.equal('1.1.0')
       const content = fs.readFileSync('CHANGELOG.md', 'utf-8')
@@ -1093,7 +1111,9 @@ describe('standard-version', function () {
 describe('GHSL-2020-111', function () {
   beforeEach(initInTempFolder)
   afterEach(finishTemp)
+  afterEach(unmock)
   it('does not allow command injection via basic configuration', async function () {
+    mock()
     await exec({
       noVerify: true,
       infile: 'foo.txt',
