@@ -17,20 +17,8 @@ require('chai').should()
 
 const cliPath = path.resolve(__dirname, './bin/cli.js')
 
-function branch (branch) {
-  shell.exec('git branch ' + branch)
-}
-
-function checkout (branch) {
-  shell.exec('git checkout ' + branch)
-}
-
 function commit (msg) {
   shell.exec('git commit --allow-empty -m"' + msg + '"')
-}
-
-function merge (msg, branch) {
-  shell.exec('git merge --no-ff -m"' + msg + '" ' + branch)
 }
 
 function execCli (argString) {
@@ -568,14 +556,6 @@ describe('cli', function () {
   })
 
   describe('manual-release', function () {
-    it('throws error when not specifying a release type', function () {
-      writePackageJson('1.0.0')
-      fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
-
-      commit('fix: first commit')
-      execCli('--release-as').code.should.above(0)
-    })
-
     describe('release-types', function () {
       const regularTypes = ['major', 'minor', 'patch']
 
@@ -673,17 +653,6 @@ describe('cli', function () {
     })
   })
 
-  it('handles commit messages longer than 80 characters', function () {
-    commit('feat: first commit')
-    shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
-    commit('fix: this is my fairly long commit message which is testing whether or not we allow for long commit messages')
-
-    execCli().code.should.equal(0)
-
-    const content = fs.readFileSync('CHANGELOG.md', 'utf-8')
-    content.should.match(/this is my fairly long commit message which is testing whether or not we allow for long commit messages/)
-  })
-
   it('formats the commit and tag messages appropriately', function () {
     commit('feat: first commit')
     shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
@@ -776,51 +745,6 @@ describe('cli', function () {
     const result = execCli('--commit-all')
     result.code.should.equal(0)
     result.stdout.should.match(/and all staged files/)
-  })
-
-  it('includes merge commits', function () {
-    const branchName = 'new-feature'
-    commit('feat: first commit')
-    shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
-    branch(branchName)
-    checkout(branchName)
-    commit('Implementing new feature')
-    checkout('master')
-    merge('feat: new feature from branch', branchName)
-
-    execCli().code.should.equal(0)
-
-    const content = fs.readFileSync('CHANGELOG.md', 'utf-8')
-    content.should.match(/new feature from branch/)
-
-    const pkgJson = fs.readFileSync('package.json', 'utf-8')
-    pkgJson.should.equal(['{', '  "version": "1.1.0"', '}', ''].join('\n'))
-  })
-
-  it('exits with error code if "scripts" is not an object', () => {
-    writePackageJson('1.0.0', {
-      'standard-version': {
-        scripts: 'echo hello'
-      }
-    })
-
-    commit('feat: first commit')
-    const result = execCli()
-    result.code.should.equal(1)
-    result.stderr.should.match(/scripts must be an object/)
-  })
-
-  it('exits with error code if "skip" is not an object', () => {
-    writePackageJson('1.0.0', {
-      'standard-version': {
-        skip: true
-      }
-    })
-
-    commit('feat: first commit')
-    const result = execCli()
-    result.code.should.equal(1)
-    result.stderr.should.match(/skip must be an object/)
   })
 })
 
