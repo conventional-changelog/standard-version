@@ -10,8 +10,6 @@ const mockGit = require('mock-git')
 const mockery = require('mockery')
 const semver = require('semver')
 const formatCommitMessage = require('./lib/format-commit-message')
-const cli = require('./command')
-const standardVersion = require('./index')
 
 const isWindows = process.platform === 'win32'
 
@@ -40,7 +38,9 @@ function execCli (argString) {
 }
 
 function execCliAsync (argString) {
-  return standardVersion(cli.parse('standard-version ' + argString + ' --silent'))
+  const cli = require('./command')
+  const args = cli.parse('standard-version ' + argString + ' --silent')
+  return require('./index')(args)
 }
 
 function writePackageJson (version, option) {
@@ -173,6 +173,7 @@ describe('format-commit-message', function () {
 describe('cli', function () {
   beforeEach(initInTempFolder)
   afterEach(finishTemp)
+  afterEach(unmock)
 
   describe('CHANGELOG.md does not exist', function () {
     it('populates changelog with commits since last tag by default', function () {
@@ -202,8 +203,7 @@ describe('cli', function () {
 
     it('skipping changelog will not create a changelog file', function () {
       writePackageJson('1.0.0')
-
-      commit('feat: first commit')
+      mock({ bump: 'minor', changelog: 'foo\n', tags: [] })
       return execCliAsync('--skip.changelog true')
         .then(function () {
           getPackageVersion().should.equal('1.1.0')
@@ -535,8 +535,7 @@ describe('cli', function () {
     it('works fine without specifying a tag id when prereleasing', function () {
       writePackageJson('1.0.0')
       fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
-
-      commit('feat: first commit')
+      mock({ bump: 'minor', changelog: [], tags: [] })
       return execCliAsync('--prerelease')
         .then(function () {
           // it's a feature commit, so it's minor type
@@ -548,7 +547,6 @@ describe('cli', function () {
       writePackageJson('1.0.0')
       fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
 
-      commit('feat: first commit')
       execCli('--prerelease').stdout.should.include('--tag prerelease')
     })
 
@@ -586,9 +584,7 @@ describe('cli', function () {
           const originVer = '1.0.0'
           writePackageJson(originVer)
           fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
-
-          commit('fix: first commit')
-
+          mock({ bump: 'patch', changelog: [], tags: [] })
           return execCliAsync('--release-as ' + type)
             .then(function () {
               const version = {
@@ -610,9 +606,7 @@ describe('cli', function () {
           const originVer = '1.0.0'
           writePackageJson(originVer)
           fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
-
-          commit('fix: first commit')
-
+          mock({ bump: 'patch', changelog: [], tags: [] })
           return execCliAsync('--release-as ' + type + ' --prerelease ' + type)
             .then(function () {
               const version = {
@@ -634,9 +628,7 @@ describe('cli', function () {
         const originVer = '1.0.0'
         writePackageJson(originVer)
         fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
-
-        commit('fix: first commit')
-
+        mock({ bump: 'patch', changelog: [], tags: [] })
         return execCliAsync('--release-as v100.0.0')
           .then(function () {
             getPackageVersion().should.equal('100.0.0')
@@ -647,9 +639,7 @@ describe('cli', function () {
         const originVer = '1.0.0'
         writePackageJson(originVer)
         fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
-
-        commit('fix: first commit')
-
+        mock({ bump: 'patch', changelog: [], tags: [] })
         return execCliAsync('--release-as 200.0.0-amazing')
           .then(function () {
             getPackageVersion().should.equal('200.0.0-amazing')
@@ -657,49 +647,29 @@ describe('cli', function () {
       })
     })
 
-    it('creates a prerelease with a new minor version after two prerelease patches', function () {
+    it('creates a prerelease with a new minor version after two prerelease patches', async function () {
       writePackageJson('1.0.0')
       fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
 
-      commit('fix: first patch')
-      return execCliAsync('--release-as patch --prerelease dev')
-        .then(function () {
-          getPackageVersion().should.equal('1.0.1-dev.0')
-        })
+      let releaseType = 'patch'
+      const bump = (_, cb) => cb(null, { releaseType })
+      mock({ bump, changelog: [], tags: [] })
 
-        // second
-        .then(function () {
-          commit('fix: second patch')
-          return execCliAsync('--prerelease dev')
-        })
-        .then(function () {
-          getPackageVersion().should.equal('1.0.1-dev.1')
-        })
+      await execCliAsync('--release-as patch --prerelease dev')
+      getPackageVersion().should.equal('1.0.1-dev.0')
 
-        // third
-        .then(function () {
-          commit('feat: first new feat')
-          return execCliAsync('--release-as minor --prerelease dev')
-        })
-        .then(function () {
-          getPackageVersion().should.equal('1.1.0-dev.0')
-        })
+      await execCliAsync('--prerelease dev')
+      getPackageVersion().should.equal('1.0.1-dev.1')
 
-        .then(function () {
-          commit('fix: third patch')
-          return execCliAsync('--release-as minor --prerelease dev')
-        })
-        .then(function () {
-          getPackageVersion().should.equal('1.1.0-dev.1')
-        })
+      releaseType = 'minor'
+      await execCliAsync('--release-as minor --prerelease dev')
+      getPackageVersion().should.equal('1.1.0-dev.0')
 
-        .then(function () {
-          commit('fix: forth patch')
-          return execCliAsync('--prerelease dev')
-        })
-        .then(function () {
-          getPackageVersion().should.equal('1.1.0-dev.2')
-        })
+      await execCliAsync('--release-as minor --prerelease dev')
+      getPackageVersion().should.equal('1.1.0-dev.1')
+
+      await execCliAsync('--prerelease dev')
+      getPackageVersion().should.equal('1.1.0-dev.2')
     })
   })
 
@@ -857,46 +827,34 @@ describe('cli', function () {
 describe('standard-version', function () {
   beforeEach(initInTempFolder)
   afterEach(finishTemp)
+  afterEach(unmock)
 
-  describe('with mocked conventionalRecommendedBump', function () {
-    afterEach(unmock)
-
-    it('should exit on bump error', function (done) {
-      commit('feat: first commit')
-      shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
-      commit('feat: new feature!')
-
-      mock({ bump: new Error('bump err') })
-      require('./index')({ silent: true })
-        .catch((err) => {
-          err.message.should.match(/bump err/)
-          done()
-        })
-    })
+  it('should exit on bump error', function (done) {
+    mock({ bump: new Error('bump err') })
+    require('./index')({ silent: true })
+      .then(() => {
+        throw new Error('Unexpected success')
+      })
+      .catch((err) => {
+        err.message.should.match(/bump err/)
+        done()
+      })
   })
 
-  describe('with mocked conventionalChangelog', function () {
-    afterEach(unmock)
-
-    it('should exit on changelog error', function (done) {
-      commit('feat: first commit')
-      shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
-      commit('feat: new feature!')
-
-      mock({ changelog: new Error('changelog err') })
-      require('./index')({ silent: true })
-        .catch((err) => {
-          err.message.should.match(/changelog err/)
-          return done()
-        })
-    })
+  it('should exit on changelog error', function (done) {
+    mock({ bump: 'minor', changelog: new Error('changelog err') })
+    require('./index')({ silent: true })
+      .then(() => {
+        throw new Error('Unexpected success')
+      })
+      .catch((err) => {
+        err.message.should.match(/changelog err/)
+        return done()
+      })
   })
 
   it('formats the commit and tag messages appropriately', function (done) {
-    commit('feat: first commit')
-    shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
-    commit('feat: new feature!')
-
+    mock({ bump: 'minor', changelog: [], tags: ['v1.0.0'] })
     require('./index')({ silent: true })
       .then(() => {
         // check last commit message
@@ -914,6 +872,9 @@ describe('standard-version', function () {
         silent: true,
         gitTagFallback: false
       })
+        .then(() => {
+          throw new Error('Unexpected success')
+        })
         .catch((err) => {
           err.message.should.equal('no package file found')
         })
@@ -921,14 +882,9 @@ describe('standard-version', function () {
   })
 
   describe('bower.json support', function () {
-    beforeEach(function () {
-      writeBowerJson('1.0.0')
-    })
-
     it('bumps version # in bower.json', function () {
-      commit('feat: first commit')
-      shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
-      commit('feat: new feature!')
+      writeBowerJson('1.0.0')
+      mock({ bump: 'minor', changelog: [], tags: ['v1.0.0'] })
       return require('./index')({ silent: true })
         .then(() => {
           JSON.parse(fs.readFileSync('bower.json', 'utf-8')).version.should.equal('1.1.0')
@@ -938,14 +894,9 @@ describe('standard-version', function () {
   })
 
   describe('manifest.json support', function () {
-    beforeEach(function () {
-      writeManifestJson('1.0.0')
-    })
-
     it('bumps version # in manifest.json', function () {
-      commit('feat: first commit')
-      shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
-      commit('feat: new feature!')
+      writeManifestJson('1.0.0')
+      mock({ bump: 'minor', changelog: [], tags: ['v1.0.0'] })
       return require('./index')({ silent: true })
         .then(() => {
           JSON.parse(fs.readFileSync('manifest.json', 'utf-8')).version.should.equal('1.1.0')
@@ -960,9 +911,7 @@ describe('standard-version', function () {
       fs.copyFileSync('../test/mocks/mix.exs', 'mix.exs')
       fs.copyFileSync('../test/mocks/version.txt', 'version.txt')
       fs.copyFileSync('../test/mocks/updater/customer-updater.js', 'custom-updater.js')
-      commit('feat: first commit')
-      shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
-      commit('feat: new feature!')
+      mock({ bump: 'minor', changelog: [], tags: ['v1.0.0'] })
       return require('./index')({
         silent: true,
         bumpFiles: [
@@ -981,7 +930,7 @@ describe('standard-version', function () {
 
     it('bumps a custom `plain-text` file', function () {
       fs.copyFileSync('../test/mocks/VERSION-1.0.0.txt', 'VERSION_TRACKER.txt')
-      commit('feat: first commit')
+      mock({ bump: 'minor', changelog: [], tags: [] })
       return require('./index')({
         silent: true,
         bumpFiles: [
@@ -1000,7 +949,7 @@ describe('standard-version', function () {
   describe('custom `packageFiles` support', function () {
     it('reads and writes to a custom `plain-text` file', function () {
       fs.copyFileSync('../test/mocks/VERSION-6.3.1.txt', 'VERSION_TRACKER.txt')
-      commit('feat: yet another commit')
+      mock({ bump: 'minor', changelog: [], tags: [] })
       return require('./index')({
         silent: true,
         packageFiles: [
@@ -1023,14 +972,9 @@ describe('standard-version', function () {
   })
 
   describe('npm-shrinkwrap.json support', function () {
-    beforeEach(function () {
-      writeNpmShrinkwrapJson('1.0.0')
-    })
-
     it('bumps version # in npm-shrinkwrap.json', function (done) {
-      commit('feat: first commit')
-      shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
-      commit('feat: new feature!')
+      writeNpmShrinkwrapJson('1.0.0')
+      mock({ bump: 'minor', changelog: [], tags: ['v1.0.0'] })
       require('./index')({ silent: true })
         .then(() => {
           JSON.parse(fs.readFileSync('npm-shrinkwrap.json', 'utf-8')).version.should.equal('1.1.0')
@@ -1047,9 +991,7 @@ describe('standard-version', function () {
     })
 
     it('bumps version # in package-lock.json', function () {
-      commit('feat: first commit')
-      shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
-      commit('feat: new feature!')
+      mock({ bump: 'minor', changelog: [], tags: ['v1.0.0'] })
       return require('./index')({ silent: true })
         .then(() => {
           JSON.parse(fs.readFileSync('package-lock.json', 'utf-8')).version.should.equal('1.1.0')
@@ -1077,7 +1019,7 @@ describe('standard-version', function () {
       writePackageJson('1.0.0')
       fs.writeFileSync('CHANGELOG.md', changelogContent, 'utf-8')
 
-      commit('feat: first commit')
+      mock({ bump: 'minor', changelog: 'foo\n', tags: [] })
       return execCliAsync('--skip.bump true --skip.changelog true')
         .then(function () {
           getPackageVersion().should.equal('1.0.0')
@@ -1104,16 +1046,11 @@ describe('standard-version', function () {
   })
 
   describe('.gitignore', () => {
-    beforeEach(function () {
-      writeBowerJson('1.0.0')
-    })
-
     it('does not update files present in .gitignore', () => {
+      writeBowerJson('1.0.0')
       fs.writeFileSync('.gitignore', 'bower.json', 'utf-8')
 
-      commit('feat: first commit')
-      shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
-      commit('feat: new feature!')
+      mock({ bump: 'minor', changelog: [], tags: ['v1.0.0'] })
       return require('./index')({ silent: true })
         .then(() => {
           JSON.parse(fs.readFileSync('bower.json', 'utf-8')).version.should.equal('1.0.0')
@@ -1125,7 +1062,7 @@ describe('standard-version', function () {
   describe('gitTagFallback', () => {
     it('defaults to 1.0.0 if no tags in git history', () => {
       shell.rm('package.json')
-      commit('feat: first commit')
+      mock({ bump: 'minor', changelog: [], tags: [] })
       return require('./index')({ silent: true })
         .then(() => {
           const output = shell.exec('git tag')
@@ -1133,11 +1070,9 @@ describe('standard-version', function () {
         })
     })
 
-    it('bases version on last tag, if tags are found', () => {
+    it('bases version on greatest-version tag, if tags are found', () => {
       shell.rm('package.json')
-      shell.exec('git tag -a v5.0.0 -m "a release"')
-      shell.exec('git tag -a v3.0.0 -m "another release"')
-      commit('feat: another commit')
+      mock({ bump: 'minor', changelog: [], tags: ['v3.9.0', 'v5.0.0', 'v3.0.0'] })
       return require('./index')({ silent: true })
         .then(() => {
           const output = shell.exec('git tag')
@@ -1332,7 +1267,7 @@ describe('GHSL-2020-111', function () {
   beforeEach(initInTempFolder)
   afterEach(finishTemp)
   it('does not allow command injection via basic configuration', function () {
-    return standardVersion({
+    return require('./index')({
       silent: true,
       noVerify: true,
       infile: 'foo.txt',
