@@ -25,7 +25,7 @@ function execCli (argString) {
   return shell.exec('node ' + cliPath + (argString != null ? ' ' + argString : ''))
 }
 
-function execCliAsync (argString) {
+function execCliAsync (argString = '') {
   const cli = require('./command')
   const args = cli.parse('standard-version ' + argString + ' --silent')
   return require('./index')(args)
@@ -104,7 +104,7 @@ function getPackageVersion () {
  * Mocks should be unregistered in test cleanup by calling unmock()
  *
  * bump?: 'major' | 'minor' | 'patch' | Error | (opt, cb) => { cb(err) | cb(null, { releaseType }) }
- * changelog?: string | Error | Array<string | Error>
+ * changelog?: string | Error | Array<string | Error | (opt) => string | null>
  * tags?: string[] | Error
  */
 function mock ({ bump, changelog, tags }) {
@@ -121,11 +121,13 @@ function mock ({ bump, changelog, tags }) {
     if (!Array.isArray(changelog)) {
       changelog = [changelog]
     }
-    mockery.registerMock('conventional-changelog', () => new Readable({
+    mockery.registerMock('conventional-changelog', (opt) => new Readable({
       read (_size) {
         const next = changelog.shift()
         if (next instanceof Error) {
           this.destroy(next)
+        } else if (typeof next === 'function') {
+          this.push(next(opt))
         } else {
           this.push(next ? Buffer.from(next, 'utf8') : null)
         }
@@ -164,125 +166,97 @@ describe('cli', function () {
   afterEach(unmock)
 
   describe('CHANGELOG.md does not exist', function () {
-    it('populates changelog with commits since last tag by default', function () {
-      commit('feat: first commit')
-      shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
-      commit('fix: patch release')
-
-      execCli().code.should.equal(0)
-
+    it('populates changelog with commits since last tag by default', async function () {
+      mock({ bump: 'patch', changelog: 'patch release\n', tags: ['v1.0.0'] })
+      await execCliAsync()
       const content = fs.readFileSync('CHANGELOG.md', 'utf-8')
       content.should.match(/patch release/)
-      content.should.not.match(/first commit/)
     })
 
-    it('includes all commits if --first-release is true', function () {
+    it('includes all commits if --first-release is true', async function () {
       writePackageJson('1.0.1')
-
-      commit('feat: first commit')
-      commit('fix: patch release')
-      execCli('--first-release').code.should.equal(0)
-
+      mock({ bump: 'minor', changelog: 'first commit\npatch release\n', tags: [] })
+      await execCliAsync('--first-release')
       const content = fs.readFileSync('CHANGELOG.md', 'utf-8')
       content.should.match(/patch release/)
       content.should.match(/first commit/)
       shell.exec('git tag').stdout.should.match(/1\.0\.1/)
     })
 
-    it('skipping changelog will not create a changelog file', function () {
+    it('skipping changelog will not create a changelog file', async function () {
       writePackageJson('1.0.0')
       mock({ bump: 'minor', changelog: 'foo\n', tags: [] })
-      return execCliAsync('--skip.changelog true')
-        .then(function () {
-          getPackageVersion().should.equal('1.1.0')
-          let fileNotFound = false
-          try {
-            fs.readFileSync('CHANGELOG.md', 'utf-8')
-          } catch (err) {
-            fileNotFound = true
-          }
-
-          fileNotFound.should.equal(true)
-        })
+      await execCliAsync('--skip.changelog true')
+      getPackageVersion().should.equal('1.1.0')
+      try {
+        fs.readFileSync('CHANGELOG.md', 'utf-8')
+        throw new Error('File should not exist')
+      } catch (err) {
+        err.code.should.equal('ENOENT')
+      }
     })
   })
 
   describe('CHANGELOG.md exists', function () {
-    it('appends the new release above the last release, removing the old header (legacy format)', function () {
+    it('appends the new release above the last release, removing the old header (legacy format)', async function () {
       fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
-
-      commit('feat: first commit')
-      shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
-      commit('fix: patch release')
-
-      execCli().code.should.equal(0)
+      mock({ bump: 'patch', changelog: 'release 1.0.1\n', tags: ['v1.0.0'] })
+      await execCliAsync()
       const content = fs.readFileSync('CHANGELOG.md', 'utf-8')
       content.should.match(/1\.0\.1/)
       content.should.not.match(/legacy header format/)
     })
 
-    // TODO: we should use snapshots which are easier to update than large
-    // string assertions; we should also consider not using the CLI which
-    // is slower than calling standard-version directly.
-    it('appends the new release above the last release, removing the old header (new format)', function () {
-      // we don't create a package.json, so no {{host}} and {{repo}} tag
-      // will be populated, let's use a compareUrlFormat without these.
-      const cliArgs = '--compareUrlFormat=/compare/{{previousTag}}...{{currentTag}}'
-
-      commit('feat: first commit')
-      shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
-      commit('fix: patch release')
-
-      execCli(cliArgs).code.should.equal(0)
+    it('appends the new release above the last release, removing the old header (new format)', async function () {
+      const { header } = require('./defaults')
+      const changelog1 = '### [1.0.1](/compare/v1.0.0...v1.0.1) (YYYY-MM-DD)\n\n\n### Bug Fixes\n\n* patch release ABCDEFXY\n'
+      mock({ bump: 'patch', changelog: changelog1, tags: ['v1.0.0'] })
+      await execCliAsync()
       let content = fs.readFileSync('CHANGELOG.md', 'utf-8')
+      content.should.equal(header + '\n' + changelog1)
 
-      // remove commit hashes and dates to make testing against a static string easier:
-      content = content.replace(/patch release [0-9a-f]{6,8}/g, 'patch release ABCDEFXY').replace(/\([0-9]{4}-[0-9]{2}-[0-9]{2}\)/g, '(YYYY-MM-DD)')
-      content.should.equal('# Changelog\n\nAll notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.\n\n### [1.0.1](/compare/v1.0.0...v1.0.1) (YYYY-MM-DD)\n\n\n### Bug Fixes\n\n* patch release ABCDEFXY\n')
-
-      commit('fix: another patch release')
-      // we've populated no package.json, so no {{host}} and
-      execCli(cliArgs).code.should.equal(0)
+      const changelog2 = '### [1.0.2](/compare/v1.0.1...v1.0.2) (YYYY-MM-DD)\n\n\n### Bug Fixes\n\n* another patch release ABCDEFXY\n'
+      unmock()
+      mock({ bump: 'patch', changelog: changelog2, tags: ['v1.0.0', 'v1.0.1'] })
+      await execCliAsync()
       content = fs.readFileSync('CHANGELOG.md', 'utf-8')
-      content = content.replace(/patch release [0-9a-f]{6,8}/g, 'patch release ABCDEFXY').replace(/\([0-9]{4}-[0-9]{2}-[0-9]{2}\)/g, '(YYYY-MM-DD)')
-      content.should.equal('# Changelog\n\nAll notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.\n\n### [1.0.2](/compare/v1.0.1...v1.0.2) (YYYY-MM-DD)\n\n\n### Bug Fixes\n\n* another patch release ABCDEFXY\n\n### [1.0.1](/compare/v1.0.0...v1.0.1) (YYYY-MM-DD)\n\n\n### Bug Fixes\n\n* patch release ABCDEFXY\n')
+      content.should.equal(header + '\n' + changelog2 + changelog1)
     })
 
-    it('commits all staged files', function () {
+    it('commits all staged files', async function () {
       fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
-
-      commit('feat: first commit')
-      shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
-      commit('fix: patch release')
-
       fs.writeFileSync('STUFF.md', 'stuff\n', 'utf-8')
-
       shell.exec('git add STUFF.md')
 
-      execCli('--commit-all').code.should.equal(0)
-
-      const content = fs.readFileSync('CHANGELOG.md', 'utf-8')
+      mock({ bump: 'patch', changelog: 'release 1.0.1\n', tags: ['v1.0.0'] })
+      await execCliAsync('--commit-all')
       const status = shell.exec('git status --porcelain') // see http://unix.stackexchange.com/questions/155046/determine-if-git-working-directory-is-clean-from-a-script
-
       status.should.equal('')
       status.should.not.match(/STUFF.md/)
 
+      const content = fs.readFileSync('CHANGELOG.md', 'utf-8')
       content.should.match(/1\.0\.1/)
       content.should.not.match(/legacy header format/)
     })
 
-    it('[DEPRECATED] (--changelogHeader) allows for a custom changelog header', function () {
+    it('[DEPRECATED] (--changelogHeader) allows for a custom changelog header', async function () {
       fs.writeFileSync('CHANGELOG.md', '', 'utf-8')
-      commit('feat: first commit')
-      execCli('--changelogHeader="# Pork Chop Log"').code.should.equal(0)
+      const header = '# Pork Chop Log'
+      mock({ bump: 'minor', changelog: header + '\n', tags: [] })
+      await execCliAsync(`--changelogHeader="${header}"`)
       const content = fs.readFileSync('CHANGELOG.md', 'utf-8')
-      content.should.match(/# Pork Chop Log/)
+      content.should.match(new RegExp(header))
     })
 
-    it('[DEPRECATED] (--changelogHeader) exits with error if changelog header matches last version search regex', function () {
+    it('[DEPRECATED] (--changelogHeader) exits with error if changelog header matches last version search regex', async function () {
       fs.writeFileSync('CHANGELOG.md', '', 'utf-8')
-      commit('feat: first commit')
-      execCli('--changelogHeader="## 3.0.2"').code.should.equal(1)
+      mock({ bump: 'minor', changelog: [], tags: [] })
+      try {
+        await execCliAsync('--changelogHeader="## 3.0.2"')
+        throw new Error('That should not have worked')
+      } catch (error) {
+        error.message.should.match(/custom changelog header must not match/)
+      }
     })
   })
 
@@ -653,12 +627,9 @@ describe('cli', function () {
     })
   })
 
-  it('formats the commit and tag messages appropriately', function () {
-    commit('feat: first commit')
-    shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
-    commit('feat: new feature!')
-
-    execCli().code.should.equal(0)
+  it('formats the commit and tag messages appropriately', async function () {
+    mock({ bump: 'minor', changelog: [], tags: ['v1.0.0'] })
+    await execCliAsync()
 
     // check last commit message
     shell.exec('git log --oneline -n1').stdout.should.match(/chore\(release\): 1\.1\.0/)
@@ -666,58 +637,55 @@ describe('cli', function () {
     shell.exec('git tag -l -n1 v1.1.0').stdout.should.match(/chore\(release\): 1\.1\.0/)
   })
 
-  it('appends line feed at end of package.json', function () {
-    execCli().code.should.equal(0)
-
+  it('appends line feed at end of package.json', async function () {
+    await execCliAsync()
     const pkgJson = fs.readFileSync('package.json', 'utf-8')
     pkgJson.should.equal(['{', '  "version": "1.0.1"', '}', ''].join('\n'))
   })
 
-  it('preserves indentation of tabs in package.json', function () {
+  it('preserves indentation of tabs in package.json', async function () {
     const indentation = '\t'
     const newPkgJson = ['{', indentation + '"version": "1.0.0"', '}', ''].join('\n')
     fs.writeFileSync('package.json', newPkgJson, 'utf-8')
 
-    execCli().code.should.equal(0)
+    await execCliAsync()
     const pkgJson = fs.readFileSync('package.json', 'utf-8')
     pkgJson.should.equal(['{', indentation + '"version": "1.0.1"', '}', ''].join('\n'))
   })
 
-  it('preserves indentation of spaces in package.json', function () {
+  it('preserves indentation of spaces in package.json', async function () {
     const indentation = '     '
     const newPkgJson = ['{', indentation + '"version": "1.0.0"', '}', ''].join('\n')
     fs.writeFileSync('package.json', newPkgJson, 'utf-8')
 
-    execCli().code.should.equal(0)
+    await execCliAsync()
     const pkgJson = fs.readFileSync('package.json', 'utf-8')
     pkgJson.should.equal(['{', indentation + '"version": "1.0.1"', '}', ''].join('\n'))
   })
 
-  it('preserves line feed in package.json', function () {
+  it('preserves line feed in package.json', async function () {
     const newPkgJson = ['{', '  "version": "1.0.0"', '}', ''].join('\n')
     fs.writeFileSync('package.json', newPkgJson, 'utf-8')
 
-    execCli().code.should.equal(0)
+    await execCliAsync()
     const pkgJson = fs.readFileSync('package.json', 'utf-8')
     pkgJson.should.equal(['{', '  "version": "1.0.1"', '}', ''].join('\n'))
   })
 
-  it('preserves carriage return + line feed in package.json', function () {
+  it('preserves carriage return + line feed in package.json', async function () {
     const newPkgJson = ['{', '  "version": "1.0.0"', '}', ''].join('\r\n')
     fs.writeFileSync('package.json', newPkgJson, 'utf-8')
 
-    execCli().code.should.equal(0)
+    await execCliAsync()
     const pkgJson = fs.readFileSync('package.json', 'utf-8')
     pkgJson.should.equal(['{', '  "version": "1.0.1"', '}', ''].join('\r\n'))
   })
 
-  it('does not run git hooks if the --no-verify flag is passed', function () {
+  it('does not run git hooks if the --no-verify flag is passed', async function () {
     writeGitPreCommitHook()
-
-    commit('feat: first commit')
-    execCli('--no-verify').code.should.equal(0)
-    commit('feat: second commit')
-    execCli('-n').code.should.equal(0)
+    mock({ bump: 'minor', changelog: [], tags: [] })
+    await execCliAsync('--no-verify')
+    await execCliAsync('-n')
   })
 
   it('does not print output when the --silent flag is passed', function () {
