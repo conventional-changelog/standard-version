@@ -25,10 +25,12 @@ function execCli (argString) {
   return shell.exec('node ' + cliPath + (argString != null ? ' ' + argString : ''))
 }
 
-function execCliAsync (argString = '') {
-  const cli = require('./command')
-  const args = cli.parse('standard-version ' + argString + ' --silent')
-  return require('./index')(args)
+function exec (opt = {}) {
+  if (typeof opt === 'string') {
+    const cli = require('./command')
+    opt = cli.parse(`standard-version ${opt}`)
+  }
+  return require('./index')(opt)
 }
 
 function writePackageJson (version, option) {
@@ -168,7 +170,7 @@ describe('cli', function () {
   describe('CHANGELOG.md does not exist', function () {
     it('populates changelog with commits since last tag by default', async function () {
       mock({ bump: 'patch', changelog: 'patch release\n', tags: ['v1.0.0'] })
-      await execCliAsync()
+      await exec()
       const content = fs.readFileSync('CHANGELOG.md', 'utf-8')
       content.should.match(/patch release/)
     })
@@ -176,7 +178,7 @@ describe('cli', function () {
     it('includes all commits if --first-release is true', async function () {
       writePackageJson('1.0.1')
       mock({ bump: 'minor', changelog: 'first commit\npatch release\n', tags: [] })
-      await execCliAsync('--first-release')
+      await exec('--first-release')
       const content = fs.readFileSync('CHANGELOG.md', 'utf-8')
       content.should.match(/patch release/)
       content.should.match(/first commit/)
@@ -186,7 +188,7 @@ describe('cli', function () {
     it('skipping changelog will not create a changelog file', async function () {
       writePackageJson('1.0.0')
       mock({ bump: 'minor', changelog: 'foo\n', tags: [] })
-      await execCliAsync('--skip.changelog true')
+      await exec('--skip.changelog true')
       getPackageVersion().should.equal('1.1.0')
       try {
         fs.readFileSync('CHANGELOG.md', 'utf-8')
@@ -201,7 +203,7 @@ describe('cli', function () {
     it('appends the new release above the last release, removing the old header (legacy format)', async function () {
       fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
       mock({ bump: 'patch', changelog: 'release 1.0.1\n', tags: ['v1.0.0'] })
-      await execCliAsync()
+      await exec()
       const content = fs.readFileSync('CHANGELOG.md', 'utf-8')
       content.should.match(/1\.0\.1/)
       content.should.not.match(/legacy header format/)
@@ -211,14 +213,14 @@ describe('cli', function () {
       const { header } = require('./defaults')
       const changelog1 = '### [1.0.1](/compare/v1.0.0...v1.0.1) (YYYY-MM-DD)\n\n\n### Bug Fixes\n\n* patch release ABCDEFXY\n'
       mock({ bump: 'patch', changelog: changelog1, tags: ['v1.0.0'] })
-      await execCliAsync()
+      await exec()
       let content = fs.readFileSync('CHANGELOG.md', 'utf-8')
       content.should.equal(header + '\n' + changelog1)
 
       const changelog2 = '### [1.0.2](/compare/v1.0.1...v1.0.2) (YYYY-MM-DD)\n\n\n### Bug Fixes\n\n* another patch release ABCDEFXY\n'
       unmock()
       mock({ bump: 'patch', changelog: changelog2, tags: ['v1.0.0', 'v1.0.1'] })
-      await execCliAsync()
+      await exec()
       content = fs.readFileSync('CHANGELOG.md', 'utf-8')
       content.should.equal(header + '\n' + changelog2 + changelog1)
     })
@@ -229,7 +231,7 @@ describe('cli', function () {
       shell.exec('git add STUFF.md')
 
       mock({ bump: 'patch', changelog: 'release 1.0.1\n', tags: ['v1.0.0'] })
-      await execCliAsync('--commit-all')
+      await exec('--commit-all')
       const status = shell.exec('git status --porcelain') // see http://unix.stackexchange.com/questions/155046/determine-if-git-working-directory-is-clean-from-a-script
       status.should.equal('')
       status.should.not.match(/STUFF.md/)
@@ -243,7 +245,7 @@ describe('cli', function () {
       fs.writeFileSync('CHANGELOG.md', '', 'utf-8')
       const header = '# Pork Chop Log'
       mock({ bump: 'minor', changelog: header + '\n', tags: [] })
-      await execCliAsync(`--changelogHeader="${header}"`)
+      await exec(`--changelogHeader="${header}"`)
       const content = fs.readFileSync('CHANGELOG.md', 'utf-8')
       content.should.match(new RegExp(header))
     })
@@ -252,7 +254,7 @@ describe('cli', function () {
       fs.writeFileSync('CHANGELOG.md', '', 'utf-8')
       mock({ bump: 'minor', changelog: [], tags: [] })
       try {
-        await execCliAsync('--changelogHeader="## 3.0.2"')
+        await exec('--changelogHeader="## 3.0.2"')
         throw new Error('That should not have worked')
       } catch (error) {
         error.message.should.match(/custom changelog header must not match/)
@@ -498,7 +500,7 @@ describe('cli', function () {
       writePackageJson('1.0.0')
       fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
       mock({ bump: 'minor', changelog: [], tags: [] })
-      return execCliAsync('--prerelease')
+      return exec('--prerelease')
         .then(function () {
           // it's a feature commit, so it's minor type
           getPackageVersion().should.equal('1.1.0-0')
@@ -539,7 +541,7 @@ describe('cli', function () {
           writePackageJson(originVer)
           fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
           mock({ bump: 'patch', changelog: [], tags: [] })
-          return execCliAsync('--release-as ' + type)
+          return exec('--release-as ' + type)
             .then(function () {
               const version = {
                 major: semver.major(originVer),
@@ -561,7 +563,7 @@ describe('cli', function () {
           writePackageJson(originVer)
           fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
           mock({ bump: 'patch', changelog: [], tags: [] })
-          return execCliAsync('--release-as ' + type + ' --prerelease ' + type)
+          return exec('--release-as ' + type + ' --prerelease ' + type)
             .then(function () {
               const version = {
                 major: semver.major(originVer),
@@ -583,7 +585,7 @@ describe('cli', function () {
         writePackageJson(originVer)
         fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
         mock({ bump: 'patch', changelog: [], tags: [] })
-        return execCliAsync('--release-as v100.0.0')
+        return exec('--release-as v100.0.0')
           .then(function () {
             getPackageVersion().should.equal('100.0.0')
           })
@@ -594,7 +596,7 @@ describe('cli', function () {
         writePackageJson(originVer)
         fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
         mock({ bump: 'patch', changelog: [], tags: [] })
-        return execCliAsync('--release-as 200.0.0-amazing')
+        return exec('--release-as 200.0.0-amazing')
           .then(function () {
             getPackageVersion().should.equal('200.0.0-amazing')
           })
@@ -609,27 +611,27 @@ describe('cli', function () {
       const bump = (_, cb) => cb(null, { releaseType })
       mock({ bump, changelog: [], tags: [] })
 
-      await execCliAsync('--release-as patch --prerelease dev')
+      await exec('--release-as patch --prerelease dev')
       getPackageVersion().should.equal('1.0.1-dev.0')
 
-      await execCliAsync('--prerelease dev')
+      await exec('--prerelease dev')
       getPackageVersion().should.equal('1.0.1-dev.1')
 
       releaseType = 'minor'
-      await execCliAsync('--release-as minor --prerelease dev')
+      await exec('--release-as minor --prerelease dev')
       getPackageVersion().should.equal('1.1.0-dev.0')
 
-      await execCliAsync('--release-as minor --prerelease dev')
+      await exec('--release-as minor --prerelease dev')
       getPackageVersion().should.equal('1.1.0-dev.1')
 
-      await execCliAsync('--prerelease dev')
+      await exec('--prerelease dev')
       getPackageVersion().should.equal('1.1.0-dev.2')
     })
   })
 
   it('formats the commit and tag messages appropriately', async function () {
     mock({ bump: 'minor', changelog: [], tags: ['v1.0.0'] })
-    await execCliAsync()
+    await exec()
 
     // check last commit message
     shell.exec('git log --oneline -n1').stdout.should.match(/chore\(release\): 1\.1\.0/)
@@ -638,7 +640,7 @@ describe('cli', function () {
   })
 
   it('appends line feed at end of package.json', async function () {
-    await execCliAsync()
+    await exec()
     const pkgJson = fs.readFileSync('package.json', 'utf-8')
     pkgJson.should.equal(['{', '  "version": "1.0.1"', '}', ''].join('\n'))
   })
@@ -648,7 +650,7 @@ describe('cli', function () {
     const newPkgJson = ['{', indentation + '"version": "1.0.0"', '}', ''].join('\n')
     fs.writeFileSync('package.json', newPkgJson, 'utf-8')
 
-    await execCliAsync()
+    await exec()
     const pkgJson = fs.readFileSync('package.json', 'utf-8')
     pkgJson.should.equal(['{', indentation + '"version": "1.0.1"', '}', ''].join('\n'))
   })
@@ -658,7 +660,7 @@ describe('cli', function () {
     const newPkgJson = ['{', indentation + '"version": "1.0.0"', '}', ''].join('\n')
     fs.writeFileSync('package.json', newPkgJson, 'utf-8')
 
-    await execCliAsync()
+    await exec()
     const pkgJson = fs.readFileSync('package.json', 'utf-8')
     pkgJson.should.equal(['{', indentation + '"version": "1.0.1"', '}', ''].join('\n'))
   })
@@ -667,7 +669,7 @@ describe('cli', function () {
     const newPkgJson = ['{', '  "version": "1.0.0"', '}', ''].join('\n')
     fs.writeFileSync('package.json', newPkgJson, 'utf-8')
 
-    await execCliAsync()
+    await exec()
     const pkgJson = fs.readFileSync('package.json', 'utf-8')
     pkgJson.should.equal(['{', '  "version": "1.0.1"', '}', ''].join('\n'))
   })
@@ -676,7 +678,7 @@ describe('cli', function () {
     const newPkgJson = ['{', '  "version": "1.0.0"', '}', ''].join('\r\n')
     fs.writeFileSync('package.json', newPkgJson, 'utf-8')
 
-    await execCliAsync()
+    await exec()
     const pkgJson = fs.readFileSync('package.json', 'utf-8')
     pkgJson.should.equal(['{', '  "version": "1.0.1"', '}', ''].join('\r\n'))
   })
@@ -684,8 +686,8 @@ describe('cli', function () {
   it('does not run git hooks if the --no-verify flag is passed', async function () {
     writeGitPreCommitHook()
     mock({ bump: 'minor', changelog: [], tags: [] })
-    await execCliAsync('--no-verify')
-    await execCliAsync('-n')
+    await exec('--no-verify')
+    await exec('-n')
   })
 
   it('does not print output when the --silent flag is passed', function () {
@@ -721,179 +723,125 @@ describe('standard-version', function () {
   afterEach(finishTemp)
   afterEach(unmock)
 
-  it('should exit on bump error', function (done) {
+  it('should exit on bump error', async function () {
     mock({ bump: new Error('bump err') })
-    require('./index')({ silent: true })
-      .then(() => {
-        throw new Error('Unexpected success')
-      })
-      .catch((err) => {
-        err.message.should.match(/bump err/)
-        done()
-      })
+    try {
+      await exec()
+      throw new Error('Unexpected success')
+    } catch (err) {
+      err.message.should.match(/bump err/)
+    }
   })
 
-  it('should exit on changelog error', function (done) {
+  it('should exit on changelog error', async function () {
     mock({ bump: 'minor', changelog: new Error('changelog err') })
-    require('./index')({ silent: true })
-      .then(() => {
-        throw new Error('Unexpected success')
-      })
-      .catch((err) => {
-        err.message.should.match(/changelog err/)
-        return done()
-      })
+    try {
+      await exec()
+      throw new Error('Unexpected success')
+    } catch (err) {
+      err.message.should.match(/changelog err/)
+    }
   })
 
-  it('formats the commit and tag messages appropriately', function (done) {
+  it('formats the commit and tag messages appropriately', async function () {
     mock({ bump: 'minor', changelog: [], tags: ['v1.0.0'] })
-    require('./index')({ silent: true })
-      .then(() => {
-        // check last commit message
-        shell.exec('git log --oneline -n1').stdout.should.match(/chore\(release\): 1\.1\.0/)
-        // check annotated tag message
-        shell.exec('git tag -l -n1 v1.1.0').stdout.should.match(/chore\(release\): 1\.1\.0/)
-        done()
-      })
+    await exec()
+    // check last commit message
+    shell.exec('git log --oneline -n1').stdout.should.match(/chore\(release\): 1\.1\.0/)
+    // check annotated tag message
+    shell.exec('git tag -l -n1 v1.1.0').stdout.should.match(/chore\(release\): 1\.1\.0/)
   })
 
-  describe('without a package file to bump', function () {
-    it('should exit with error', function () {
-      shell.rm('package.json')
-      return require('./index')({
-        silent: true,
-        gitTagFallback: false
-      })
-        .then(() => {
-          throw new Error('Unexpected success')
-        })
-        .catch((err) => {
-          err.message.should.equal('no package file found')
-        })
-    })
+  it('should exit with error without a package file to bump', async function () {
+    shell.rm('package.json')
+    try {
+      await exec({ gitTagFallback: false })
+      throw new Error('Unexpected success')
+    } catch (err) {
+      err.message.should.equal('no package file found')
+    }
   })
 
-  describe('bower.json support', function () {
-    it('bumps version # in bower.json', function () {
-      writeBowerJson('1.0.0')
-      mock({ bump: 'minor', changelog: [], tags: ['v1.0.0'] })
-      return require('./index')({ silent: true })
-        .then(() => {
-          JSON.parse(fs.readFileSync('bower.json', 'utf-8')).version.should.equal('1.1.0')
-          getPackageVersion().should.equal('1.1.0')
-        })
-    })
+  it('bumps version # in bower.json', async function () {
+    writeBowerJson('1.0.0')
+    mock({ bump: 'minor', changelog: [], tags: ['v1.0.0'] })
+    await exec()
+    JSON.parse(fs.readFileSync('bower.json', 'utf-8')).version.should.equal('1.1.0')
+    getPackageVersion().should.equal('1.1.0')
   })
 
-  describe('manifest.json support', function () {
-    it('bumps version # in manifest.json', function () {
-      writeManifestJson('1.0.0')
-      mock({ bump: 'minor', changelog: [], tags: ['v1.0.0'] })
-      return require('./index')({ silent: true })
-        .then(() => {
-          JSON.parse(fs.readFileSync('manifest.json', 'utf-8')).version.should.equal('1.1.0')
-          getPackageVersion().should.equal('1.1.0')
-        })
-    })
+  it('bumps version # in manifest.json', async function () {
+    writeManifestJson('1.0.0')
+    mock({ bump: 'minor', changelog: [], tags: ['v1.0.0'] })
+    await exec()
+    JSON.parse(fs.readFileSync('manifest.json', 'utf-8')).version.should.equal('1.1.0')
+    getPackageVersion().should.equal('1.1.0')
   })
 
   describe('custom `bumpFiles` support', function () {
-    it('mix.exs + version.txt', function () {
+    it('mix.exs + version.txt', async function () {
       // @todo This file path is relative to the `tmp` directory, which is a little confusing
       fs.copyFileSync('../test/mocks/mix.exs', 'mix.exs')
       fs.copyFileSync('../test/mocks/version.txt', 'version.txt')
       fs.copyFileSync('../test/mocks/updater/customer-updater.js', 'custom-updater.js')
       mock({ bump: 'minor', changelog: [], tags: ['v1.0.0'] })
-      return require('./index')({
-        silent: true,
+      await exec({
         bumpFiles: [
           'version.txt',
-          {
-            filename: 'mix.exs',
-            updater: 'custom-updater.js'
-          }
+          { filename: 'mix.exs', updater: 'custom-updater.js' }
         ]
       })
-        .then(() => {
-          fs.readFileSync('mix.exs', 'utf-8').should.contain('version: "1.1.0"')
-          fs.readFileSync('version.txt', 'utf-8').should.equal('1.1.0')
-        })
+      fs.readFileSync('mix.exs', 'utf-8').should.contain('version: "1.1.0"')
+      fs.readFileSync('version.txt', 'utf-8').should.equal('1.1.0')
     })
 
-    it('bumps a custom `plain-text` file', function () {
+    it('bumps a custom `plain-text` file', async function () {
       fs.copyFileSync('../test/mocks/VERSION-1.0.0.txt', 'VERSION_TRACKER.txt')
       mock({ bump: 'minor', changelog: [], tags: [] })
-      return require('./index')({
-        silent: true,
+      await exec({
         bumpFiles: [
-          {
-            filename: 'VERSION_TRACKER.txt',
-            type: 'plain-text'
-          }
+          { filename: 'VERSION_TRACKER.txt', type: 'plain-text' }
         ]
       })
-        .then(() => {
-          fs.readFileSync('VERSION_TRACKER.txt', 'utf-8').should.equal('1.1.0')
-        })
+      fs.readFileSync('VERSION_TRACKER.txt', 'utf-8').should.equal('1.1.0')
     })
   })
 
   describe('custom `packageFiles` support', function () {
-    it('reads and writes to a custom `plain-text` file', function () {
+    it('reads and writes to a custom `plain-text` file', async function () {
       fs.copyFileSync('../test/mocks/VERSION-6.3.1.txt', 'VERSION_TRACKER.txt')
       mock({ bump: 'minor', changelog: [], tags: [] })
-      return require('./index')({
-        silent: true,
+      await exec({
         packageFiles: [
-          {
-            filename: 'VERSION_TRACKER.txt',
-            type: 'plain-text'
-          }
+          { filename: 'VERSION_TRACKER.txt', type: 'plain-text' }
         ],
         bumpFiles: [
-          {
-            filename: 'VERSION_TRACKER.txt',
-            type: 'plain-text'
-          }
+          { filename: 'VERSION_TRACKER.txt', type: 'plain-text' }
         ]
       })
-        .then(() => {
-          fs.readFileSync('VERSION_TRACKER.txt', 'utf-8').should.equal('6.4.0')
-        })
+      fs.readFileSync('VERSION_TRACKER.txt', 'utf-8').should.equal('6.4.0')
     })
   })
 
-  describe('npm-shrinkwrap.json support', function () {
-    it('bumps version # in npm-shrinkwrap.json', function (done) {
-      writeNpmShrinkwrapJson('1.0.0')
-      mock({ bump: 'minor', changelog: [], tags: ['v1.0.0'] })
-      require('./index')({ silent: true })
-        .then(() => {
-          JSON.parse(fs.readFileSync('npm-shrinkwrap.json', 'utf-8')).version.should.equal('1.1.0')
-          getPackageVersion().should.equal('1.1.0')
-          return done()
-        })
-    })
+  it('bumps version # in npm-shrinkwrap.json', async function () {
+    writeNpmShrinkwrapJson('1.0.0')
+    mock({ bump: 'minor', changelog: [], tags: ['v1.0.0'] })
+    await exec()
+    JSON.parse(fs.readFileSync('npm-shrinkwrap.json', 'utf-8')).version.should.equal('1.1.0')
+    getPackageVersion().should.equal('1.1.0')
   })
 
-  describe('package-lock.json support', function () {
-    beforeEach(function () {
-      writePackageLockJson('1.0.0')
-      fs.writeFileSync('.gitignore', '', 'utf-8')
-    })
-
-    it('bumps version # in package-lock.json', function () {
-      mock({ bump: 'minor', changelog: [], tags: ['v1.0.0'] })
-      return require('./index')({ silent: true })
-        .then(() => {
-          JSON.parse(fs.readFileSync('package-lock.json', 'utf-8')).version.should.equal('1.1.0')
-          getPackageVersion().should.equal('1.1.0')
-        })
-    })
+  it('bumps version # in package-lock.json', async function () {
+    writePackageLockJson('1.0.0')
+    fs.writeFileSync('.gitignore', '', 'utf-8')
+    mock({ bump: 'minor', changelog: [], tags: ['v1.0.0'] })
+    await exec()
+    JSON.parse(fs.readFileSync('package-lock.json', 'utf-8')).version.should.equal('1.1.0')
+    getPackageVersion().should.equal('1.1.0')
   })
 
   describe('dry-run', function () {
-    it('skips all non-idempotent steps', function (done) {
+    it('skips all non-idempotent steps', function () {
       commit('feat: first commit')
       shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
       commit('feat: new feature!')
@@ -901,75 +849,62 @@ describe('standard-version', function () {
       shell.exec('git log --oneline -n1').stdout.should.match(/feat: new feature!/)
       shell.exec('git tag').stdout.should.match(/1\.0\.0/)
       getPackageVersion().should.equal('1.0.0')
-      return done()
     })
   })
 
   describe('skip', () => {
-    it('allows bump and changelog generation to be skipped', function () {
+    it('allows bump and changelog generation to be skipped', async function () {
       const changelogContent = 'legacy header format<a name="1.0.0">\n'
       writePackageJson('1.0.0')
       fs.writeFileSync('CHANGELOG.md', changelogContent, 'utf-8')
 
       mock({ bump: 'minor', changelog: 'foo\n', tags: [] })
-      return execCliAsync('--skip.bump true --skip.changelog true')
-        .then(function () {
-          getPackageVersion().should.equal('1.0.0')
-          const content = fs.readFileSync('CHANGELOG.md', 'utf-8')
-          content.should.equal(changelogContent)
-        })
+      await exec('--skip.bump true --skip.changelog true')
+      getPackageVersion().should.equal('1.0.0')
+      const content = fs.readFileSync('CHANGELOG.md', 'utf-8')
+      content.should.equal(changelogContent)
     })
 
-    it('allows the commit phase to be skipped', function () {
+    it('allows the commit phase to be skipped', async function () {
       const changelogContent = 'legacy header format<a name="1.0.0">\n'
       writePackageJson('1.0.0')
       fs.writeFileSync('CHANGELOG.md', changelogContent, 'utf-8')
 
       commit('feat: new feature from branch')
-      return execCliAsync('--skip.commit true')
-        .then(function () {
-          getPackageVersion().should.equal('1.1.0')
-          const content = fs.readFileSync('CHANGELOG.md', 'utf-8')
-          content.should.match(/new feature from branch/)
-          // check last commit message
-          shell.exec('git log --oneline -n1').stdout.should.match(/feat: new feature from branch/)
-        })
+      await exec('--skip.commit true')
+      getPackageVersion().should.equal('1.1.0')
+      const content = fs.readFileSync('CHANGELOG.md', 'utf-8')
+      content.should.match(/new feature from branch/)
+      // check last commit message
+      shell.exec('git log --oneline -n1').stdout.should.match(/feat: new feature from branch/)
     })
   })
 
-  describe('.gitignore', () => {
-    it('does not update files present in .gitignore', () => {
-      writeBowerJson('1.0.0')
-      fs.writeFileSync('.gitignore', 'bower.json', 'utf-8')
+  it('does not update files present in .gitignore', async () => {
+    writeBowerJson('1.0.0')
+    fs.writeFileSync('.gitignore', 'bower.json', 'utf-8')
 
-      mock({ bump: 'minor', changelog: [], tags: ['v1.0.0'] })
-      return require('./index')({ silent: true })
-        .then(() => {
-          JSON.parse(fs.readFileSync('bower.json', 'utf-8')).version.should.equal('1.0.0')
-          getPackageVersion().should.equal('1.1.0')
-        })
-    })
+    mock({ bump: 'minor', changelog: [], tags: ['v1.0.0'] })
+    await exec()
+    JSON.parse(fs.readFileSync('bower.json', 'utf-8')).version.should.equal('1.0.0')
+    getPackageVersion().should.equal('1.1.0')
   })
 
   describe('gitTagFallback', () => {
-    it('defaults to 1.0.0 if no tags in git history', () => {
+    it('defaults to 1.0.0 if no tags in git history', async () => {
       shell.rm('package.json')
       mock({ bump: 'minor', changelog: [], tags: [] })
-      return require('./index')({ silent: true })
-        .then(() => {
-          const output = shell.exec('git tag')
-          output.stdout.should.include('v1.1.0')
-        })
+      await exec()
+      const output = shell.exec('git tag')
+      output.stdout.should.include('v1.1.0')
     })
 
-    it('bases version on greatest-version tag, if tags are found', () => {
+    it('bases version on greatest-version tag, if tags are found', async () => {
       shell.rm('package.json')
       mock({ bump: 'minor', changelog: [], tags: ['v3.9.0', 'v5.0.0', 'v3.0.0'] })
-      return require('./index')({ silent: true })
-        .then(() => {
-          const output = shell.exec('git tag')
-          output.stdout.should.include('v5.1.0')
-        })
+      await exec()
+      const output = shell.exec('git tag')
+      output.stdout.should.include('v5.1.0')
     })
 
     it('does not display `npm publish` if there is no package.json', function () {
@@ -1158,15 +1093,13 @@ describe('standard-version', function () {
 describe('GHSL-2020-111', function () {
   beforeEach(initInTempFolder)
   afterEach(finishTemp)
-  it('does not allow command injection via basic configuration', function () {
-    return require('./index')({
-      silent: true,
+  it('does not allow command injection via basic configuration', async function () {
+    await exec({
       noVerify: true,
       infile: 'foo.txt',
       releaseCommitMessageFormat: 'bla `touch exploit`'
-    }).then(function () {
-      const stat = shell.test('-f', './exploit')
-      stat.should.equal(false)
     })
+    const stat = shell.test('-f', './exploit')
+    stat.should.equal(false)
   })
 })
