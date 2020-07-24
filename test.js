@@ -5,7 +5,7 @@
 const shell = require('shelljs')
 const fs = require('fs')
 const path = require('path')
-const stream = require('stream')
+const { Readable } = require('stream')
 const mockGit = require('mock-git')
 const mockery = require('mockery')
 const semver = require('semver')
@@ -108,6 +108,54 @@ function finishTemp () {
 
 function getPackageVersion () {
   return JSON.parse(fs.readFileSync('package.json', 'utf-8')).version
+}
+
+/**
+ * Mock external conventional-changelog modules
+ *
+ * Mocks should be unregistered in test cleanup by calling unmock()
+ *
+ * bump?: 'major' | 'minor' | 'patch' | Error | (opt, cb) => { cb(err) | cb(null, { releaseType }) }
+ * changelog?: string | Error | Array<string | Error>
+ * tags?: string[] | Error
+ */
+function mock ({ bump, changelog, tags }) {
+  mockery.enable({ warnOnUnregistered: false, useCleanCache: true })
+  if (bump) {
+    mockery.registerMock('conventional-recommended-bump', function (opt, cb) {
+      if (typeof bump === 'function') bump(opt, cb)
+      else if (bump instanceof Error) cb(bump)
+      else cb(null, { releaseType: bump })
+    })
+  }
+
+  if (changelog) {
+    if (!Array.isArray(changelog)) {
+      changelog = [changelog]
+    }
+    mockery.registerMock('conventional-changelog', () => new Readable({
+      read (_size) {
+        const next = changelog.shift()
+        if (next instanceof Error) {
+          this.destroy(next)
+        } else {
+          this.push(next ? Buffer.from(next, 'utf8') : null)
+        }
+      }
+    }))
+  }
+
+  if (tags) {
+    mockery.registerMock('git-semver-tags', function (cb) {
+      if (tags instanceof Error) cb(tags)
+      else cb(null, tags)
+    })
+  }
+}
+
+function unmock () {
+  mockery.deregisterAll()
+  mockery.disable()
 }
 
 describe('format-commit-message', function () {
@@ -811,23 +859,14 @@ describe('standard-version', function () {
   afterEach(finishTemp)
 
   describe('with mocked conventionalRecommendedBump', function () {
-    beforeEach(function () {
-      mockery.enable({ warnOnUnregistered: false, useCleanCache: true })
-      mockery.registerMock('conventional-recommended-bump', function (_, cb) {
-        cb(new Error('bump err'))
-      })
-    })
-
-    afterEach(function () {
-      mockery.deregisterMock('conventional-recommended-bump')
-      mockery.disable()
-    })
+    afterEach(unmock)
 
     it('should exit on bump error', function (done) {
       commit('feat: first commit')
       shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
       commit('feat: new feature!')
 
+      mock({ bump: new Error('bump err') })
       require('./index')({ silent: true })
         .catch((err) => {
           err.message.should.match(/bump err/)
@@ -837,27 +876,14 @@ describe('standard-version', function () {
   })
 
   describe('with mocked conventionalChangelog', function () {
-    beforeEach(function () {
-      mockery.enable({ warnOnUnregistered: false, useCleanCache: true })
-      mockery.registerMock('conventional-changelog', function () {
-        const readable = new stream.Readable({ objectMode: true })
-        readable._read = function () {
-        }
-        setImmediate(readable.emit.bind(readable), 'error', new Error('changelog err'))
-        return readable
-      })
-    })
-
-    afterEach(function () {
-      mockery.deregisterMock('conventional-changelog')
-      mockery.disable()
-    })
+    afterEach(unmock)
 
     it('should exit on changelog error', function (done) {
       commit('feat: first commit')
       shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
       commit('feat: new feature!')
 
+      mock({ changelog: new Error('changelog err') })
       require('./index')({ silent: true })
         .catch((err) => {
           err.message.should.match(/changelog err/)
