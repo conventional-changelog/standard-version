@@ -4,7 +4,6 @@
 
 const shell = require('shelljs')
 const fs = require('fs')
-const path = require('path')
 const { Readable } = require('stream')
 const mockGit = require('mock-git')
 const mockery = require('mockery')
@@ -12,25 +11,14 @@ const stdMocks = require('std-mocks')
 const semver = require('semver')
 const formatCommitMessage = require('./lib/format-commit-message')
 
-const isWindows = process.platform === 'win32'
-
 require('chai').should()
 
-const cliPath = path.resolve(__dirname, './bin/cli.js')
-
-function commit (msg) {
-  shell.exec('git commit --allow-empty -m"' + msg + '"')
-}
-
-function execCli (argString) {
-  return shell.exec('node ' + cliPath + (argString != null ? ' ' + argString : ''))
-}
-
-function exec (opt = {}) {
+function exec (opt = '', git) {
   if (typeof opt === 'string') {
     const cli = require('./command')
     opt = cli.parse(`standard-version ${opt}`)
   }
+  if (!git) opt.skip = Object.assign({}, opt.skip, { commit: true, tag: true })
   return require('./index')(opt)
 }
 
@@ -64,11 +52,6 @@ function writePackageLockJson (version, option) {
   fs.writeFileSync('package-lock.json', JSON.stringify(pkgLock), 'utf-8')
 }
 
-function writeGitPreCommitHook () {
-  fs.writeFileSync('.git/hooks/pre-commit', '#!/bin/sh\necho "precommit ran"\nexit 1', 'utf-8')
-  fs.chmodSync('.git/hooks/pre-commit', '755')
-}
-
 function writePostBumpHook (causeError) {
   writeHook('postbump', causeError)
 }
@@ -88,7 +71,7 @@ function initInTempFolder () {
   shell.cd('tmp')
   shell.exec('git init')
   shell.exec('git config commit.gpgSign false')
-  commit('root-commit')
+  shell.exec('git commit --allow-empty -m"root-commit"')
   writePackageJson('1.0.0')
 }
 
@@ -193,7 +176,6 @@ describe('cli', function () {
       const content = fs.readFileSync('CHANGELOG.md', 'utf-8')
       content.should.match(/patch release/)
       content.should.match(/first commit/)
-      shell.exec('git tag').stdout.should.match(/1\.0\.1/)
     })
 
     it('skipping changelog will not create a changelog file', async function () {
@@ -236,22 +218,6 @@ describe('cli', function () {
       content.should.equal(header + '\n' + changelog2 + changelog1)
     })
 
-    it('commits all staged files', async function () {
-      fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
-      fs.writeFileSync('STUFF.md', 'stuff\n', 'utf-8')
-      shell.exec('git add STUFF.md')
-
-      mock({ bump: 'patch', changelog: 'release 1.0.1\n', tags: ['v1.0.0'] })
-      await exec('--commit-all')
-      const status = shell.exec('git status --porcelain') // see http://unix.stackexchange.com/questions/155046/determine-if-git-working-directory-is-clean-from-a-script
-      status.should.equal('')
-      status.should.not.match(/STUFF.md/)
-
-      const content = fs.readFileSync('CHANGELOG.md', 'utf-8')
-      content.should.match(/1\.0\.1/)
-      content.should.not.match(/legacy header format/)
-    })
-
     it('[DEPRECATED] (--changelogHeader) allows for a custom changelog header', async function () {
       fs.writeFileSync('CHANGELOG.md', '', 'utf-8')
       const header = '# Pork Chop Log'
@@ -273,153 +239,76 @@ describe('cli', function () {
     })
   })
 
-  // TODO: investigate why mock-git does not play well with execFile on Windows.
-  if (!isWindows) {
-    describe('with mocked git', function () {
-      it('--sign signs the commit and tag', function () {
-        // mock git with file that writes args to gitcapture.log
-        return mockGit('require("fs").appendFileSync("gitcapture.log", JSON.stringify(process.argv.splice(2)) + "\\n")')
-          .then(function (unmock) {
-            execCli('--sign').code.should.equal(0)
-
-            const captured = shell.cat('gitcapture.log').stdout.split('\n').map(function (line) {
-              return line ? JSON.parse(line) : line
-            })
-            /* eslint-disable no-useless-escape */
-            captured[captured.length - 4].should.deep.equal(['commit', '-S', 'CHANGELOG.md', 'package.json', '-m', 'chore(release): 1.0.1'])
-            captured[captured.length - 3].should.deep.equal(['tag', '-s', 'v1.0.1', '-m', 'chore(release): 1.0.1'])
-            /* eslint-enable no-useless-escape */
-            unmock()
-          })
-      })
-
-      it('exits with error code if git commit fails', function () {
-        // mock git by throwing on attempt to commit
-        return mockGit('console.error("commit yourself"); process.exit(128);', 'commit')
-          .then(function (unmock) {
-            const result = execCli()
-            result.code.should.equal(1)
-            result.stderr.should.match(/commit yourself/)
-
-            unmock()
-          })
-      })
-
-      it('exits with error code if git add fails', function () {
-        // mock git by throwing on attempt to add
-        return mockGit('console.error("addition is hard"); process.exit(128);', 'add')
-          .then(function (unmock) {
-            const result = execCli()
-            result.code.should.equal(1)
-            result.stderr.should.match(/addition is hard/)
-
-            unmock()
-          })
-      })
-
-      it('exits with error code if git tag fails', function () {
-        // mock git by throwing on attempt to commit
-        return mockGit('console.error("tag, you\'re it"); process.exit(128);', 'tag')
-          .then(function (unmock) {
-            const result = execCli()
-            result.code.should.equal(1)
-            result.stderr.should.match(/tag, you're it/)
-
-            unmock()
-          })
-      })
-
-      it('doesn\'t fail fast on stderr output from git', function () {
-        // mock git by throwing on attempt to commit
-        return mockGit('console.error("haha, kidding, this is just a warning"); process.exit(0);', 'add')
-          .then(function (unmock) {
-            writePackageJson('1.0.0')
-
-            const result = execCli()
-            result.code.should.equal(1)
-            result.stderr.should.match(/haha, kidding, this is just a warning/)
-
-            unmock()
-          })
-      })
-    })
-  }
-
   describe('lifecycle scripts', () => {
     describe('prerelease hook', function () {
-      it('should run the prerelease hook when provided', function () {
+      it('should run the prerelease hook when provided', async function () {
         writePackageJson('1.0.0', {
           'standard-version': {
-            scripts: {
-              prerelease: 'node scripts/prerelease'
-            }
+            scripts: { prerelease: 'node scripts/prerelease' }
           }
         })
         writeHook('prerelease')
         fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
 
-        commit('feat: first commit')
-        const result = execCli('--patch')
-        result.code.should.equal(0)
-        result.stderr.should.match(/prerelease ran/)
+        const flush = mock({ bump: 'minor', changelog: [], tags: [] })
+        await exec('--patch')
+        const { stderr } = flush()
+        stderr[0].should.match(/prerelease ran/)
       })
 
-      it('should abort if the hook returns a non-zero exit code', function () {
+      it('should abort if the hook returns a non-zero exit code', async function () {
         writePackageJson('1.0.0', {
           'standard-version': {
-            scripts: {
-              prerelease: 'node scripts/prerelease && exit 1'
-            }
+            scripts: { prerelease: 'node scripts/prerelease && exit 1' }
           }
         })
         writeHook('prerelease')
         fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
 
-        commit('feat: first commit')
-        const result = execCli('--patch')
-        result.code.should.equal(1)
-        result.stderr.should.match(/prerelease ran/)
+        mock({ bump: 'minor', changelog: [], tags: [] })
+        try {
+          await exec('--patch')
+          throw new Error('Unexpected success')
+        } catch (error) {
+          error.message.should.match(/prerelease ran/)
+        }
       })
     })
 
     describe('prebump hook', function () {
-      it('should allow prebump hook to return an alternate version #', function () {
+      it('should allow prebump hook to return an alternate version #', async function () {
         writePackageJson('1.0.0', {
           'standard-version': {
-            scripts: {
-              prebump: 'node scripts/prebump'
-            }
+            scripts: { prebump: 'node scripts/prebump' }
           }
         })
         writeHook('prebump', false, 'console.log("9.9.9")')
         fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
 
-        commit('feat: first commit')
-        const result = execCli('--patch')
-        result.stdout.should.match(/9\.9\.9/)
-        result.code.should.equal(0)
+        const flush = mock({ bump: 'minor', changelog: [], tags: [] })
+        await exec('--patch')
+        const { stdout } = flush()
+        stdout.join('').should.match(/9\.9\.9/)
       })
     })
 
     describe('postbump hook', function () {
-      it('should run the postbump hook when provided', function () {
+      it('should run the postbump hook when provided', async function () {
         writePackageJson('1.0.0', {
           'standard-version': {
-            scripts: {
-              postbump: 'node scripts/postbump'
-            }
+            scripts: { postbump: 'node scripts/postbump' }
           }
         })
         writePostBumpHook()
         fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
 
-        commit('feat: first commit')
-        const result = execCli('--patch')
-        result.code.should.equal(0)
-        result.stderr.should.match(/postbump ran/)
+        const flush = mock({ bump: 'minor', changelog: [], tags: [] })
+        await exec('--patch')
+        const { stderr } = flush()
+        stderr[0].should.match(/postbump ran/)
       })
 
-      it('should run the postbump and exit with error when postbump fails', function () {
+      it('should run the postbump and exit with error when postbump fails', async function () {
         writePackageJson('1.0.0', {
           'standard-version': {
             scripts: {
@@ -430,115 +319,14 @@ describe('cli', function () {
         writePostBumpHook(true)
         fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
 
-        commit('feat: first commit')
-        const result = execCli('--patch')
-        result.code.should.equal(1)
-        result.stderr.should.match(/postbump-failure/)
+        mock({ bump: 'minor', changelog: [], tags: [] })
+        try {
+          await exec('--patch')
+          throw new Error('Unexpected success')
+        } catch (error) {
+          error.message.should.match(/postbump-failure/)
+        }
       })
-    })
-
-    describe('precommit hook', function () {
-      it('should run the precommit hook when provided via .versionrc.json (#371)', function () {
-        fs.writeFileSync('.versionrc.json', JSON.stringify({
-          scripts: {
-            precommit: 'node scripts/precommit'
-          }
-        }), 'utf-8')
-
-        writeHook('precommit')
-        fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
-        commit('feat: first commit')
-        const result = execCli()
-        result.code.should.equal(0)
-        result.stderr.should.match(/precommit ran/)
-      })
-
-      it('should run the precommit hook when provided', function () {
-        writePackageJson('1.0.0', {
-          'standard-version': {
-            scripts: {
-              precommit: 'node scripts/precommit'
-            }
-          }
-        })
-        writeHook('precommit')
-        fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
-
-        commit('feat: first commit')
-        const result = execCli('--patch')
-        result.code.should.equal(0)
-        result.stderr.should.match(/precommit ran/)
-      })
-
-      it('should run the precommit hook and exit with error when precommit fails', function () {
-        writePackageJson('1.0.0', {
-          'standard-version': {
-            scripts: {
-              precommit: 'node scripts/precommit'
-            }
-          }
-        })
-        writeHook('precommit', true)
-        fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
-
-        commit('feat: first commit')
-        const result = execCli('--patch')
-        result.code.should.equal(1)
-        result.stderr.should.match(/precommit-failure/)
-      })
-
-      it('should allow an alternate commit message to be provided by precommit script', function () {
-        writePackageJson('1.0.0', {
-          'standard-version': {
-            scripts: {
-              precommit: 'node scripts/precommit'
-            }
-          }
-        })
-        writeHook('precommit', false, 'console.log("releasing %s delivers #222")')
-        fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
-
-        commit('feat: first commit')
-        const result = execCli('--patch')
-        result.code.should.equal(0)
-        shell.exec('git log --oneline -n1').should.match(/delivers #222/)
-      })
-    })
-  })
-
-  describe('pre-release', function () {
-    it('works fine without specifying a tag id when prereleasing', function () {
-      writePackageJson('1.0.0')
-      fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
-      mock({ bump: 'minor', changelog: [], tags: [] })
-      return exec('--prerelease')
-        .then(function () {
-          // it's a feature commit, so it's minor type
-          getPackageVersion().should.equal('1.1.0-0')
-        })
-    })
-
-    it('advises use of --tag prerelease for publishing to npm', function () {
-      writePackageJson('1.0.0')
-      fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
-
-      execCli('--prerelease').stdout.should.include('--tag prerelease')
-    })
-
-    it('advises use of --tag alpha for publishing to npm when tagging alpha', function () {
-      writePackageJson('1.0.0')
-      fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
-
-      commit('feat: first commit')
-      execCli('--prerelease alpha').stdout.should.include('--tag alpha')
-    })
-
-    it('does not advise use of --tag prerelease for private modules', function () {
-      writePackageJson('1.0.0', { private: true })
-      fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
-
-      commit('feat: first commit')
-      execCli('--prerelease').stdout.should.not.include('--tag prerelease')
     })
   })
 
@@ -547,70 +335,58 @@ describe('cli', function () {
       const regularTypes = ['major', 'minor', 'patch']
 
       regularTypes.forEach(function (type) {
-        it('creates a ' + type + ' release', function () {
+        it('creates a ' + type + ' release', async function () {
           const originVer = '1.0.0'
           writePackageJson(originVer)
           fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
           mock({ bump: 'patch', changelog: [], tags: [] })
-          return exec('--release-as ' + type)
-            .then(function () {
-              const version = {
-                major: semver.major(originVer),
-                minor: semver.minor(originVer),
-                patch: semver.patch(originVer)
-              }
-
-              version[type] += 1
-
-              getPackageVersion().should.equal(version.major + '.' + version.minor + '.' + version.patch)
-            })
+          await exec('--release-as ' + type)
+          const version = {
+            major: semver.major(originVer),
+            minor: semver.minor(originVer),
+            patch: semver.patch(originVer)
+          }
+          version[type] += 1
+          getPackageVersion().should.equal(version.major + '.' + version.minor + '.' + version.patch)
         })
       })
 
       // this is for pre-releases
       regularTypes.forEach(function (type) {
-        it('creates a pre' + type + ' release', function () {
+        it('creates a pre' + type + ' release', async function () {
           const originVer = '1.0.0'
           writePackageJson(originVer)
           fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
           mock({ bump: 'patch', changelog: [], tags: [] })
-          return exec('--release-as ' + type + ' --prerelease ' + type)
-            .then(function () {
-              const version = {
-                major: semver.major(originVer),
-                minor: semver.minor(originVer),
-                patch: semver.patch(originVer)
-              }
-
-              version[type] += 1
-
-              getPackageVersion().should.equal(version.major + '.' + version.minor + '.' + version.patch + '-' + type + '.0')
-            })
+          await exec('--release-as ' + type + ' --prerelease ' + type)
+          const version = {
+            major: semver.major(originVer),
+            minor: semver.minor(originVer),
+            patch: semver.patch(originVer)
+          }
+          version[type] += 1
+          getPackageVersion().should.equal(version.major + '.' + version.minor + '.' + version.patch + '-' + type + '.0')
         })
       })
     })
 
     describe('release-as-exact', function () {
-      it('releases as v100.0.0', function () {
+      it('releases as v100.0.0', async function () {
         const originVer = '1.0.0'
         writePackageJson(originVer)
         fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
         mock({ bump: 'patch', changelog: [], tags: [] })
-        return exec('--release-as v100.0.0')
-          .then(function () {
-            getPackageVersion().should.equal('100.0.0')
-          })
+        await exec('--release-as v100.0.0')
+        getPackageVersion().should.equal('100.0.0')
       })
 
-      it('releases as 200.0.0-amazing', function () {
+      it('releases as 200.0.0-amazing', async function () {
         const originVer = '1.0.0'
         writePackageJson(originVer)
         fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
         mock({ bump: 'patch', changelog: [], tags: [] })
-        return exec('--release-as 200.0.0-amazing')
-          .then(function () {
-            getPackageVersion().should.equal('200.0.0-amazing')
-          })
+        await exec('--release-as 200.0.0-amazing')
+        getPackageVersion().should.equal('200.0.0-amazing')
       })
     })
 
@@ -638,16 +414,6 @@ describe('cli', function () {
       await exec('--prerelease dev')
       getPackageVersion().should.equal('1.1.0-dev.2')
     })
-  })
-
-  it('formats the commit and tag messages appropriately', async function () {
-    mock({ bump: 'minor', changelog: [], tags: ['v1.0.0'] })
-    await exec()
-
-    // check last commit message
-    shell.exec('git log --oneline -n1').stdout.should.match(/chore\(release\): 1\.1\.0/)
-    // check annotated tag message
-    shell.exec('git tag -l -n1 v1.1.0').stdout.should.match(/chore\(release\): 1\.1\.0/)
   })
 
   it('appends line feed at end of package.json', async function () {
@@ -699,38 +465,10 @@ describe('cli', function () {
     pkgJson.should.equal(['{', '  "version": "1.0.1"', '}', ''].join('\r\n'))
   })
 
-  it('does not run git hooks if the --no-verify flag is passed', async function () {
-    writeGitPreCommitHook()
-    mock({ bump: 'minor', changelog: [], tags: [] })
-    await exec('--no-verify')
-    await exec('-n')
-  })
-
-  it('does not print output when the --silent flag is passed', function () {
-    const result = execCli('--silent')
-    result.code.should.equal(0)
-    result.stdout.should.equal('')
-    result.stderr.should.equal('')
-  })
-
-  it('does not display `npm publish` if the package is private', function () {
-    writePackageJson('1.0.0', { private: true })
-
-    const result = execCli()
-    result.code.should.equal(0)
-    result.stdout.should.not.match(/npm publish/)
-  })
-
-  it('does not display `all staged files` without the --commit-all flag', function () {
-    const result = execCli()
-    result.code.should.equal(0)
-    result.stdout.should.not.match(/and all staged files/)
-  })
-
-  it('does display `all staged files` if the --commit-all flag is passed', function () {
-    const result = execCli('--commit-all')
-    result.code.should.equal(0)
-    result.stdout.should.match(/and all staged files/)
+  it('does not print output when the --silent flag is passed', async function () {
+    const flush = mock()
+    await exec('--silent')
+    flush().should.eql({ stdout: [], stderr: [] })
   })
 })
 
@@ -757,15 +495,6 @@ describe('standard-version', function () {
     } catch (err) {
       err.message.should.match(/changelog err/)
     }
-  })
-
-  it('formats the commit and tag messages appropriately', async function () {
-    mock({ bump: 'minor', changelog: [], tags: ['v1.0.0'] })
-    await exec()
-    // check last commit message
-    shell.exec('git log --oneline -n1').stdout.should.match(/chore\(release\): 1\.1\.0/)
-    // check annotated tag message
-    shell.exec('git tag -l -n1 v1.1.0').stdout.should.match(/chore\(release\): 1\.1\.0/)
   })
 
   it('should exit with error without a package file to bump', async function () {
@@ -857,18 +586,6 @@ describe('standard-version', function () {
     getPackageVersion().should.equal('1.1.0')
   })
 
-  describe('dry-run', function () {
-    it('skips all non-idempotent steps', function () {
-      commit('feat: first commit')
-      shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
-      commit('feat: new feature!')
-      execCli('--dry-run').stdout.should.match(/### Features/)
-      shell.exec('git log --oneline -n1').stdout.should.match(/feat: new feature!/)
-      shell.exec('git tag').stdout.should.match(/1\.0\.0/)
-      getPackageVersion().should.equal('1.0.0')
-    })
-  })
-
   describe('skip', () => {
     it('allows bump and changelog generation to be skipped', async function () {
       const changelogContent = 'legacy header format<a name="1.0.0">\n'
@@ -880,21 +597,6 @@ describe('standard-version', function () {
       getPackageVersion().should.equal('1.0.0')
       const content = fs.readFileSync('CHANGELOG.md', 'utf-8')
       content.should.equal(changelogContent)
-    })
-
-    it('allows the commit phase to be skipped', async function () {
-      const changelogContent = 'legacy header format<a name="1.0.0">\n'
-      writePackageJson('1.0.0')
-      fs.writeFileSync('CHANGELOG.md', changelogContent, 'utf-8')
-
-      commit('feat: new feature from branch')
-      mock()
-      await exec('--skip.commit true')
-      getPackageVersion().should.equal('1.1.0')
-      const content = fs.readFileSync('CHANGELOG.md', 'utf-8')
-      content.should.match(/new feature from branch/)
-      // check last commit message
-      shell.exec('git log --oneline -n1').stdout.should.match(/feat: new feature from branch/)
     })
   })
 
@@ -908,210 +610,455 @@ describe('standard-version', function () {
     getPackageVersion().should.equal('1.1.0')
   })
 
-  describe('gitTagFallback', () => {
-    it('defaults to 1.0.0 if no tags in git history', async () => {
-      shell.rm('package.json')
-      mock({ bump: 'minor', changelog: [], tags: [] })
-      await exec()
-      const output = shell.exec('git tag')
-      output.stdout.should.include('v1.1.0')
-    })
-
-    it('bases version on greatest-version tag, if tags are found', async () => {
-      shell.rm('package.json')
-      mock({ bump: 'minor', changelog: [], tags: ['v3.9.0', 'v5.0.0', 'v3.0.0'] })
-      await exec()
-      const output = shell.exec('git tag')
-      output.stdout.should.include('v5.1.0')
-    })
-
-    it('does not display `npm publish` if there is no package.json', function () {
-      shell.rm('package.json')
-      const result = execCli()
-      result.code.should.equal(0)
-      result.stdout.should.not.match(/npm publish/)
-    })
-  })
-
   describe('configuration', () => {
-    it('reads config from package.json', function () {
+    it('reads config from package.json', async function () {
+      const issueUrlFormat = 'https://standard-version.company.net/browse/{{id}}'
       writePackageJson('1.0.0', {
-        repository: {
-          url: 'git+https://company@scm.org/office/app.git'
-        },
-        'standard-version': {
-          issueUrlFormat: 'https://standard-version.company.net/browse/{{id}}'
-        }
+        repository: { url: 'git+https://company@scm.org/office/app.git' },
+        'standard-version': { issueUrlFormat }
       })
-      commit('feat: another commit addresses issue #1')
-      execCli()
-      // CHANGELOG should have the new issue URL format.
+
+      const changelog = ({ preset }) => preset.issueUrlFormat
+      mock({ bump: 'minor', changelog, tags: [] })
+      await exec()
       const content = fs.readFileSync('CHANGELOG.md', 'utf-8')
-      content.should.include('https://standard-version.company.net/browse/1')
+      content.should.include(issueUrlFormat)
     })
 
-    it('reads config from .versionrc', function () {
-      // write configuration that overrides default issue
-      // URL format.
-      fs.writeFileSync('.versionrc', JSON.stringify({
-        issueUrlFormat: 'http://www.foo.com/{{id}}'
-      }), 'utf-8')
-      commit('feat: another commit addresses issue #1')
-      execCli()
-      // CHANGELOG should have the new issue URL format.
+    it('reads config from .versionrc', async function () {
+      const issueUrlFormat = 'http://www.foo.com/{{id}}'
+      fs.writeFileSync('.versionrc', JSON.stringify({ issueUrlFormat }), 'utf-8')
+
+      const changelog = ({ preset }) => preset.issueUrlFormat
+      mock({ bump: 'minor', changelog, tags: [] })
+      await exec()
       const content = fs.readFileSync('CHANGELOG.md', 'utf-8')
-      content.should.include('http://www.foo.com/1')
+      content.should.include(issueUrlFormat)
     })
 
-    it('reads config from .versionrc.json', function () {
-      // write configuration that overrides default issue
-      // URL format.
-      fs.writeFileSync('.versionrc.json', JSON.stringify({
-        issueUrlFormat: 'http://www.foo.com/{{id}}'
-      }), 'utf-8')
-      commit('feat: another commit addresses issue #1')
-      execCli()
-      // CHANGELOG should have the new issue URL format.
+    it('reads config from .versionrc.json', async function () {
+      const issueUrlFormat = 'http://www.foo.com/{{id}}'
+      fs.writeFileSync('.versionrc.json', JSON.stringify({ issueUrlFormat }), 'utf-8')
+
+      const changelog = ({ preset }) => preset.issueUrlFormat
+      mock({ bump: 'minor', changelog, tags: [] })
+      await exec()
       const content = fs.readFileSync('CHANGELOG.md', 'utf-8')
-      content.should.include('http://www.foo.com/1')
+      content.should.include(issueUrlFormat)
     })
 
-    it('evaluates a config-function from .versionrc.js', function () {
-      // write configuration that overrides default issue
-      // URL format.
-      fs.writeFileSync(
-        '.versionrc.js',
-        `module.exports = function() {
-          return {
-            issueUrlFormat: 'http://www.versionrc.js/function/{{id}}'
-          }
-        }`,
-        'utf-8'
-      )
-      commit('feat: another commit addresses issue #1')
-      execCli()
-      // CHANGELOG should have the new issue URL format.
+    it('evaluates a config-function from .versionrc.js', async function () {
+      const issueUrlFormat = 'http://www.foo.com/{{id}}'
+      const src = `module.exports = function() { return ${JSON.stringify({ issueUrlFormat })} }`
+      fs.writeFileSync('.versionrc.js', src, 'utf-8')
+
+      const changelog = ({ preset }) => preset.issueUrlFormat
+      mock({ bump: 'minor', changelog, tags: [] })
+      await exec()
       const content = fs.readFileSync('CHANGELOG.md', 'utf-8')
-      content.should.include('http://www.versionrc.js/function/1')
+      content.should.include(issueUrlFormat)
     })
 
-    it('evaluates a config-object from .versionrc.js', function () {
-      // write configuration that overrides default issue
-      // URL format.
-      fs.writeFileSync(
-        '.versionrc.js',
-        `module.exports = {
-          issueUrlFormat: 'http://www.versionrc.js/object/{{id}}'
-        }`,
-        'utf-8'
-      )
-      commit('feat: another commit addresses issue #1')
-      execCli()
-      // CHANGELOG should have the new issue URL format.
+    it('evaluates a config-object from .versionrc.js', async function () {
+      const issueUrlFormat = 'http://www.foo.com/{{id}}'
+      const src = `module.exports = ${JSON.stringify({ issueUrlFormat })}`
+      fs.writeFileSync('.versionrc.js', src, 'utf-8')
+
+      const changelog = ({ preset }) => preset.issueUrlFormat
+      mock({ bump: 'minor', changelog, tags: [] })
+      await exec()
       const content = fs.readFileSync('CHANGELOG.md', 'utf-8')
-      content.should.include('http://www.versionrc.js/object/1')
+      content.should.include(issueUrlFormat)
     })
 
-    it('throws an error when a non-object is returned from .versionrc.js', function () {
-      // write configuration that overrides default issue
-      // URL format.
-      fs.writeFileSync(
-        '.versionrc.js',
-        'module.exports = 3',
-        'utf-8'
-      )
-      commit('feat: another commit addresses issue #1')
-      execCli().code.should.equal(1)
+    it('throws an error when a non-object is returned from .versionrc.js', async function () {
+      fs.writeFileSync('.versionrc.js', 'module.exports = 3', 'utf-8')
+      mock({ bump: 'minor', changelog: [], tags: [] })
+      try {
+        await exec()
+        throw new Error('Unexpected success')
+      } catch (error) {
+        error.message.should.match(/Invalid configuration/)
+      }
     })
 
-    it('.versionrc : releaseCommitMessageFormat', function () {
-      // write configuration that overrides default issue
-      // URL format.
-      fs.writeFileSync('.versionrc', JSON.stringify({
-        releaseCommitMessageFormat: 'This commit represents release: {{currentTag}}'
-      }), 'utf-8')
-      commit('feat: another commit addresses issue #1')
-      execCli()
-      shell.exec('git log --oneline -n1').should.include('This commit represents release: 1.1.0')
-    })
-
-    it('--releaseCommitMessageFormat', function () {
-      commit('feat: another commit addresses issue #1')
-      execCli('--releaseCommitMessageFormat="{{currentTag}} is the version."')
-      shell.exec('git log --oneline -n1').should.include('1.1.0 is the version.')
-    })
-
-    it('.versionrc : issuePrefixes', function () {
-      // write configuration that overrides default issuePrefixes
-      // and reference prefix in issue URL format.
-      fs.writeFileSync('.versionrc', JSON.stringify({
-        issueUrlFormat: 'http://www.foo.com/{{prefix}}{{id}}',
-        issuePrefixes: ['ABC-']
-      }), 'utf-8')
-      commit('feat: another commit addresses issue ABC-1')
-      execCli()
-      // CHANGELOG should have the new issue URL format.
-      const content = fs.readFileSync('CHANGELOG.md', 'utf-8')
-      content.should.include('http://www.foo.com/ABC-1')
-    })
-
-    it('--header', function () {
+    it('--header', async function () {
       fs.writeFileSync('CHANGELOG.md', '', 'utf-8')
-      commit('feat: first commit')
-      execCli('--header="# Welcome to our CHANGELOG.md"').code.should.equal(0)
+      mock({ bump: 'minor', changelog: [], tags: [] })
+      await exec('--header="# Welcome to our CHANGELOG.md"')
       const content = fs.readFileSync('CHANGELOG.md', 'utf-8')
       content.should.match(/# Welcome to our CHANGELOG.md/)
     })
 
-    it('--issuePrefixes and --issueUrlFormat', function () {
-      commit('feat: another commit addresses issue ABC-1')
-      execCli('--issuePrefixes="ABC-" --issueUrlFormat="http://www.foo.com/{{prefix}}{{id}}"')
+    it('--issuePrefixes and --issueUrlFormat', async function () {
+      const format = 'http://www.foo.com/{{prefix}}{{id}}'
+      const prefix = 'ABC-'
+      mock({ bump: 'minor', changelog: [], tags: [] })
+      const changelog = ({ preset }) => preset.issueUrlFormat + ':' + preset.issuePrefixes
+      mock({ bump: 'minor', changelog, tags: [] })
+      await exec(`--issuePrefixes="${prefix}" --issueUrlFormat="${format}"`)
       const content = fs.readFileSync('CHANGELOG.md', 'utf-8')
-      content.should.include('http://www.foo.com/ABC-1')
-    })
-
-    it('[LEGACY] supports --message (and single %s replacement)', function () {
-      commit('feat: another commit addresses issue #1')
-      execCli('--message="V:%s"')
-      shell.exec('git log --oneline -n1').should.include('V:1.1.0')
-    })
-
-    it('[LEGACY] supports -m (and multiple %s replacements)', function () {
-      commit('feat: another commit addresses issue #1')
-      execCli('--message="V:%s is the %s."')
-      shell.exec('git log --oneline -n1').should.include('V:1.1.0 is the 1.1.0.')
+      content.should.include(`${format}:${prefix}`)
     })
   })
 
   describe('pre-major', () => {
-    it('bumps the minor rather than major, if version < 1.0.0', function () {
+    it('bumps the minor rather than major, if version < 1.0.0', async function () {
       writePackageJson('0.5.0', {
         repository: {
           url: 'https://github.com/yargs/yargs.git'
         }
       })
-      commit('feat!: this is a breaking change')
-      execCli()
+      mock({ bump: 'minor', changelog: [], tags: [] })
+      await exec()
       getPackageVersion().should.equal('0.6.0')
     })
 
-    it('bumps major if --release-as=major specified, if version < 1.0.0', function () {
+    it('bumps major if --release-as=major specified, if version < 1.0.0', async function () {
       writePackageJson('0.5.0', {
         repository: {
           url: 'https://github.com/yargs/yargs.git'
         }
       })
-      commit('feat!: this is a breaking change')
-      execCli('-r major')
+      mock({ bump: 'major', changelog: [], tags: [] })
+      await exec('-r major')
       getPackageVersion().should.equal('1.0.0')
     })
   })
+})
+
+describe('git', function () {
+  beforeEach(initInTempFolder)
+  afterEach(finishTemp)
+  afterEach(unmock)
+
+  it('formats the commit and tag messages appropriately', async function () {
+    mock({ bump: 'minor', changelog: [], tags: ['v1.0.0'] })
+    await exec({}, true)
+    // check last commit message
+    shell.exec('git log --oneline -n1').stdout.should.match(/chore\(release\): 1\.1\.0/)
+    // check annotated tag message
+    shell.exec('git tag -l -n1 v1.1.0').stdout.should.match(/chore\(release\): 1\.1\.0/)
+  })
+
+  it('formats the tag if --first-release is true', async function () {
+    writePackageJson('1.0.1')
+    mock({ bump: 'minor', changelog: [], tags: [] })
+    await exec('--first-release', true)
+    shell.exec('git tag').stdout.should.match(/1\.0\.1/)
+  })
+
+  it('commits all staged files', async function () {
+    fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
+    fs.writeFileSync('STUFF.md', 'stuff\n', 'utf-8')
+    shell.exec('git add STUFF.md')
+
+    mock({ bump: 'patch', changelog: 'release 1.0.1\n', tags: ['v1.0.0'] })
+    await exec('--commit-all', true)
+    const status = shell.exec('git status --porcelain') // see http://unix.stackexchange.com/questions/155046/determine-if-git-working-directory-is-clean-from-a-script
+    status.should.equal('')
+    status.should.not.match(/STUFF.md/)
+
+    const content = fs.readFileSync('CHANGELOG.md', 'utf-8')
+    content.should.match(/1\.0\.1/)
+    content.should.not.match(/legacy header format/)
+  })
+
+  it('does not run git hooks if the --no-verify flag is passed', async function () {
+    fs.writeFileSync('.git/hooks/pre-commit', '#!/bin/sh\necho "precommit ran"\nexit 1', 'utf-8')
+    fs.chmodSync('.git/hooks/pre-commit', '755')
+
+    mock({ bump: 'minor', changelog: [], tags: [] })
+    await exec('--no-verify', true)
+    await exec('-n', true)
+  })
+
+  it('allows the commit phase to be skipped', async function () {
+    const changelogContent = 'legacy header format<a name="1.0.0">\n'
+    writePackageJson('1.0.0')
+    fs.writeFileSync('CHANGELOG.md', changelogContent, 'utf-8')
+
+    mock({ bump: 'minor', changelog: 'new feature\n', tags: [] })
+    await exec('--skip.commit true', true)
+    getPackageVersion().should.equal('1.1.0')
+    const content = fs.readFileSync('CHANGELOG.md', 'utf-8')
+    content.should.match(/new feature/)
+    shell.exec('git log --oneline -n1').stdout.should.match(/root-commit/)
+  })
+
+  it('dry-run skips all non-idempotent steps', async function () {
+    shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
+    const flush = mock({ bump: 'minor', changelog: '### Features\n', tags: ['v1.0.0'] })
+    await exec('--dry-run', true)
+    const { stdout } = flush()
+    stdout.join('').should.match(/### Features/)
+    shell.exec('git log --oneline -n1').stdout.should.match(/root-commit/)
+    shell.exec('git tag').stdout.should.match(/1\.0\.0/)
+    getPackageVersion().should.equal('1.0.0')
+  })
+
+  it('works fine without specifying a tag id when prereleasing', async function () {
+    writePackageJson('1.0.0')
+    fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
+    mock({ bump: 'minor', changelog: [], tags: [] })
+    await exec('--prerelease', true)
+    getPackageVersion().should.equal('1.1.0-0')
+  })
+
+  describe('gitTagFallback', () => {
+    it('defaults to 1.0.0 if no tags in git history', async () => {
+      shell.rm('package.json')
+      mock({ bump: 'minor', changelog: [], tags: [] })
+      await exec({}, true)
+      const output = shell.exec('git tag')
+      output.stdout.should.include('v1.1.0')
+    })
+
+    it('bases version on greatest version tag, if tags are found', async () => {
+      shell.rm('package.json')
+      mock({ bump: 'minor', changelog: [], tags: ['v3.9.0', 'v5.0.0', 'v3.0.0'] })
+      await exec({}, true)
+      const output = shell.exec('git tag')
+      output.stdout.should.include('v5.1.0')
+    })
+  })
+
+  describe('configuration', () => {
+    it('.versionrc : releaseCommitMessageFormat', async function () {
+      fs.writeFileSync('.versionrc', JSON.stringify({
+        releaseCommitMessageFormat: 'This commit represents release: {{currentTag}}'
+      }), 'utf-8')
+      mock({ bump: 'minor', changelog: [], tags: [] })
+      await exec('', true)
+      shell.exec('git log --oneline -n1').should.include('This commit represents release: 1.1.0')
+    })
+
+    it('--releaseCommitMessageFormat', async function () {
+      mock({ bump: 'minor', changelog: [], tags: [] })
+      await exec('--releaseCommitMessageFormat="{{currentTag}} is the version."', true)
+      shell.exec('git log --oneline -n1').should.include('1.1.0 is the version.')
+    })
+
+    it('[LEGACY] supports --message (and single %s replacement)', async function () {
+      mock({ bump: 'minor', changelog: [], tags: [] })
+      await exec('--message="V:%s"', true)
+      shell.exec('git log --oneline -n1').should.include('V:1.1.0')
+    })
+
+    it('[LEGACY] supports -m (and multiple %s replacements)', async function () {
+      mock({ bump: 'minor', changelog: [], tags: [] })
+      await exec('--message="V:%s is the %s."', true)
+      shell.exec('git log --oneline -n1').should.include('V:1.1.0 is the 1.1.0.')
+    })
+  })
+
+  describe('precommit hook', function () {
+    it('should run the precommit hook when provided via .versionrc.json (#371)', async function () {
+      fs.writeFileSync('.versionrc.json', JSON.stringify({
+        scripts: { precommit: 'node scripts/precommit' }
+      }), 'utf-8')
+
+      writeHook('precommit')
+      fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
+      const flush = mock({ bump: 'minor', changelog: [], tags: [] })
+      await exec('', true)
+      const { stderr } = flush()
+      stderr[0].should.match(/precommit ran/)
+    })
+
+    it('should run the precommit hook when provided', async function () {
+      writePackageJson('1.0.0', {
+        'standard-version': {
+          scripts: { precommit: 'node scripts/precommit' }
+        }
+      })
+      writeHook('precommit')
+      fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
+
+      const flush = mock({ bump: 'minor', changelog: [], tags: [] })
+      await exec('--patch', true)
+      const { stderr } = flush()
+      stderr[0].should.match(/precommit ran/)
+    })
+
+    it('should run the precommit hook and exit with error when precommit fails', async function () {
+      writePackageJson('1.0.0', {
+        'standard-version': {
+          scripts: { precommit: 'node scripts/precommit' }
+        }
+      })
+      writeHook('precommit', true)
+      fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
+
+      mock({ bump: 'minor', changelog: [], tags: [] })
+      try {
+        await exec('--patch', true)
+        throw new Error('Unexpected success')
+      } catch (error) {
+        error.message.should.match(/precommit-failure/)
+      }
+    })
+
+    it('should allow an alternate commit message to be provided by precommit script', async function () {
+      writePackageJson('1.0.0', {
+        'standard-version': {
+          scripts: { precommit: 'node scripts/precommit' }
+        }
+      })
+      writeHook('precommit', false, 'console.log("releasing %s delivers #222")')
+      fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
+
+      mock({ bump: 'minor', changelog: [], tags: [] })
+      await exec('--patch', true)
+      shell.exec('git log --oneline -n1').should.match(/delivers #222/)
+    })
+  })
+
+  describe('Run ... to publish', function () {
+    it('does normally display `npm publish`', async function () {
+      const flush = mock()
+      await exec('', true)
+      flush().stdout.join('').should.match(/npm publish/)
+    })
+
+    it('does not display `npm publish` if the package is private', async function () {
+      writePackageJson('1.0.0', { private: true })
+      const flush = mock()
+      await exec('', true)
+      flush().stdout.join('').should.not.match(/npm publish/)
+    })
+
+    it('does not display `npm publish` if there is no package.json', async function () {
+      shell.rm('package.json')
+      const flush = mock()
+      await exec('', true)
+      flush().stdout.join('').should.not.match(/npm publish/)
+    })
+
+    it('does not display `all staged files` without the --commit-all flag', async function () {
+      const flush = mock()
+      await exec('', true)
+      flush().stdout.join('').should.not.match(/all staged files/)
+    })
+
+    it('does display `all staged files` if the --commit-all flag is passed', async function () {
+      const flush = mock()
+      await exec('--commit-all', true)
+      flush().stdout.join('').should.match(/all staged files/)
+    })
+
+    it('advises use of --tag prerelease for publishing to npm', async function () {
+      writePackageJson('1.0.0')
+      fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
+
+      const flush = mock({ bump: 'patch', changelog: [], tags: [] })
+      await exec('--prerelease', true)
+      const { stdout } = flush()
+      stdout.join('').should.include('--tag prerelease')
+    })
+
+    it('advises use of --tag alpha for publishing to npm when tagging alpha', async function () {
+      writePackageJson('1.0.0')
+      fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
+
+      const flush = mock({ bump: 'patch', changelog: [], tags: [] })
+      await exec('--prerelease alpha', true)
+      const { stdout } = flush()
+      stdout.join('').should.include('--tag alpha')
+    })
+
+    it('does not advise use of --tag prerelease for private modules', async function () {
+      writePackageJson('1.0.0', { private: true })
+      fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
+
+      const flush = mock({ bump: 'minor', changelog: [], tags: [] })
+      await exec('--prerelease', true)
+      const { stdout } = flush()
+      stdout.join('').should.not.include('--tag prerelease')
+    })
+  })
+
+  // TODO: investigate why mock-git does not play well with execFile on Windows.
+  if (!process.platform !== 'win32') {
+    describe('with mocked git', function () {
+      it('--sign signs the commit and tag', async function () {
+        // mock git with file that writes args to gitcapture.log
+        const done = await mockGit('require("fs").appendFileSync("gitcapture.log", JSON.stringify(process.argv.splice(2)) + "\\n")')
+        mock({ bump: 'patch', changelog: 'foo\n', tags: [] })
+        await exec('--sign', true)
+        const { stdout } = shell.cat('gitcapture.log')
+        const captured = stdout.split('\n').map((line) => line ? JSON.parse(line) : line)
+        done()
+        /* eslint-disable no-useless-escape */
+        captured[captured.length - 4].should.deep.equal(['commit', '-S', 'CHANGELOG.md', 'package.json', '-m', 'chore(release): 1.0.1'])
+        captured[captured.length - 3].should.deep.equal(['tag', '-s', 'v1.0.1', '-m', 'chore(release): 1.0.1'])
+        /* eslint-enable no-useless-escape */
+      })
+
+      it('fails if git commit fails', async function () {
+        // mock git by throwing on attempt to commit
+        const done = await mockGit('console.error("commit yourself"); process.exit(128);', 'commit')
+        mock({ bump: 'patch', changelog: 'foo\n', tags: [] })
+        try {
+          await exec({}, true)
+          throw new Error('Unexpected success')
+        } catch (error) {
+          done()
+          error.message.should.match(/commit yourself/)
+        }
+      })
+
+      it('fails if git add fails', async function () {
+        // mock git by throwing on attempt to add
+        const done = await mockGit('console.error("addition is hard"); process.exit(128);', 'add')
+        mock({ bump: 'patch', changelog: 'foo\n', tags: [] })
+        try {
+          await exec({}, true)
+          throw new Error('Unexpected success')
+        } catch (error) {
+          done()
+          error.message.should.match(/addition is hard/)
+        }
+      })
+
+      it('fails if git tag fails', async function () {
+        // mock git by throwing on attempt to commit
+        const done = await mockGit('console.error("tag, you\'re it"); process.exit(128);', 'tag')
+        mock({ bump: 'patch', changelog: 'foo\n', tags: [] })
+        try {
+          await exec({}, true)
+          throw new Error('Unexpected success')
+        } catch (error) {
+          done()
+          error.message.should.match(/tag, you're it/)
+        }
+      })
+
+      it('doesn\'t fail fast on stderr output from git', async function () {
+        writePackageJson('1.0.0')
+        // mock git by throwing on attempt to commit
+        const done = await mockGit('console.error("this is just a warning"); process.exit(0);', 'add')
+        const flush = mock({ bump: 'patch', changelog: 'foo\n', tags: [] })
+        try {
+          await exec({}, true)
+          throw new Error('Unexpected success')
+        } catch (error) {
+          done()
+          const expected = /this is just a warning/
+          error.message.should.not.match(expected)
+          const { stderr } = flush()
+          stderr[0].should.match(expected)
+        }
+      })
+    })
+  }
 })
 
 describe('GHSL-2020-111', function () {
   beforeEach(initInTempFolder)
   afterEach(finishTemp)
   afterEach(unmock)
+
   it('does not allow command injection via basic configuration', async function () {
     mock()
     await exec({
