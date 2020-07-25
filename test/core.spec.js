@@ -10,8 +10,8 @@ const mockFS = require('mock-fs')
 const mockery = require('mockery')
 const stdMocks = require('std-mocks')
 
-const cli = require('./command')
-const formatCommitMessage = require('./lib/format-commit-message')
+const cli = require('../command')
+const formatCommitMessage = require('../lib/format-commit-message')
 
 require('chai').should()
 
@@ -74,7 +74,7 @@ function mock ({ bump, changelog, fs, pkg, tags } = {}) {
   })
 
   // needs to be set after mockery, but before mock-fs
-  standardVersion = require('./index')
+  standardVersion = require('../index')
 
   fs = Object.assign({}, fs)
   if (pkg) {
@@ -174,7 +174,7 @@ describe('cli', function () {
     })
 
     it('appends the new release above the last release, removing the old header (new format)', async function () {
-      const { header } = require('./defaults')
+      const { header } = require('../defaults')
       const changelog1 =
         '### [1.0.1](/compare/v1.0.0...v1.0.1) (YYYY-MM-DD)\n\n\n### Bug Fixes\n\n* patch release ABCDEFXY\n'
       mock({ bump: 'patch', changelog: changelog1, tags: ['v1.0.0'] })
@@ -485,7 +485,7 @@ describe('standard-version', function () {
   describe('custom `bumpFiles` support', function () {
     it('mix.exs + version.txt', async function () {
       const updater = 'custom-updater.js'
-      const updaterModule = require('./test/mocks/updater/customer-updater')
+      const updaterModule = require('./mocks/updater/customer-updater')
       mock({
         bump: 'minor',
         fs: {
