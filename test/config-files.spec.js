@@ -26,7 +26,7 @@ function exec () {
  * changelog?: string | Error | Array<string | Error | (opt) => string | null>
  * tags?: string[] | Error
  */
-function mock ({ bump, changelog, fs, pkg, tags } = {}) {
+function mock ({ bump, changelog, tags } = {}) {
   mockery.enable({ warnOnUnregistered: false, useCleanCache: true })
 
   mockery.registerMock('conventional-recommended-bump', function (opt, cb) {
@@ -165,6 +165,7 @@ describe('config files', () => {
     fs.writeFileSync('.versionrc.js', 'module.exports = 3', 'utf-8')
     try {
       await exec()
+      /* istanbul ignore next */
       throw new Error('Unexpected success')
     } catch (error) {
       error.message.should.match(/Invalid configuration/)

@@ -37,6 +37,8 @@ function getPackageVersion () {
  *
  * bump?: 'major' | 'minor' | 'patch' | Error | (opt, cb) => { cb(err) | cb(null, { releaseType }) }
  * changelog?: string | Error | Array<string | Error | (opt) => string | null>
+ * fs?: { [string]: string | Buffer | any }
+ * pkg?: { [string]: any }
  * tags?: string[] | Error
  */
 function mock ({ bump, changelog, fs, pkg, tags } = {}) {
@@ -244,6 +246,7 @@ describe('cli', function () {
               prerelease: 'node -e \'throw new Error("prerelease fail")\''
             }
           })
+          /* istanbul ignore next */
           throw new Error('Unexpected success')
         } catch (error) {
           error.message.should.match(/prerelease fail/)
@@ -289,6 +292,7 @@ describe('cli', function () {
             scripts: { postbump: 'node -e \'throw new Error("postbump fail")\'' }
           })
           await exec('--patch')
+          /* istanbul ignore next */
           throw new Error('Unexpected success')
         } catch (error) {
           error.message.should.match(/postbump fail/)
@@ -423,6 +427,7 @@ describe('standard-version', function () {
     mock({ bump: new Error('bump err') })
     try {
       await exec()
+      /* istanbul ignore next */
       throw new Error('Unexpected success')
     } catch (err) {
       err.message.should.match(/bump err/)
@@ -433,6 +438,7 @@ describe('standard-version', function () {
     mock({ bump: 'minor', changelog: new Error('changelog err') })
     try {
       await exec()
+      /* istanbul ignore next */
       throw new Error('Unexpected success')
     } catch (err) {
       err.message.should.match(/changelog err/)
@@ -443,6 +449,7 @@ describe('standard-version', function () {
     mock({ bump: 'patch', pkg: false })
     try {
       await exec({ gitTagFallback: false })
+      /* istanbul ignore next */
       throw new Error('Unexpected success')
     } catch (err) {
       err.message.should.equal('no package file found')

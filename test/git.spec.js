@@ -39,8 +39,6 @@ function getPackageVersion () {
 /**
  * Mock external conventional-changelog modules
  *
- * Mocks should be unregistered in test cleanup by calling unmock()
- *
  * bump?: 'major' | 'minor' | 'patch' | Error | (opt, cb) => { cb(err) | cb(null, { releaseType }) }
  * changelog?: string | Error | Array<string | Error | (opt) => string | null>
  * tags?: string[] | Error
@@ -272,6 +270,7 @@ describe('git', function () {
       mock({ bump: 'minor', changelog: [], tags: [] })
       try {
         await exec('--patch')
+        /* istanbul ignore next */
         throw new Error('Unexpected success')
       } catch (error) {
         error.message.should.match(/precommit-failure/)
@@ -380,6 +379,7 @@ describe('git', function () {
         mock({ bump: 'patch', changelog: 'foo\n', tags: [] })
         try {
           await exec({})
+          /* istanbul ignore next */
           throw new Error('Unexpected success')
         } catch (error) {
           done()
@@ -393,6 +393,7 @@ describe('git', function () {
         mock({ bump: 'patch', changelog: 'foo\n', tags: [] })
         try {
           await exec({})
+          /* istanbul ignore next */
           throw new Error('Unexpected success')
         } catch (error) {
           done()
@@ -406,6 +407,7 @@ describe('git', function () {
         mock({ bump: 'patch', changelog: 'foo\n', tags: [] })
         try {
           await exec({})
+          /* istanbul ignore next */
           throw new Error('Unexpected success')
         } catch (error) {
           done()
@@ -420,6 +422,7 @@ describe('git', function () {
         const flush = mock({ bump: 'patch', changelog: 'foo\n', tags: [] })
         try {
           await exec({})
+          /* istanbul ignore next */
           throw new Error('Unexpected success')
         } catch (error) {
           done()
