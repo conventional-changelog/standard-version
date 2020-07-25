@@ -6,7 +6,7 @@
   "scripts": {
     "fix": "eslint . --fix",
     "posttest": "eslint .",
-    "test": "nyc mocha --timeout=30000 test.js test/git.spec.js",
+    "test": "nyc mocha --timeout=30000 test.js test/config-files.spec.js test/git.spec.js",
     "release": "bin/cli.js"
   },
   "nyc": {
