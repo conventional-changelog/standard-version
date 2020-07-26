@@ -436,5 +436,5 @@ module.exports.writeVersion = function (contents, version) {
 ```
 
 ## License
+The content of this repository is licensed under a [ISC](./LICENSE.txt).
 
-ISC
