@@ -228,10 +228,10 @@ describe('cli', function () {
         })
 
         await exec({
-          scripts: { prerelease: 'node -e \'console.error("prerelease ran")\'' }
+          scripts: { prerelease: 'node -e "console.error(\'prerelease\' + \' ran\')"' }
         })
         const { stderr } = flush()
-        stderr[0].should.match(/prerelease ran/)
+        stderr.join('\n').should.match(/prerelease ran/)
       })
 
       it('should abort if the hook returns a non-zero exit code', async function () {
@@ -243,7 +243,7 @@ describe('cli', function () {
         try {
           await exec({
             scripts: {
-              prerelease: 'node -e \'throw new Error("prerelease fail")\''
+              prerelease: 'node -e "throw new Error(\'prerelease\' + \' fail\')"'
             }
           })
           /* istanbul ignore next */
@@ -261,7 +261,7 @@ describe('cli', function () {
           fs: { 'CHANGELOG.md': 'legacy header format<a name="1.0.0">\n' }
         })
 
-        await exec({ scripts: { prebump: 'node -e \'console.log("9.9.9")\'' } })
+        await exec({ scripts: { prebump: 'node -e "console.log(Array.of(9, 9, 9).join(\'.\'))"' } })
         const { stdout } = flush()
         stdout.join('').should.match(/9\.9\.9/)
       })
@@ -275,10 +275,10 @@ describe('cli', function () {
         })
 
         await exec({
-          scripts: { postbump: 'node -e \'console.error("postbump ran")\'' }
+          scripts: { postbump: 'node -e "console.error(\'postbump\' + \' ran\')"' }
         })
         const { stderr } = flush()
-        stderr[0].should.match(/postbump ran/)
+        stderr.join('\n').should.match(/postbump ran/)
       })
 
       it('should run the postbump and exit with error when postbump fails', async function () {
@@ -289,7 +289,7 @@ describe('cli', function () {
 
         try {
           await exec({
-            scripts: { postbump: 'node -e \'throw new Error("postbump fail")\'' }
+            scripts: { postbump: 'node -e "throw new Error(\'postbump\' + \' fail\')"' }
           })
           await exec('--patch')
           /* istanbul ignore next */
