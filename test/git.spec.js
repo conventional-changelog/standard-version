@@ -39,44 +39,38 @@ function getPackageVersion () {
 /**
  * Mock external conventional-changelog modules
  *
- * bump?: 'major' | 'minor' | 'patch' | Error | (opt, cb) => { cb(err) | cb(null, { releaseType }) }
+ * bump: 'major' | 'minor' | 'patch' | Error | (opt, cb) => { cb(err) | cb(null, { releaseType }) }
  * changelog?: string | Error | Array<string | Error | (opt) => string | null>
  * tags?: string[] | Error
  */
 function mock ({ bump, changelog, tags } = {}) {
+  if (bump === undefined) throw new Error('bump must be defined for mock()')
   mockery.enable({ warnOnUnregistered: false, useCleanCache: true })
-  if (bump) {
-    mockery.registerMock('conventional-recommended-bump', function (opt, cb) {
-      if (typeof bump === 'function') bump(opt, cb)
-      else if (bump instanceof Error) cb(bump)
-      else cb(null, { releaseType: bump })
-    })
-  }
 
-  if (changelog) {
-    if (!Array.isArray(changelog)) {
-      changelog = [changelog]
-    }
-    mockery.registerMock('conventional-changelog', (opt) => new Readable({
-      read (_size) {
-        const next = changelog.shift()
-        if (next instanceof Error) {
-          this.destroy(next)
-        } else if (typeof next === 'function') {
-          this.push(next(opt))
-        } else {
-          this.push(next ? Buffer.from(next, 'utf8') : null)
-        }
+  mockery.registerMock('conventional-recommended-bump', function (opt, cb) {
+    if (typeof bump === 'function') bump(opt, cb)
+    else if (bump instanceof Error) cb(bump)
+    else cb(null, { releaseType: bump })
+  })
+
+  if (!Array.isArray(changelog)) changelog = [changelog]
+  mockery.registerMock('conventional-changelog', (opt) => new Readable({
+    read (_size) {
+      const next = changelog.shift()
+      if (next instanceof Error) {
+        this.destroy(next)
+      } else if (typeof next === 'function') {
+        this.push(next(opt))
+      } else {
+        this.push(next ? Buffer.from(next, 'utf8') : null)
       }
-    }))
-  }
+    }
+  }))
 
-  if (tags) {
-    mockery.registerMock('git-semver-tags', function (cb) {
-      if (tags instanceof Error) cb(tags)
-      else cb(null, tags)
-    })
-  }
+  mockery.registerMock('git-semver-tags', function (cb) {
+    if (tags instanceof Error) cb(tags)
+    else cb(null, tags || [])
+  })
 
   stdMocks.use()
   return () => stdMocks.flush()
@@ -90,6 +84,7 @@ describe('git', function () {
     shell.cd('tmp')
     shell.exec('git init')
     shell.exec('git config commit.gpgSign false')
+    shell.exec('git config core.autocrlf false')
     shell.exec('git commit --allow-empty -m"root-commit"')
     writePackageJson('1.0.0')
   })
@@ -110,7 +105,7 @@ describe('git', function () {
   })
 
   it('formats the commit and tag messages appropriately', async function () {
-    mock({ bump: 'minor', changelog: [], tags: ['v1.0.0'] })
+    mock({ bump: 'minor', tags: ['v1.0.0'] })
     await exec({})
     // check last commit message
     shell.exec('git log --oneline -n1').stdout.should.match(/chore\(release\): 1\.1\.0/)
@@ -120,7 +115,7 @@ describe('git', function () {
 
   it('formats the tag if --first-release is true', async function () {
     writePackageJson('1.0.1')
-    mock({ bump: 'minor', changelog: [], tags: [] })
+    mock({ bump: 'minor' })
     await exec('--first-release')
     shell.exec('git tag').stdout.should.match(/1\.0\.1/)
   })
@@ -145,7 +140,7 @@ describe('git', function () {
     fs.writeFileSync('.git/hooks/pre-commit', '#!/bin/sh\necho "precommit ran"\nexit 1', 'utf-8')
     fs.chmodSync('.git/hooks/pre-commit', '755')
 
-    mock({ bump: 'minor', changelog: [], tags: [] })
+    mock({ bump: 'minor' })
     await exec('--no-verify')
     await exec('-n')
   })
@@ -155,7 +150,7 @@ describe('git', function () {
     writePackageJson('1.0.0')
     fs.writeFileSync('CHANGELOG.md', changelogContent, 'utf-8')
 
-    mock({ bump: 'minor', changelog: 'new feature\n', tags: [] })
+    mock({ bump: 'minor', changelog: 'new feature\n' })
     await exec('--skip.commit true')
     getPackageVersion().should.equal('1.1.0')
     const content = fs.readFileSync('CHANGELOG.md', 'utf-8')
@@ -177,7 +172,7 @@ describe('git', function () {
   it('works fine without specifying a tag id when prereleasing', async function () {
     writePackageJson('1.0.0')
     fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
-    mock({ bump: 'minor', changelog: [], tags: [] })
+    mock({ bump: 'minor' })
     await exec('--prerelease')
     getPackageVersion().should.equal('1.1.0-0')
   })
@@ -185,7 +180,7 @@ describe('git', function () {
   describe('gitTagFallback', () => {
     it('defaults to 1.0.0 if no tags in git history', async () => {
       shell.rm('package.json')
-      mock({ bump: 'minor', changelog: [], tags: [] })
+      mock({ bump: 'minor' })
       await exec({})
       const output = shell.exec('git tag')
       output.stdout.should.include('v1.1.0')
@@ -193,7 +188,7 @@ describe('git', function () {
 
     it('bases version on greatest version tag, if tags are found', async () => {
       shell.rm('package.json')
-      mock({ bump: 'minor', changelog: [], tags: ['v3.9.0', 'v5.0.0', 'v3.0.0'] })
+      mock({ bump: 'minor', tags: ['v3.9.0', 'v5.0.0', 'v3.0.0'] })
       await exec({})
       const output = shell.exec('git tag')
       output.stdout.should.include('v5.1.0')
@@ -205,25 +200,25 @@ describe('git', function () {
       fs.writeFileSync('.versionrc', JSON.stringify({
         releaseCommitMessageFormat: 'This commit represents release: {{currentTag}}'
       }), 'utf-8')
-      mock({ bump: 'minor', changelog: [], tags: [] })
+      mock({ bump: 'minor' })
       await exec('')
       shell.exec('git log --oneline -n1').should.include('This commit represents release: 1.1.0')
     })
 
     it('--releaseCommitMessageFormat', async function () {
-      mock({ bump: 'minor', changelog: [], tags: [] })
+      mock({ bump: 'minor' })
       await exec('--releaseCommitMessageFormat="{{currentTag}} is the version."')
       shell.exec('git log --oneline -n1').should.include('1.1.0 is the version.')
     })
 
     it('[LEGACY] supports --message (and single %s replacement)', async function () {
-      mock({ bump: 'minor', changelog: [], tags: [] })
+      mock({ bump: 'minor' })
       await exec('--message="V:%s"')
       shell.exec('git log --oneline -n1').should.include('V:1.1.0')
     })
 
     it('[LEGACY] supports -m (and multiple %s replacements)', async function () {
-      mock({ bump: 'minor', changelog: [], tags: [] })
+      mock({ bump: 'minor' })
       await exec('--message="V:%s is the %s."')
       shell.exec('git log --oneline -n1').should.include('V:1.1.0 is the 1.1.0.')
     })
@@ -237,7 +232,7 @@ describe('git', function () {
 
       writeHook('precommit')
       fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
-      const flush = mock({ bump: 'minor', changelog: [], tags: [] })
+      const flush = mock({ bump: 'minor' })
       await exec('')
       const { stderr } = flush()
       stderr[0].should.match(/precommit ran/)
@@ -252,7 +247,7 @@ describe('git', function () {
       writeHook('precommit')
       fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
 
-      const flush = mock({ bump: 'minor', changelog: [], tags: [] })
+      const flush = mock({ bump: 'minor' })
       await exec('--patch')
       const { stderr } = flush()
       stderr[0].should.match(/precommit ran/)
@@ -267,7 +262,7 @@ describe('git', function () {
       writeHook('precommit', true)
       fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
 
-      mock({ bump: 'minor', changelog: [], tags: [] })
+      mock({ bump: 'minor' })
       try {
         await exec('--patch')
         /* istanbul ignore next */
@@ -286,7 +281,7 @@ describe('git', function () {
       writeHook('precommit', false, 'console.log("releasing %s delivers #222")')
       fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
 
-      mock({ bump: 'minor', changelog: [], tags: [] })
+      mock({ bump: 'minor' })
       await exec('--patch')
       shell.exec('git log --oneline -n1').should.match(/delivers #222/)
     })
@@ -294,33 +289,33 @@ describe('git', function () {
 
   describe('Run ... to publish', function () {
     it('does normally display `npm publish`', async function () {
-      const flush = mock()
+      const flush = mock({ bump: 'patch' })
       await exec('')
       flush().stdout.join('').should.match(/npm publish/)
     })
 
     it('does not display `npm publish` if the package is private', async function () {
       writePackageJson('1.0.0', { private: true })
-      const flush = mock()
+      const flush = mock({ bump: 'patch' })
       await exec('')
       flush().stdout.join('').should.not.match(/npm publish/)
     })
 
     it('does not display `npm publish` if there is no package.json', async function () {
       shell.rm('package.json')
-      const flush = mock()
+      const flush = mock({ bump: 'patch' })
       await exec('')
       flush().stdout.join('').should.not.match(/npm publish/)
     })
 
     it('does not display `all staged files` without the --commit-all flag', async function () {
-      const flush = mock()
+      const flush = mock({ bump: 'patch' })
       await exec('')
       flush().stdout.join('').should.not.match(/all staged files/)
     })
 
     it('does display `all staged files` if the --commit-all flag is passed', async function () {
-      const flush = mock()
+      const flush = mock({ bump: 'patch' })
       await exec('--commit-all')
       flush().stdout.join('').should.match(/all staged files/)
     })
@@ -329,7 +324,7 @@ describe('git', function () {
       writePackageJson('1.0.0')
       fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
 
-      const flush = mock({ bump: 'patch', changelog: [], tags: [] })
+      const flush = mock({ bump: 'patch' })
       await exec('--prerelease')
       const { stdout } = flush()
       stdout.join('').should.include('--tag prerelease')
@@ -339,7 +334,7 @@ describe('git', function () {
       writePackageJson('1.0.0')
       fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
 
-      const flush = mock({ bump: 'patch', changelog: [], tags: [] })
+      const flush = mock({ bump: 'patch' })
       await exec('--prerelease alpha')
       const { stdout } = flush()
       stdout.join('').should.include('--tag alpha')
@@ -349,7 +344,7 @@ describe('git', function () {
       writePackageJson('1.0.0', { private: true })
       fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
 
-      const flush = mock({ bump: 'minor', changelog: [], tags: [] })
+      const flush = mock({ bump: 'minor' })
       await exec('--prerelease')
       const { stdout } = flush()
       stdout.join('').should.not.include('--tag prerelease')
@@ -362,7 +357,7 @@ describe('git', function () {
       it('--sign signs the commit and tag', async function () {
         // mock git with file that writes args to gitcapture.log
         const done = await mockGit('require("fs").appendFileSync("gitcapture.log", JSON.stringify(process.argv.splice(2)) + "\\n")')
-        mock({ bump: 'patch', changelog: 'foo\n', tags: [] })
+        mock({ bump: 'patch', changelog: 'foo\n' })
         await exec('--sign')
         const { stdout } = shell.cat('gitcapture.log')
         const captured = stdout.split('\n').map((line) => line ? JSON.parse(line) : line)
@@ -376,7 +371,7 @@ describe('git', function () {
       it('fails if git commit fails', async function () {
         // mock git by throwing on attempt to commit
         const done = await mockGit('console.error("commit yourself"); process.exit(128);', 'commit')
-        mock({ bump: 'patch', changelog: 'foo\n', tags: [] })
+        mock({ bump: 'patch', changelog: 'foo\n' })
         try {
           await exec({})
           /* istanbul ignore next */
@@ -390,7 +385,7 @@ describe('git', function () {
       it('fails if git add fails', async function () {
         // mock git by throwing on attempt to add
         const done = await mockGit('console.error("addition is hard"); process.exit(128);', 'add')
-        mock({ bump: 'patch', changelog: 'foo\n', tags: [] })
+        mock({ bump: 'patch', changelog: 'foo\n' })
         try {
           await exec({})
           /* istanbul ignore next */
@@ -404,7 +399,7 @@ describe('git', function () {
       it('fails if git tag fails', async function () {
         // mock git by throwing on attempt to commit
         const done = await mockGit('console.error("tag, you\'re it"); process.exit(128);', 'tag')
-        mock({ bump: 'patch', changelog: 'foo\n', tags: [] })
+        mock({ bump: 'patch', changelog: 'foo\n' })
         try {
           await exec({})
           /* istanbul ignore next */
@@ -419,7 +414,7 @@ describe('git', function () {
         writePackageJson('1.0.0')
         // mock git by throwing on attempt to commit
         const done = await mockGit('console.error("this is just a warning"); process.exit(0);', 'add')
-        const flush = mock({ bump: 'patch', changelog: 'foo\n', tags: [] })
+        const flush = mock({ bump: 'patch', changelog: 'foo\n' })
         try {
           await exec({})
           /* istanbul ignore next */
