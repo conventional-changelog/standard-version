@@ -1006,6 +1006,45 @@ describe('standard-version', function () {
       fs.readFileSync('Cargo.lock', 'utf-8')
         .should.equal(fs.readFileSync('../test/mocks/cargo/Cargo-next.lock', 'utf-8'))
     })
+
+    it('should read name from main packageFile which is package.json', async () => {
+      fs.copyFileSync('../test/mocks/cargo/Cargo.toml', 'Cargo.toml')
+      fs.copyFileSync('../test/mocks/cargo/Cargo.lock', 'Cargo.lock')
+      fs.writeFileSync('package.json', JSON.stringify({
+        name: 'whatever-lib-name',
+        version: '0.1.22'
+      }, null, 2))
+
+      commit('feat!: awesome feat')
+
+      await standardVersion({
+        silent: true,
+        packageFiles: [{
+          filename: 'package.json'
+        }, {
+          filename: 'Cargo.toml'
+        }],
+        bumpFiles: [{
+          filename: 'Cargo.toml'
+        }, {
+          filename: 'Cargo.lock'
+        }, {
+          filename: 'package.json'
+        }]
+      })
+
+      fs.readFileSync('Cargo.toml', 'utf-8')
+        .should.equal(fs.readFileSync('../test/mocks/cargo/Cargo-next.toml', 'utf-8'))
+
+      fs.readFileSync('Cargo.lock', 'utf-8')
+        .should.equal(fs.readFileSync('../test/mocks/cargo/Cargo-next.lock', 'utf-8'))
+
+      JSON.parse(fs.readFileSync('package.json', 'utf-8'))
+        .should.deep.equal({
+          name: 'whatever-lib-name',
+          version: '0.2.0'
+        })
+    })
   })
 
   describe('manifest.json support', function () {
