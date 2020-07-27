@@ -18,11 +18,11 @@ require('chai').should()
 // set by mock()
 let standardVersion
 
-function exec (opt = '') {
+function exec (opt = '', git) {
   if (typeof opt === 'string') {
     opt = cli.parse(`standard-version ${opt}`)
   }
-  opt.skip = Object.assign({}, opt.skip, { commit: true, tag: true })
+  if (!git) opt.skip = Object.assign({}, opt.skip, { commit: true, tag: true })
   return standardVersion(opt)
 }
 
@@ -37,11 +37,12 @@ function getPackageVersion () {
  *
  * bump?: 'major' | 'minor' | 'patch' | Error | (opt, cb) => { cb(err) | cb(null, { releaseType }) }
  * changelog?: string | Error | Array<string | Error | (opt) => string | null>
+ * execFile?: ({ dryRun, silent }, cmd, cmdArgs) => Promise<string>
  * fs?: { [string]: string | Buffer | any }
  * pkg?: { [string]: any }
  * tags?: string[] | Error
  */
-function mock ({ bump, changelog, fs, pkg, tags } = {}) {
+function mock ({ bump, changelog, execFile, fs, pkg, tags } = {}) {
   mockery.enable({ warnOnUnregistered: false, useCleanCache: true })
 
   mockery.registerMock('conventional-recommended-bump', function (opt, cb) {
@@ -72,6 +73,11 @@ function mock ({ bump, changelog, fs, pkg, tags } = {}) {
     if (tags instanceof Error) cb(tags)
     else cb(null, tags | [])
   })
+
+  if (typeof execFile === 'function') {
+    // called from commit & tag lifecycle methods
+    mockery.registerMock('../run-execFile', execFile)
+  }
 
   // needs to be set after mockery, but before mock-fs
   standardVersion = require('../index')
@@ -662,5 +668,104 @@ describe('GHSL-2020-111', function () {
     })
     const stat = shell.test('-f', './exploit')
     stat.should.equal(false)
+  })
+})
+
+describe('with mocked git', function () {
+  afterEach(unmock)
+
+  it('--sign signs the commit and tag', async function () {
+    const gitArgs = [
+      ['add', 'CHANGELOG.md', 'package.json'],
+      ['commit', '-S', 'CHANGELOG.md', 'package.json', '-m', 'chore(release): 1.0.1'],
+      ['tag', '-s', 'v1.0.1', '-m', 'chore(release): 1.0.1'],
+      ['rev-parse', '--abbrev-ref', 'HEAD']
+    ]
+    const execFile = (_args, cmd, cmdArgs) => {
+      cmd.should.equal('git')
+      const expected = gitArgs.shift()
+      cmdArgs.should.deep.equal(expected)
+      if (expected[0] === 'rev-parse') return Promise.resolve('master')
+      return Promise.resolve('')
+    }
+    mock({ bump: 'patch', changelog: 'foo\n', execFile })
+
+    await exec('--sign', true)
+    gitArgs.should.have.lengthOf(0)
+  })
+
+  it('fails if git add fails', async function () {
+    const gitArgs = [
+      ['add', 'CHANGELOG.md', 'package.json']
+    ]
+    const execFile = (_args, cmd, cmdArgs) => {
+      cmd.should.equal('git')
+      const expected = gitArgs.shift()
+      cmdArgs.should.deep.equal(expected)
+      if (expected[0] === 'add') {
+        return Promise.reject(new Error('Command failed: git\nfailed add'))
+      }
+      return Promise.resolve('')
+    }
+    mock({ bump: 'patch', changelog: 'foo\n', execFile })
+
+    try {
+      await exec({}, true)
+      /* istanbul ignore next */
+      throw new Error('Unexpected success')
+    } catch (error) {
+      error.message.should.match(/failed add/)
+    }
+  })
+
+  it('fails if git commit fails', async function () {
+    const gitArgs = [
+      ['add', 'CHANGELOG.md', 'package.json'],
+      ['commit', 'CHANGELOG.md', 'package.json', '-m', 'chore(release): 1.0.1']
+    ]
+    const execFile = (_args, cmd, cmdArgs) => {
+      cmd.should.equal('git')
+      const expected = gitArgs.shift()
+      cmdArgs.should.deep.equal(expected)
+      if (expected[0] === 'commit') {
+        return Promise.reject(new Error('Command failed: git\nfailed commit'))
+      }
+      return Promise.resolve('')
+    }
+    mock({ bump: 'patch', changelog: 'foo\n', execFile })
+
+    try {
+      await exec({}, true)
+      /* istanbul ignore next */
+      throw new Error('Unexpected success')
+    } catch (error) {
+      error.message.should.match(/failed commit/)
+    }
+  })
+
+  it('fails if git tag fails', async function () {
+    const gitArgs = [
+      ['add', 'CHANGELOG.md', 'package.json'],
+      ['commit', 'CHANGELOG.md', 'package.json', '-m', 'chore(release): 1.0.1'],
+      ['tag', '-a', 'v1.0.1', '-m', 'chore(release): 1.0.1']
+    ]
+    const execFile = (_args, cmd, cmdArgs) => {
+      cmd.should.equal('git')
+      const expected = gitArgs.shift()
+      cmdArgs.should.deep.equal(expected)
+      if (expected[0] === 'tag') {
+        return Promise.reject(new Error('Command failed: git\nfailed tag'))
+      }
+      return Promise.resolve('')
+    }
+    mock({ bump: 'patch', changelog: 'foo\n', execFile })
+
+    try {
+      await exec({}, true)
+      /* istanbul ignore next */
+      throw new Error('Unexpected success')
+    } catch (error) {
+      error.message.should.match(/failed tag/)
+    }
   })
 })
