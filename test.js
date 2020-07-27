@@ -914,6 +914,7 @@ describe('standard-version', function () {
   describe('Cargo.toml support', () => {
     it('should bump Cargo.toml by using the `cargo` type', async () => {
       fs.copyFileSync('../test/mocks/cargo/Cargo.toml', 'Cargo.toml')
+      fs.copyFileSync('../test/mocks/cargo/Cargo-next.toml', 'Cargo-next.toml')
 
       commit('feat!: awesome feat')
 
@@ -929,12 +930,13 @@ describe('standard-version', function () {
         }]
       })
 
-      const expected = fs.readFileSync('../test/mocks/cargo/Cargo-next.toml', 'utf-8')
-      fs.readFileSync('Cargo.toml', 'utf-8').should.equal(expected)
+      fs.readFileSync('Cargo.toml', 'utf-8')
+        .should.equal(fs.readFileSync('Cargo-next.toml', 'utf-8'))
     })
 
     it('should bump Cargo.toml by using the right filename', async () => {
       fs.copyFileSync('../test/mocks/cargo/Cargo.toml', 'Cargo.toml')
+      fs.copyFileSync('../test/mocks/cargo/Cargo-next.toml', 'Cargo-next.toml')
 
       commit('feat!: awesome feat')
 
@@ -948,15 +950,18 @@ describe('standard-version', function () {
         }]
       })
 
-      const expected = fs.readFileSync('../test/mocks/cargo/Cargo-next.toml', 'utf-8')
-      fs.readFileSync('Cargo.toml', 'utf-8').should.equal(expected)
+      fs.readFileSync('Cargo.toml', 'utf-8')
+        .should.equal(fs.readFileSync('Cargo-next.toml', 'utf-8'))
     })
   })
 
   describe('Cargo.lock support', () => {
     it('should bump Cargo.lock by using the `cargo-lock` type', async () => {
       fs.copyFileSync('../test/mocks/cargo/Cargo.toml', 'Cargo.toml')
+      fs.copyFileSync('../test/mocks/cargo/Cargo-next.toml', 'Cargo-next.toml')
+
       fs.copyFileSync('../test/mocks/cargo/Cargo.lock', 'Cargo.lock')
+      fs.copyFileSync('../test/mocks/cargo/Cargo-next.lock', 'Cargo-next.lock')
 
       commit('feat!: awesome feat')
 
@@ -976,15 +981,18 @@ describe('standard-version', function () {
       })
 
       fs.readFileSync('Cargo.toml', 'utf-8')
-        .should.equal(fs.readFileSync('../test/mocks/cargo/Cargo-next.toml', 'utf-8'))
+        .should.equal(fs.readFileSync('Cargo-next.toml', 'utf-8'))
 
       fs.readFileSync('Cargo.lock', 'utf-8')
-        .should.equal(fs.readFileSync('../test/mocks/cargo/Cargo-next.lock', 'utf-8'))
+        .should.equal(fs.readFileSync('Cargo-next.lock', 'utf-8'))
     })
 
     it('should bump Cargo.lock by using the right filename', async () => {
       fs.copyFileSync('../test/mocks/cargo/Cargo.toml', 'Cargo.toml')
+      fs.copyFileSync('../test/mocks/cargo/Cargo-next.toml', 'Cargo-next.toml')
+
       fs.copyFileSync('../test/mocks/cargo/Cargo.lock', 'Cargo.lock')
+      fs.copyFileSync('../test/mocks/cargo/Cargo-next.lock', 'Cargo-next.lock')
 
       commit('feat!: awesome feat')
 
@@ -1001,15 +1009,19 @@ describe('standard-version', function () {
       })
 
       fs.readFileSync('Cargo.toml', 'utf-8')
-        .should.equal(fs.readFileSync('../test/mocks/cargo/Cargo-next.toml', 'utf-8'))
+        .should.equal(fs.readFileSync('Cargo-next.toml', 'utf-8'))
 
       fs.readFileSync('Cargo.lock', 'utf-8')
-        .should.equal(fs.readFileSync('../test/mocks/cargo/Cargo-next.lock', 'utf-8'))
+        .should.equal(fs.readFileSync('Cargo-next.lock', 'utf-8'))
     })
 
     it('should read name from main packageFile which is package.json', async () => {
       fs.copyFileSync('../test/mocks/cargo/Cargo.toml', 'Cargo.toml')
+      fs.copyFileSync('../test/mocks/cargo/Cargo-next.toml', 'Cargo-next.toml')
+
       fs.copyFileSync('../test/mocks/cargo/Cargo.lock', 'Cargo.lock')
+      fs.copyFileSync('../test/mocks/cargo/Cargo-next.lock', 'Cargo-next.lock')
+
       fs.writeFileSync('package.json', JSON.stringify({
         name: 'whatever-lib-name',
         version: '0.1.22'
@@ -1034,10 +1046,10 @@ describe('standard-version', function () {
       })
 
       fs.readFileSync('Cargo.toml', 'utf-8')
-        .should.equal(fs.readFileSync('../test/mocks/cargo/Cargo-next.toml', 'utf-8'))
+        .should.equal(fs.readFileSync('Cargo-next.toml', 'utf-8'))
 
       fs.readFileSync('Cargo.lock', 'utf-8')
-        .should.equal(fs.readFileSync('../test/mocks/cargo/Cargo-next.lock', 'utf-8'))
+        .should.equal(fs.readFileSync('Cargo-next.lock', 'utf-8'))
 
       JSON.parse(fs.readFileSync('package.json', 'utf-8'))
         .should.deep.equal({
