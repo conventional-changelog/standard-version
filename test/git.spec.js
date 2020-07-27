@@ -410,23 +410,6 @@ describe('git', function () {
         }
       })
 
-      it('doesn\'t fail fast on stderr output from git', async function () {
-        writePackageJson('1.0.0')
-        // mock git by throwing on attempt to commit
-        const done = await mockGit('console.error("this is just a warning"); process.exit(0);', 'add')
-        const flush = mock({ bump: 'patch', changelog: 'foo\n' })
-        try {
-          await exec({})
-          /* istanbul ignore next */
-          throw new Error('Unexpected success')
-        } catch (error) {
-          done()
-          const expected = /this is just a warning/
-          error.message.should.not.match(expected)
-          const { stderr } = flush()
-          stderr[0].should.match(expected)
-        }
-      })
     })
   }
 })
