@@ -911,6 +911,48 @@ describe('standard-version', function () {
     })
   })
 
+  describe('Cargo.toml support', () => {
+    it('should bump Cargo.toml by using the `cargo` type', async () => {
+      fs.copyFileSync('../test/mocks/cargo/Cargo.toml', 'Cargo.toml')
+
+      commit('feat!: awesome feat')
+
+      await standardVersion({
+        silent: true,
+        packageFiles: [{
+          filename: 'Cargo.toml',
+          type: 'cargo'
+        }],
+        bumpFiles: [{
+          filename: 'Cargo.toml',
+          type: 'cargo'
+        }]
+      })
+
+      const expected = fs.readFileSync('../test/mocks/cargo/Cargo-next.toml', 'utf-8')
+      fs.readFileSync('Cargo.toml', 'utf-8').should.equal(expected)
+    })
+
+    it('should bump Cargo.toml by using the right filename', async () => {
+      fs.copyFileSync('../test/mocks/cargo/Cargo.toml', 'Cargo.toml')
+
+      commit('feat!: awesome feat')
+
+      await standardVersion({
+        silent: true,
+        packageFiles: [{
+          filename: 'Cargo.toml'
+        }],
+        bumpFiles: [{
+          filename: 'Cargo.toml'
+        }]
+      })
+
+      const expected = fs.readFileSync('../test/mocks/cargo/Cargo-next.toml', 'utf-8')
+      fs.readFileSync('Cargo.toml', 'utf-8').should.equal(expected)
+    })
+  })
+
   describe('manifest.json support', function () {
     beforeEach(function () {
       writeManifestJson('1.0.0')

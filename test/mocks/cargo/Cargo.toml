@@ -1,0 +1,12 @@
+[package]
+name = "whatever-lib-name"
+version = "0.1.22"
+authors = [ "Someone <example@mail.com>" ]
+edition = "2018"
+
+[dependencies]
+libc = "0.2"
+errno = "0.2"
+
+[dev-dependencies]
+pretty_assertions = "0.6"
