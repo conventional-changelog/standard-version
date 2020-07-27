@@ -62,7 +62,6 @@
     "eslint-plugin-standard": "^4.0.1",
     "mocha": "^8.0.0",
     "mock-fs": "^4.12.0",
-    "mock-git": "^2.0.0",
     "mockery": "^2.1.0",
     "nyc": "^14.1.1",
     "shelljs": "^0.8.4",
