@@ -1,37 +1,10 @@
 const bump = require('./lib/lifecycles/bump')
 const changelog = require('./lib/lifecycles/changelog')
 const commit = require('./lib/lifecycles/commit')
-const fs = require('fs')
 const latestSemverTag = require('./lib/latest-semver-tag')
-const path = require('path')
 const printError = require('./lib/print-error')
 const tag = require('./lib/lifecycles/tag')
-const { resolveUpdaterObjectFromArgument } = require('./lib/updaters')
-
-function findMainPkg (packageFiles) {
-  let pkg
-  packageFiles.forEach((packageFile) => {
-    if (pkg) return
-    const updater = resolveUpdaterObjectFromArgument(packageFile)
-    const pkgPath = path.resolve(process.cwd(), updater.filename)
-    try {
-      const contents = fs.readFileSync(pkgPath, 'utf8')
-
-      const pkgName = typeof updater.updater.readName === 'function'
-        ? updater.updater.readName(contents)
-        : undefined
-
-      pkg = {
-        name: pkgName,
-        version: updater.updater.readVersion(contents, pkgName),
-        private: typeof updater.updater.isPrivate === 'function'
-          ? updater.updater.isPrivate(contents)
-          : false
-      }
-    } catch (err) {}
-  })
-  return pkg
-}
+const { findMainPkg } = require('./lib/find-main-pkg')
 
 module.exports = function standardVersion (argv) {
   const defaults = require('./defaults')
