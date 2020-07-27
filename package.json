@@ -7,6 +7,7 @@
     "fix": "eslint . --fix",
     "posttest": "eslint .",
     "test": "nyc mocha --timeout=30000",
+    "test:unit": "mocha --exclude test/git.spec.js",
     "release": "bin/cli.js"
   },
   "nyc": {
