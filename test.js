@@ -1032,6 +1032,79 @@ describe('standard-version', function () {
     })
   })
 
+  describe('python support', async function () {
+    beforeEach(function () {
+      fs.copyFileSync('../test/mocks/setup-1.0.0.py', 'setup.py')
+      fs.copyFileSync('../test/mocks/pyproject-1.0.0.toml', 'pyproject.toml')
+      commit('feat: new feature!')
+    })
+
+    afterEach(function () {
+      fs.unlinkSync('setup.py')
+      fs.unlinkSync('pyproject.toml')
+    })
+
+    it('bumps version # by type', async function () {
+      await require('./index')({
+        silent: true,
+        packageFiles: [
+          {
+            filename: 'setup.py',
+            type: 'python'
+          },
+          {
+            filename: 'pyproject.toml',
+            type: 'python'
+          }
+        ],
+        bumpFiles: [
+          {
+            filename: 'setup.py',
+            type: 'python'
+          },
+          {
+            filename: 'pyproject.toml',
+            type: 'python'
+          }
+        ]
+      })
+
+      const setupPyExpected = fs.readFileSync('../test/mocks/setup-1.1.0.py', 'utf-8')
+      fs.readFileSync('setup.py', 'utf-8').should.equal(setupPyExpected)
+
+      const pyprojectExpected = fs.readFileSync('../test/mocks/pyproject-1.1.0.toml', 'utf-8')
+      fs.readFileSync('pyproject.toml', 'utf-8').should.equal(pyprojectExpected)
+    })
+
+    it('bumps version # by filename', async function () {
+      await require('./index')({
+        silent: true,
+        packageFiles: [
+          {
+            filename: 'setup.py'
+          },
+          {
+            filename: 'pyproject.toml'
+          }
+        ],
+        bumpFiles: [
+          {
+            filename: 'setup.py'
+          },
+          {
+            filename: 'pyproject.toml'
+          }
+        ]
+      })
+
+      const setupPyExpected = fs.readFileSync('../test/mocks/setup-1.1.0.py', 'utf-8')
+      fs.readFileSync('setup.py', 'utf-8').should.equal(setupPyExpected)
+
+      const pyprojectExpected = fs.readFileSync('../test/mocks/pyproject-1.1.0.toml', 'utf-8')
+      fs.readFileSync('pyproject.toml', 'utf-8').should.equal(pyprojectExpected)
+    })
+  })
+
   describe('dry-run', function () {
     it('skips all non-idempotent steps', function (done) {
       commit('feat: first commit')
