@@ -39,7 +39,7 @@
     "conventional-changelog": "3.1.21",
     "conventional-changelog-config-spec": "2.1.0",
     "conventional-changelog-conventionalcommits": "4.4.0",
-    "conventional-recommended-bump": "6.0.9",
+    "conventional-recommended-bump": "6.0.10",
     "detect-indent": "^6.0.0",
     "detect-newline": "^3.1.0",
     "dotgitignore": "^2.1.0",
