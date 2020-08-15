@@ -7,6 +7,8 @@ const path = require('path')
 const printError = require('./lib/print-error')
 const tag = require('./lib/lifecycles/tag')
 const { resolveUpdaterObjectFromArgument } = require('./lib/updaters')
+const formatCommitMessage = require('./lib/format-commit-message')
+const runLifecycleScript = require('./lib/run-lifecycle-script')
 
 module.exports = function standardVersion (argv) {
   const defaults = require('./defaults')
@@ -72,13 +74,22 @@ module.exports = function standardVersion (argv) {
       // if bump runs, it calculaes the new version that we
       // should release at.
       if (_newVersion) newVersion = _newVersion
-      return changelog(args, newVersion)
-    })
-    .then(() => {
-      return commit(args, newVersion)
-    })
-    .then(() => {
-      return tag(newVersion, pkg ? pkg.private : false, args)
+      return runLifecycleScript(args, 'precommit')
+        .then(
+          message => {
+            // just make the tag message once - it will be the same for all it's uses
+            const tagMessage = message && message.length
+              ? formatCommitMessage(message, newVersion)
+              : formatCommitMessage(args.releaseCommitMessageFormat, newVersion)
+            return changelog(args, newVersion, tagMessage)
+              .then(() => {
+                return commit(args, newVersion, tagMessage)
+              })
+              .then(() => {
+                return tag(newVersion, pkg ? pkg.private : false, args, tagMessage)
+              })
+          }
+        )
     })
     .catch((err) => {
       printError(args, err.message)

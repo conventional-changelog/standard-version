@@ -211,6 +211,52 @@ describe('cli', function () {
       content = content.replace(/patch release [0-9a-f]{6,8}/g, 'patch release ABCDEFXY').replace(/\([0-9]{4}-[0-9]{2}-[0-9]{2}\)/g, '(YYYY-MM-DD)')
       content.should.equal('# Changelog\n\nAll notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.\n\n### [1.0.2](/compare/v1.0.1...v1.0.2) (YYYY-MM-DD)\n\n\n### Bug Fixes\n\n* another patch release ABCDEFXY\n\n### [1.0.1](/compare/v1.0.0...v1.0.1) (YYYY-MM-DD)\n\n\n### Bug Fixes\n\n* patch release ABCDEFXY\n')
     })
+    it('takes account of tagMessageInChangeLog=true!', function () {
+      // we don't create a package.json, so no {{host}} and {{repo}} tag
+      // will be populated, let's use a compareUrlFormat without these.
+      const cliArgs = '--tagMessageInChangeLog=true --compareUrlFormat=/compare/{{previousTag}}...{{currentTag}}'
+
+      commit('feat: first commit')
+      shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
+      commit('fix: patch release')
+
+      execCli(cliArgs).code.should.equal(0)
+      let content = fs.readFileSync('CHANGELOG.md', 'utf-8')
+
+      // remove commit hashes and dates to make testing against a static string easier:
+      content = content.replace(/patch release [0-9a-f]{6,8}/g, 'patch release ABCDEFXY').replace(/\([0-9]{4}-[0-9]{2}-[0-9]{2}\)/g, '(YYYY-MM-DD)')
+      content.should.equal('# Changelog\n\nAll notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.\n\n### [1.0.1](/compare/v1.0.0...v1.0.1) "chore(release): 1.0.1" (YYYY-MM-DD)\n\n\n### Bug Fixes\n\n* patch release ABCDEFXY\n')
+
+      commit('fix: another patch release')
+      // we've populated no package.json, so no {{host}} and
+      execCli(cliArgs).code.should.equal(0)
+      content = fs.readFileSync('CHANGELOG.md', 'utf-8')
+      content = content.replace(/patch release [0-9a-f]{6,8}/g, 'patch release ABCDEFXY').replace(/\([0-9]{4}-[0-9]{2}-[0-9]{2}\)/g, '(YYYY-MM-DD)')
+      content.should.equal('# Changelog\n\nAll notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.\n\n### [1.0.2](/compare/v1.0.1...v1.0.2) "chore(release): 1.0.2" (YYYY-MM-DD)\n\n\n### Bug Fixes\n\n* another patch release ABCDEFXY\n\n### [1.0.1](/compare/v1.0.0...v1.0.1) "chore(release): 1.0.1" (YYYY-MM-DD)\n\n\n### Bug Fixes\n\n* patch release ABCDEFXY\n')
+    })
+    it('takes account of tagMessageInChangeLog=true and releaseCommitMessageFormat', function () {
+      // we don't create a package.json, so no {{host}} and {{repo}} tag
+      // will be populated, let's use a compareUrlFormat without these.
+      const cliArgs = '--releaseCommitMessageFormat="this release: {{currentTag}}" --tagMessageInChangeLog=true --compareUrlFormat=/compare/{{previousTag}}...{{currentTag}}'
+
+      commit('feat: first commit')
+      shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
+      commit('fix: patch release')
+
+      execCli(cliArgs).code.should.equal(0)
+      let content = fs.readFileSync('CHANGELOG.md', 'utf-8')
+
+      // remove commit hashes and dates to make testing against a static string easier:
+      content = content.replace(/patch release [0-9a-f]{6,8}/g, 'patch release ABCDEFXY').replace(/\([0-9]{4}-[0-9]{2}-[0-9]{2}\)/g, '(YYYY-MM-DD)')
+      content.should.equal('# Changelog\n\nAll notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.\n\n### [1.0.1](/compare/v1.0.0...v1.0.1) "this release: 1.0.1" (YYYY-MM-DD)\n\n\n### Bug Fixes\n\n* patch release ABCDEFXY\n')
+
+      commit('fix: another patch release')
+      // we've populated no package.json, so no {{host}} and
+      execCli(cliArgs).code.should.equal(0)
+      content = fs.readFileSync('CHANGELOG.md', 'utf-8')
+      content = content.replace(/patch release [0-9a-f]{6,8}/g, 'patch release ABCDEFXY').replace(/\([0-9]{4}-[0-9]{2}-[0-9]{2}\)/g, '(YYYY-MM-DD)')
+      content.should.equal('# Changelog\n\nAll notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.\n\n### [1.0.2](/compare/v1.0.1...v1.0.2) "this release: 1.0.2" (YYYY-MM-DD)\n\n\n### Bug Fixes\n\n* another patch release ABCDEFXY\n\n### [1.0.1](/compare/v1.0.0...v1.0.1) "this release: 1.0.1" (YYYY-MM-DD)\n\n\n### Bug Fixes\n\n* patch release ABCDEFXY\n')
+    })
 
     it('commits all staged files', function () {
       fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
@@ -677,6 +723,18 @@ describe('cli', function () {
     shell.exec('git log --oneline -n1').stdout.should.match(/chore\(release\): 1\.1\.0/)
     // check annotated tag message
     shell.exec('git tag -l -n1 v1.1.0').stdout.should.match(/chore\(release\): 1\.1\.0/)
+  })
+  it('formats the commit and tag messages appropriately with releaseCommitMessageFormat', function () {
+    commit('feat: first commit')
+    shell.exec('git tag -a v1.0.0 -m "my awesome first release"')
+    commit('feat: new feature!')
+
+    execCli('--releaseCommitMessageFormat "this will appear: {{currentTag}}"').code.should.equal(0)
+
+    // check last commit message
+    shell.exec('git log --oneline -n1').stdout.should.match(/this will appear: 1\.1\.0/)
+    // check annotated tag message
+    shell.exec('git tag -l -n1 v1.1.0').stdout.should.match(/this will appear: 1\.1\.0/)
   })
 
   it('appends line feed at end of package.json', function () {
