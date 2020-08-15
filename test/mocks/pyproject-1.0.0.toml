@@ -1,0 +1,13 @@
+[tool.poetry]
+name = "test"
+version = "1.0.0"
+description = ""
+authors = []
+
+[tool.poetry.dependencies]
+python = "^3.8"
+
+[build-system]
+requires = ["poetry>=1"]
+build-backend = "poetry.masonry.api"
+ 

@@ -375,6 +375,16 @@ As of version `7.1.0` you can configure multiple `bumpFiles` and `packageFiles`.
       "type": "json"
     },
     {
+      "filename": "setup.py",
+      // The `python` updater assumes the version is available under a `version` key in the provided setup.py
+      "updater": "python"
+    },
+    {
+      "filename": "pyproject.toml",
+      // The `python` updater also supports pyproject.toml
+      "updater": "python"
+    },
+    {
       "filename": "VERSION_TRACKER.json",
       //  See "Custom `updater`s" for more details.
       "updater": "standard-version-updater.js"
