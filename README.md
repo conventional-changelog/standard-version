@@ -355,10 +355,14 @@ As of version `7.1.0` you can configure multiple `bumpFiles` and `packageFiles`.
 
 1. Specify a custom `bumpFile` "`filename`", this is the path to the file you want to "bump"
 2. Specify the `bumpFile` "`updater`", this is _how_ the file will be bumped.
-  
-    a. If your using a common type, you can use one of  `standard-version`'s built-in `updaters` by specifying a `type`.
 
-    b. If your using an less-common version file, you can create your own `updater`.
+    a. If you are using a common type, you can use one of  `standard-version`'s built-in `updaters` by specifying a `type`:
+      - `json` (e.g. for `package.json`)
+      - `plain-text` (e.g. for `VERSION.txt`)
+      - `cargo` (e.g. for `Cargo.toml`)
+      - `cargo-lock` (e.g. for `Cargo.lock`)
+
+    b. If you are using less-common version file, you can create your own `updater`.
 
 ```js
 // .versionrc
@@ -385,21 +389,58 @@ As of version `7.1.0` you can configure multiple `bumpFiles` and `packageFiles`.
 
 #### Custom `updater`s
 
-An `updater` is expected to be a Javascript module with _atleast_ two methods exposed: `readVersion` and `writeVersion`.
+An `updater` is expected to be a JavaScript module with the following functions:
 
-##### `readVersion(contents = string): string`
+for `packageFiles`:
+
+```ts
+// required
+function readVersion(contents: string, name: string): string
+
+// opitonal
+function readName(contents: string): string
+
+// optional
+function isPrivate(contents: string): boolean
+```
+
+for `bumpFiles`:
+
+```ts
+// required
+function readVersion(contents: string, name: string): string
+
+// required
+function writeVersion(contents: string, version: string, name: string): string
+```
+
+You might define all 5 functions in case your updater is used for both `packageFiles`
+and `bumpFiles` arrays.
+
+##### `readVersion`
 
 This method is used to read the version from the provided file contents.
 
 The return value is expected to be a semantic version string.
 
-##### `writeVersion(contents = string, version: string): string`
+##### `writeVersion`
 
 This method is used to write the version to the provided contents.
 
 The return value will be written directly (overwrite) to the provided file.
 
----
+##### `readName`
+
+This method is called on `packageFiles` to obtain the actual package name.
+
+The return value will be passed to `bumpFiles`'s  `readVersion` and `writeVersion` as well as
+to `packageFile`'s `readVersion`.
+
+Might be useful in case you need to explicitly know the package name when looking for the version!
+
+##### Examples
+
+###### Basic example
 
 Let's assume our `VERSION_TRACKER.json` has the following contents:
 
@@ -431,6 +472,129 @@ module.exports.writeVersion = function (contents, version) {
   let indent = detectIndent(contents).indent
   let newline = detectNewline(contents)
   json.tracker.package.version = version
+  return stringifyPackage(json, indent, newline)
+}
+```
+
+###### Example when you need to know the package name
+
+Let's assume our `pkg.json` has the following contents:
+
+We will use `main-updater.js` to handle this file.
+
+```json
+{
+  "tracker": {
+    "package": {
+      "name": "pkg3",
+      "version": "0.1.12"
+    }
+  }
+}
+
+```
+
+Let's assume our `pkg.lock.json` has the following contents:
+
+We will use `lock-updater.js` to handle this file.
+
+```json
+{
+  "package": [
+    {
+      "name": "pkg1",
+      "version": "1.1.0"
+    },
+    {
+      "name": "pkg2",
+      "version": "2.3.1"
+    },
+    {
+      "name": "pkg3",
+      "version": "0.1.12"
+    }
+  ]
+}
+
+```
+
+Let's define our `.versionrc.json`:
+
+```json
+{
+  "packageFiles": [
+    {
+      "filename": "pkg.json",
+      "updater": "main-updater.js"
+    },
+  ],
+  "bumpFiles": [
+    {
+      "filename": "pkg.json",
+      "updater": "main-updater.js"
+    },
+    {
+      "filename": "pkg.lock.json",
+      "updater": "lock-updater.js"
+    }
+  ]
+}
+```
+
+First, we need to know the actual package name. For that, you will have to add
+`readName` to the main updater; it should like this:
+
+```js
+// main-updater.js
+const stringifyPackage = require('stringify-package')
+const detectIndent = require('detect-indent')
+const detectNewline = require('detect-newline')
+
+module.exports.readName = function(contents) {
+  return JSON.parse(contents).tracker.package.name;
+}
+
+module.exports.readVersion = function (contents) {
+  return JSON.parse(contents).tracker.package.version;
+}
+
+module.exports.writeVersion = function (contents, version) {
+  const json = JSON.parse(contents)
+  let indent = detectIndent(contents).indent
+  let newline = detectNewline(contents)
+  json.tracker.package.version = version
+  return stringifyPackage(json, indent, newline)
+}
+```
+
+Then, we can define updater for the `pkg.lock.json` like this:
+
+Note that here we don't have a `readName` function, because it's a `bumpFile` updater which is
+used to write new version to.
+
+```js
+// lock-updater.js
+const stringifyPackage = require('stringify-package')
+const detectIndent = require('detect-indent')
+const detectNewline = require('detect-newline')
+
+module.exports.readVersion = function (contents, name) {
+  return JSON.parse(contents).package.find(pkg => pkg.name === name).version
+}
+
+module.exports.writeVersion = function (contents, version, name) {
+  const json = JSON.parse(contents)
+  let indent = detectIndent(contents).indent
+  let newline = detectNewline(contents)
+  json.package = json.package.map(pkg => {
+    if (pkg.name === name) {
+      return {
+        ...pkg,
+        version,
+      }
+    }
+    return pkg
+  })
   return stringifyPackage(json, indent, newline)
 }
 ```
