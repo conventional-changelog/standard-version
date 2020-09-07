@@ -1,6 +1,6 @@
 {
   "name": "standard-version",
-  "version": "8.0.2",
+  "version": "9.0.0",
   "description": "replacement for `npm version` with automatic CHANGELOG generation",
   "bin": "bin/cli.js",
   "scripts": {
@@ -37,10 +37,10 @@
   "homepage": "https://github.com/conventional-changelog/standard-version#readme",
   "dependencies": {
     "chalk": "^2.4.2",
-    "conventional-changelog": "3.1.21",
+    "conventional-changelog": "3.1.23",
     "conventional-changelog-config-spec": "2.1.0",
-    "conventional-changelog-conventionalcommits": "4.3.0",
-    "conventional-recommended-bump": "6.0.9",
+    "conventional-changelog-conventionalcommits": "4.4.0",
+    "conventional-recommended-bump": "6.0.10",
     "detect-indent": "^6.0.0",
     "detect-newline": "^3.1.0",
     "dotgitignore": "^2.1.0",
