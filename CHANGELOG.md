@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [8.3.0](https://github.com/conventional-changelog/standard-version/compare/v8.2.0...v8.3.0) (2020-05-20)
+
+
+### Features
+
+* **gradle:** support double quotes in gradle files ([fb1202c](https://github.com/conventional-changelog/standard-version/commit/fb1202c7e5fc6d8b88f510609feb4c4e3abffe8e))
+
+## [8.2.0](https://github.com/conventional-changelog/standard-version/compare/v8.1.1...v8.2.0) (2020-05-19)
+
+
+### Features
+
+* **java:** add support for gradle ([a6b423c](https://github.com/conventional-changelog/standard-version/commit/a6b423ce4f49ff066371bf44da104f4f50892136))
+
+### [8.1.1](https://github.com/conventional-changelog/standard-version/compare/v8.1.0...v8.1.1) (2020-05-19)
+
+## [8.1.0](https://github.com/conventional-changelog/standard-version/compare/v8.0.0...v8.1.0) (2020-05-19)
+
+
+### Features
+
+* **Java:** add support for pom.xml files for Java Maven projects ([8d68c46](https://github.com/conventional-changelog/standard-version/commit/8d68c463d272c58ac3f6809686d8572ca4d120f5))
+
 ## [8.0.0](https://www.github.com/conventional-changelog/standard-version/compare/v7.1.0...v8.0.0) (2020-05-06)
 
 
