@@ -51,19 +51,17 @@ module.exports = async function standardVersion (argv) {
       break
     } catch (err) {}
   }
-  let newVersion
   try {
+    let version
     if (pkg) {
-      newVersion = pkg.version
+      version = pkg.version
     } else if (args.gitTagFallback) {
-      newVersion = await latestSemverTag()
+      version = await latestSemverTag()
     } else {
       throw new Error('no package file found')
     }
 
-    // if bump runs, it calculates the new version that we should release at.
-    const bumpVersion = await bump(args, newVersion)
-    if (bumpVersion) newVersion = bumpVersion
+    const newVersion = await bump(args, version)
     await changelog(args, newVersion)
     await commit(args, newVersion)
     await tag(newVersion, pkg ? pkg.private : false, args)
