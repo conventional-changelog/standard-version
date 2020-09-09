@@ -355,7 +355,7 @@ As of version `7.1.0` you can configure multiple `bumpFiles` and `packageFiles`.
 
 1. Specify a custom `bumpFile` "`filename`", this is the path to the file you want to "bump"
 2. Specify the `bumpFile` "`updater`", this is _how_ the file will be bumped.
-  
+
     a. If your using a common type, you can use one of  `standard-version`'s built-in `updaters` by specifying a `type`.
 
     b. If your using an less-common version file, you can create your own `updater`.
@@ -380,6 +380,21 @@ As of version `7.1.0` you can configure multiple `bumpFiles` and `packageFiles`.
       "updater": "standard-version-updater.js"
     }
   ]
+}
+```
+
+If using `.versionrc.js` as your configuration file, the `updater` may also be set as an object, rather than a path:
+
+```js
+// .versionrc.js
+const tracker = {
+  filename: 'VERSION_TRACKER.json',
+  updater: require('./path/to/custom-version-updater')
+}
+
+module.exports = {
+  bumpFiles: [tracker],
+  packageFiles: [tracker]
 }
 ```
 
