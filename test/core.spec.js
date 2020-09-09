@@ -544,6 +544,28 @@ describe('standard-version', function () {
       })
       fs.readFileSync('VERSION_TRACKER.txt', 'utf-8').should.equal('6.4.0')
     })
+
+    it('allows same object to be used in packageFiles and bumpFiles', async function () {
+      mock({
+        bump: 'minor',
+        fs: {
+          'VERSION_TRACKER.txt': fs.readFileSync(
+            './test/mocks/VERSION-6.3.1.txt'
+          )
+        }
+      })
+      const origWarn = console.warn
+      console.warn = () => {
+        throw new Error('console.warn should not be called')
+      }
+      const filedesc = { filename: 'VERSION_TRACKER.txt', type: 'plain-text' }
+      try {
+        await exec({ packageFiles: [filedesc], bumpFiles: [filedesc] })
+        fs.readFileSync('VERSION_TRACKER.txt', 'utf-8').should.equal('6.4.0')
+      } finally {
+        console.warn = origWarn
+      }
+    })
   })
 
   it('bumps version # in npm-shrinkwrap.json', async function () {
