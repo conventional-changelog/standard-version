@@ -408,7 +408,7 @@ This method is used to read the version from the provided file contents.
 
 The return value is expected to be a semantic version string.
 
-##### `writeVersion(contents = string, version: string): string`
+##### `writeVersion(contents = string, version: string, filePath: string): string`
 
 This method is used to write the version to the provided contents.
 
@@ -441,7 +441,7 @@ module.exports.readVersion = function (contents) {
   return JSON.parse(contents).tracker.package.version;
 }
 
-module.exports.writeVersion = function (contents, version) {
+module.exports.writeVersion = function (contents, version, filePath) {
   const json = JSON.parse(contents)
   let indent = detectIndent(contents).indent
   let newline = detectNewline(contents)
