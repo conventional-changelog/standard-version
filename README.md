@@ -355,8 +355,8 @@ As of version `7.1.0` you can configure multiple `bumpFiles` and `packageFiles`.
 
 1. Specify a custom `bumpFile` "`filename`", this is the path to the file you want to "bump"
 2. Specify the `bumpFile` "`updater`", this is _how_ the file will be bumped.
-
-    a. If your using a common type, you can use one of  `standard-version`'s built-in `updaters` by specifying a `type`.
+  
+    a. If you're using a common type, you can use one of  `standard-version`'s built-in `updaters` by specifying a `type`.
 
     b. If your using an less-common version file, you can create your own `updater`.
 
