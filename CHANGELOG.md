@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [9.1.0](https://www.github.com/conventional-changelog/standard-version/compare/v9.0.0...v9.1.0) (2020-09-12)
+
+
+### Features
+
+* support custom updater as object as well as path ([#630](https://www.github.com/conventional-changelog/standard-version/issues/630)) ([55bbde8](https://www.github.com/conventional-changelog/standard-version/commit/55bbde8476013de7a2f24bf29c7c12cb07f96e3f))
+
+
+### Bug Fixes
+
+* **deps:** update dependency find-up to v5 ([#651](https://www.github.com/conventional-changelog/standard-version/issues/651)) ([df8db83](https://www.github.com/conventional-changelog/standard-version/commit/df8db832327a751d5c62fe361b6ac2d2b5f66bf6))
+
 ## [9.0.0](https://www.github.com/conventional-changelog/standard-version/compare/v8.0.2...v9.0.0) (2020-08-15)
 
 

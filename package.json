@@ -1,6 +1,6 @@
 {
   "name": "standard-version",
-  "version": "9.0.0",
+  "version": "9.1.0",
   "description": "replacement for `npm version` with automatic CHANGELOG generation",
   "bin": "bin/cli.js",
   "scripts": {
