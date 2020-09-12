@@ -6,7 +6,8 @@
   "scripts": {
     "fix": "eslint . --fix",
     "posttest": "eslint .",
-    "test": "nyc mocha --timeout=30000 test.js",
+    "test": "nyc mocha --timeout=30000",
+    "test:unit": "mocha --exclude test/git.spec.js",
     "release": "bin/cli.js"
   },
   "nyc": {
@@ -44,7 +45,7 @@
     "detect-newline": "^3.1.0",
     "dotgitignore": "^2.1.0",
     "figures": "^3.1.0",
-    "find-up": "^4.1.0",
+    "find-up": "^5.0.0",
     "fs-access": "^1.0.1",
     "git-semver-tags": "^4.0.0",
     "semver": "^7.1.1",
@@ -61,9 +62,10 @@
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.1",
     "mocha": "^8.0.0",
-    "mock-git": "^2.0.0",
+    "mock-fs": "^4.12.0",
     "mockery": "^2.1.0",
     "nyc": "^14.1.1",
-    "shelljs": "^0.8.4"
+    "shelljs": "^0.8.4",
+    "std-mocks": "^1.0.1"
   }
 }

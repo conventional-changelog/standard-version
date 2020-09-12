@@ -383,6 +383,21 @@ As of version `7.1.0` you can configure multiple `bumpFiles` and `packageFiles`.
 }
 ```
 
+If using `.versionrc.js` as your configuration file, the `updater` may also be set as an object, rather than a path:
+
+```js
+// .versionrc.js
+const tracker = {
+  filename: 'VERSION_TRACKER.json',
+  updater: require('./path/to/custom-version-updater')
+}
+
+module.exports = {
+  bumpFiles: [tracker],
+  packageFiles: [tracker]
+}
+```
+
 #### Custom `updater`s
 
 An `updater` is expected to be a Javascript module with _atleast_ two methods exposed: `readVersion` and `writeVersion`.
