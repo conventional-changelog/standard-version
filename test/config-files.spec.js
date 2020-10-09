@@ -1,6 +1,6 @@
 /* global describe it beforeEach afterEach */
 
-'use strict';
+'use strict'
 
 const shell = require('shelljs')
 const fs = require('fs')
