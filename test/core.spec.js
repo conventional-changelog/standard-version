@@ -9,6 +9,7 @@ const { Readable } = require('stream')
 const mockFS = require('mock-fs')
 const mockery = require('mockery')
 const stdMocks = require('std-mocks')
+const stripAnsi = require('strip-ansi')
 
 const cli = require('../command')
 const formatCommitMessage = require('../lib/format-commit-message')
@@ -525,6 +526,37 @@ describe('standard-version', function () {
         bumpFiles: [{ filename: 'VERSION_TRACKER.txt', type: 'plain-text' }]
       })
       fs.readFileSync('VERSION_TRACKER.txt', 'utf-8').should.equal('1.1.0')
+    })
+
+    it('displays the new version from custom bumper with --dry-run', async function () {
+      const updater = 'increment-updater.js'
+      const updaterModule = require('./mocks/updater/increment-updater')
+      mock({
+        bump: 'minor',
+        fs: {
+          'increment-version.txt': fs.readFileSync(
+            './test/mocks/increment-version.txt'
+          )
+        }
+      })
+      mockery.registerMock(resolve(process.cwd(), updater), updaterModule)
+
+      const origInfo = console.info
+      const capturedOutput = []
+      console.info = (...args) => {
+        capturedOutput.push(...args)
+        origInfo(...args)
+      }
+      try {
+        await exec({
+          bumpFiles: [{ filename: 'increment-version.txt', updater: 'increment-updater.js' }],
+          dryRun: true
+        })
+        const logOutput = capturedOutput.join(' ')
+        stripAnsi(logOutput).should.include('bumping version in increment-version.txt from 1 to 2')
+      } finally {
+        console.info = origInfo
+      }
     })
   })
 
