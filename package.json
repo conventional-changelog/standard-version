@@ -1,12 +1,13 @@
 {
   "name": "standard-version",
-  "version": "7.1.0",
+  "version": "9.0.0",
   "description": "replacement for `npm version` with automatic CHANGELOG generation",
   "bin": "bin/cli.js",
   "scripts": {
+    "fix": "eslint . --fix",
     "posttest": "eslint .",
-    "coverage": "nyc report --reporter=text-lcov | coveralls",
-    "test": "nyc mocha --timeout=30000 test.js",
+    "test": "nyc mocha --timeout=30000",
+    "test:unit": "mocha --exclude test/git.spec.js",
     "release": "bin/cli.js"
   },
   "nyc": {
@@ -14,12 +15,9 @@
       "tmp/**"
     ]
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/conventional-changelog/standard-version.git"
-  },
+  "repository": "conventional-changelog/standard-version",
   "engines": {
-    "node": ">=8.0"
+    "node": ">=10"
   },
   "keywords": [
     "conventional-changelog",
@@ -38,35 +36,36 @@
   },
   "homepage": "https://github.com/conventional-changelog/standard-version#readme",
   "dependencies": {
-    "chalk": "2.4.2",
-    "conventional-changelog": "3.1.18",
+    "chalk": "^2.4.2",
+    "conventional-changelog": "3.1.23",
     "conventional-changelog-config-spec": "2.1.0",
-    "conventional-changelog-conventionalcommits": "4.2.3",
-    "conventional-recommended-bump": "6.0.5",
-    "detect-indent": "6.0.0",
-    "detect-newline": "3.1.0",
-    "dotgitignore": "2.1.0",
-    "figures": "3.1.0",
-    "find-up": "4.1.0",
-    "fs-access": "1.0.1",
-    "git-semver-tags": "3.0.1",
-    "semver": "7.1.1",
-    "stringify-package": "1.0.1",
-    "yargs": "15.1.0"
+    "conventional-changelog-conventionalcommits": "4.4.0",
+    "conventional-recommended-bump": "6.0.10",
+    "detect-indent": "^6.0.0",
+    "detect-newline": "^3.1.0",
+    "dotgitignore": "^2.1.0",
+    "figures": "^3.1.0",
+    "find-up": "^5.0.0",
+    "fs-access": "^1.0.1",
+    "git-semver-tags": "^4.0.0",
+    "semver": "^7.1.1",
+    "stringify-package": "^1.0.1",
+    "yargs": "^15.3.1"
   },
   "devDependencies": {
-    "chai": "4.2.0",
-    "coveralls": "3.0.9",
-    "eslint": "6.7.2",
-    "eslint-config-standard": "14.1.0",
-    "eslint-plugin-import": "2.20.0",
-    "eslint-plugin-node": "10.0.0",
-    "eslint-plugin-promise": "4.2.1",
-    "eslint-plugin-standard": "4.0.1",
-    "mocha": "7.0.1",
-    "mock-git": "2.0.0",
-    "mockery": "2.1.0",
-    "nyc": "14.1.1",
-    "shelljs": "0.8.3"
+    "chai": "^4.2.0",
+    "coveralls": "^3.1.0",
+    "eslint": "^6.8.0",
+    "eslint-config-standard": "^14.1.1",
+    "eslint-plugin-import": "^2.20.0",
+    "eslint-plugin-node": "^10.0.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1",
+    "mocha": "^8.0.0",
+    "mock-fs": "^4.12.0",
+    "mockery": "^2.1.0",
+    "nyc": "^14.1.1",
+    "shelljs": "^0.8.4",
+    "std-mocks": "^1.0.1"
   }
 }
