@@ -2,6 +2,7 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<<<<<<< HEAD
 ## [8.3.0](https://github.com/conventional-changelog/standard-version/compare/v8.2.0...v8.3.0) (2020-05-20)
 
 
@@ -24,6 +25,43 @@ All notable changes to this project will be documented in this file. See [standa
 ### Features
 
 * **Java:** add support for pom.xml files for Java Maven projects ([8d68c46](https://github.com/conventional-changelog/standard-version/commit/8d68c463d272c58ac3f6809686d8572ca4d120f5))
+=======
+## [9.0.0](https://www.github.com/conventional-changelog/standard-version/compare/v8.0.2...v9.0.0) (2020-08-15)
+
+
+### ⚠ BREAKING CHANGES
+
+* NodeJS@8 is no longer supported. (#612)
+
+### Bug Fixes
+
+* **deps:** update dependency conventional-changelog to v3.1.23 ([#652](https://www.github.com/conventional-changelog/standard-version/issues/652)) ([00dd3c0](https://www.github.com/conventional-changelog/standard-version/commit/00dd3c01aab20d28a8bbd1e174e416d6c2b34d90))
+* **deps:** update dependency conventional-changelog-conventionalcommits to v4.4.0 ([#650](https://www.github.com/conventional-changelog/standard-version/issues/650)) ([9f201a6](https://www.github.com/conventional-changelog/standard-version/commit/9f201a61bb50ec12053a04faccfaea20e44d6ff2))
+* **deps:** update dependency conventional-recommended-bump to v6.0.10 ([#653](https://www.github.com/conventional-changelog/standard-version/issues/653)) ([c360d6a](https://www.github.com/conventional-changelog/standard-version/commit/c360d6a307909c6e571b29d4a329fd786b4d4543))
+
+
+### Build System
+
+* NodeJS@8 is no longer supported. ([#612](https://www.github.com/conventional-changelog/standard-version/issues/612)) ([05edef2](https://www.github.com/conventional-changelog/standard-version/commit/05edef2de79d8d4939a6e699ce0979ff8da12de9))
+
+### [8.0.2](https://www.github.com/conventional-changelog/standard-version/compare/v8.0.1...v8.0.2) (2020-07-14)
+
+
+### Bug Fixes
+
+* Commit message and tag name is no longer enclosed in quotes. ([#619](https://www.github.com/conventional-changelog/standard-version/issues/619)) ([ae032bf](https://www.github.com/conventional-changelog/standard-version/commit/ae032bfa9268a0a14351b0d78b6deedee7891e3a)), closes [#621](https://www.github.com/conventional-changelog/standard-version/issues/621) [#620](https://www.github.com/conventional-changelog/standard-version/issues/620)
+
+### [8.0.1](https://www.github.com/conventional-changelog/standard-version/compare/v8.0.0...v8.0.1) (2020-07-12)
+
+
+### Bug Fixes
+
+* **deps:** update dependency conventional-changelog to v3.1.21 ([#586](https://www.github.com/conventional-changelog/standard-version/issues/586)) ([fd456c9](https://www.github.com/conventional-changelog/standard-version/commit/fd456c995f3f88497fbb912fb8aabb8a42d97dbb))
+* **deps:** update dependency conventional-changelog-conventionalcommits to v4.3.0 ([#587](https://www.github.com/conventional-changelog/standard-version/issues/587)) ([b3b5eed](https://www.github.com/conventional-changelog/standard-version/commit/b3b5eedea3eaf062d74d1004a55a0a6b1e3ca6c6))
+* **deps:** update dependency conventional-recommended-bump to v6.0.9 ([#588](https://www.github.com/conventional-changelog/standard-version/issues/588)) ([d4d2ac2](https://www.github.com/conventional-changelog/standard-version/commit/d4d2ac2a99c095227118da795e1c9e19d06c9a0a))
+* **deps:** update dependency git-semver-tags to v4 ([#589](https://www.github.com/conventional-changelog/standard-version/issues/589)) ([a0f0e81](https://www.github.com/conventional-changelog/standard-version/commit/a0f0e813b2be4a2065600a19075fda4d6f331ef8))
+* Vulnerability Report GHSL-2020-11101 ([9d978ac](https://www.github.com/conventional-changelog/standard-version/commit/9d978ac9d4f64be4c7b9d514712ab3757732d561))
+>>>>>>> 0a801d9ddb88941158271073190e2d5eb2bc67d0
 
 ## [8.0.0](https://www.github.com/conventional-changelog/standard-version/compare/v7.1.0...v8.0.0) (2020-05-06)
 
