@@ -573,7 +573,7 @@ describe('standard-version', function () {
     mock({
       bump: 'minor',
       fs: {
-        'pom.xml': fs.readFileSync('./test/mocks/pom-6.3.1.xml')
+        'pom.xml': fs.readFileSync('./test/mocks/pom-6.3.1.xml', 'utf-8')
       }
     })
     await exec({
