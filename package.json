@@ -2,7 +2,9 @@
   "name": "standard-version",
   "version": "9.2.0",
   "description": "replacement for `npm version` with automatic CHANGELOG generation",
-  "bin": "bin/cli.js",
+  "bin": {
+    "standard-version": "bin/cli.js"
+  },
   "scripts": {
     "fix": "eslint . --fix",
     "posttest": "eslint .",
