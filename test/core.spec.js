@@ -258,6 +258,23 @@ describe('cli', function () {
           error.message.should.match(/prerelease fail/)
         }
       })
+
+      it('should run even when bump hook is disabled', async function () {
+        const flush = mock({
+          // bump: 'minor',
+          // fs: { 'CHANGELOG.md': 'legacy header format<a name="1.0.0">\n' }
+        })
+        await exec({
+          scripts: {
+            prerelease: 'node -e "console.error(\'prerelease\' + \' ran\')"'
+          },
+          skip: {
+            bump: true
+          }
+        })
+        const { stderr } = flush()
+        stderr.join('\n').should.match(/prerelease ran/)
+      })
     })
 
     describe('prebump hook', function () {

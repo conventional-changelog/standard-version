@@ -7,6 +7,7 @@ const path = require('path')
 const printError = require('./lib/print-error')
 const tag = require('./lib/lifecycles/tag')
 const { resolveUpdaterObjectFromArgument } = require('./lib/updaters')
+const runLifecycleScript = require('./lib/run-lifecycle-script')
 
 module.exports = async function standardVersion (argv) {
   const defaults = require('./defaults')
@@ -60,7 +61,7 @@ module.exports = async function standardVersion (argv) {
     } else {
       throw new Error('no package file found')
     }
-
+    await runLifecycleScript(args, 'prerelease')
     const newVersion = await bump(args, version)
     await changelog(args, newVersion)
     await commit(args, newVersion)
