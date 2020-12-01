@@ -2,6 +2,30 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<<<<<<< HEAD
+## [8.3.0](https://github.com/conventional-changelog/standard-version/compare/v8.2.0...v8.3.0) (2020-05-20)
+
+
+### Features
+
+* **gradle:** support double quotes in gradle files ([fb1202c](https://github.com/conventional-changelog/standard-version/commit/fb1202c7e5fc6d8b88f510609feb4c4e3abffe8e))
+
+## [8.2.0](https://github.com/conventional-changelog/standard-version/compare/v8.1.1...v8.2.0) (2020-05-19)
+
+
+### Features
+
+* **java:** add support for gradle ([a6b423c](https://github.com/conventional-changelog/standard-version/commit/a6b423ce4f49ff066371bf44da104f4f50892136))
+
+### [8.1.1](https://github.com/conventional-changelog/standard-version/compare/v8.1.0...v8.1.1) (2020-05-19)
+
+## [8.1.0](https://github.com/conventional-changelog/standard-version/compare/v8.0.0...v8.1.0) (2020-05-19)
+
+
+### Features
+
+* **Java:** add support for pom.xml files for Java Maven projects ([8d68c46](https://github.com/conventional-changelog/standard-version/commit/8d68c463d272c58ac3f6809686d8572ca4d120f5))
+=======
 ## [9.0.0](https://www.github.com/conventional-changelog/standard-version/compare/v8.0.2...v9.0.0) (2020-08-15)
 
 
@@ -37,6 +61,7 @@ All notable changes to this project will be documented in this file. See [standa
 * **deps:** update dependency conventional-recommended-bump to v6.0.9 ([#588](https://www.github.com/conventional-changelog/standard-version/issues/588)) ([d4d2ac2](https://www.github.com/conventional-changelog/standard-version/commit/d4d2ac2a99c095227118da795e1c9e19d06c9a0a))
 * **deps:** update dependency git-semver-tags to v4 ([#589](https://www.github.com/conventional-changelog/standard-version/issues/589)) ([a0f0e81](https://www.github.com/conventional-changelog/standard-version/commit/a0f0e813b2be4a2065600a19075fda4d6f331ef8))
 * Vulnerability Report GHSL-2020-11101 ([9d978ac](https://www.github.com/conventional-changelog/standard-version/commit/9d978ac9d4f64be4c7b9d514712ab3757732d561))
+>>>>>>> 0a801d9ddb88941158271073190e2d5eb2bc67d0
 
 ## [8.0.0](https://www.github.com/conventional-changelog/standard-version/compare/v7.1.0...v8.0.0) (2020-05-06)
 

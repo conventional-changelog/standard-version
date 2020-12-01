@@ -568,6 +568,36 @@ describe('standard-version', function () {
     })
   })
 
+  it('reads and writes to Java Maven `pom.xml` file', async function () {
+    const expected = fs.readFileSync('./test/mocks/pom-6.4.0.xml', 'utf-8')
+    mock({
+      bump: 'minor',
+      fs: {
+        'pom.xml': fs.readFileSync('./test/mocks/pom-6.3.1.xml', 'utf-8')
+      }
+    })
+    await exec({
+      packageFiles: [{ filename: 'pom.xml', type: 'pom' }],
+      bumpFiles: [{ filename: 'pom.xml', type: 'pom' }]
+    })
+    fs.readFileSync('pom.xml', 'utf-8').should.equal(expected)
+  })
+
+  it('reads and writes to Java Gradle `build.gradle` file', async function () {
+    const expected = fs.readFileSync('./test/mocks/build-6.4.0.gradle', 'utf-8')
+    mock({
+      bump: 'minor',
+      fs: {
+        'build.gradle': fs.readFileSync('./test/mocks/build-6.3.1.gradle')
+      }
+    })
+    await exec({
+      packageFiles: [{ filename: 'build.gradle', type: 'gradle' }],
+      bumpFiles: [{ filename: 'build.gradle', type: 'gradle' }]
+    })
+    fs.readFileSync('build.gradle', 'utf-8').should.equal(expected)
+  })
+
   it('bumps version # in npm-shrinkwrap.json', async function () {
     mock({
       bump: 'minor',
