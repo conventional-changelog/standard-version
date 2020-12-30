@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [9.1.0](https://www.github.com/conventional-changelog/standard-version/compare/v9.0.0...v9.1.0) (2020-12-01)
+
+
+### Features
+
+* support custom updater as object as well as path ([#630](https://www.github.com/conventional-changelog/standard-version/issues/630)) ([55bbde8](https://www.github.com/conventional-changelog/standard-version/commit/55bbde8476013de7a2f24bf29c7c12cb07f96e3f))
+
+
+### Bug Fixes
+
+* **deps:** update dependency conventional-changelog to v3.1.24 ([#677](https://www.github.com/conventional-changelog/standard-version/issues/677)) ([cc45036](https://www.github.com/conventional-changelog/standard-version/commit/cc45036d9960b6d83e0e850ccbbe8e8098d36ae6))
+* **deps:** update dependency conventional-changelog-conventionalcommits to v4.5.0 ([#678](https://www.github.com/conventional-changelog/standard-version/issues/678)) ([6317d36](https://www.github.com/conventional-changelog/standard-version/commit/6317d36130767cfd85114ab9033a6f1ef110388d))
+* **deps:** update dependency conventional-recommended-bump to v6.0.11 ([#679](https://www.github.com/conventional-changelog/standard-version/issues/679)) ([360789a](https://www.github.com/conventional-changelog/standard-version/commit/360789ab84957a67d3919cb28db1882cb68296fc))
+* **deps:** update dependency find-up to v5 ([#651](https://www.github.com/conventional-changelog/standard-version/issues/651)) ([df8db83](https://www.github.com/conventional-changelog/standard-version/commit/df8db832327a751d5c62fe361b6ac2d2b5f66bf6))
+
 ## [9.0.0](https://www.github.com/conventional-changelog/standard-version/compare/v8.0.2...v9.0.0) (2020-08-15)
 
 
