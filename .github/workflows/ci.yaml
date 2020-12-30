@@ -15,11 +15,11 @@ jobs:
       - run: git fetch --prune --unshallow
       - run: git config --global user.name 'Actions'
       - run: git config --global user.email 'dummy@example.org'
-      - uses: actions/setup-node@v1
+      - uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node }}
       - run: node --version
-      - run: npm install
+      - run: npm install --engine-strict
       - run: npm test
   windows:
     runs-on: windows-latest
@@ -28,7 +28,7 @@ jobs:
       - run: git fetch --prune --unshallow
       - run: git config --global user.name 'Actions'
       - run: git config --global user.email 'dummy@example.org'
-      - uses: actions/setup-node@v1
+      - uses: actions/setup-node@v2
         with:
           node-version: 12
       - run: npm install
