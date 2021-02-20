@@ -2,9 +2,9 @@
 
 A utility for versioning using [semver](https://semver.org/) and CHANGELOG generation powered by [Conventional Commits](https://conventionalcommits.org).
 
-[![Build Status](https://travis-ci.org/conventional-changelog/standard-version.svg?branch=master)](https://travis-ci.org/conventional-changelog/standard-version)
+![ci](https://github.com/conventional-changelog/standard-version/workflows/ci/badge.svg)
 [![NPM version](https://img.shields.io/npm/v/standard-version.svg)](https://www.npmjs.com/package/standard-version)
-[![Coverage Status](https://coveralls.io/repos/conventional-changelog/standard-version/badge.svg?branch=)](https://coveralls.io/r/conventional-changelog/standard-version?branch=master)
+[![codecov](https://codecov.io/gh/conventional-changelog/standard-version/branch/master/graph/badge.svg?token=J7zMN7vTTd)](https://codecov.io/gh/conventional-changelog/standard-version)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 [![Community slack](http://devtoolscommunity.herokuapp.com/badge.svg)](http://devtoolscommunity.herokuapp.com)
 
@@ -18,7 +18,7 @@ _How It Works:_
 
 `standard-version` will then do the following:
 
-1. Retrieve the current version of your repository by looking at `bumpFiles`[[1]](#bumpfiles-packagefiles-and-updaters), falling back to the last `git tag`.
+1. Retrieve the current version of your repository by looking at `packageFiles`[[1]](#bumpfiles-packagefiles-and-updaters), falling back to the last `git tag`.
 2. `bump` the version in `bumpFiles`[[1]](#bumpfiles-packagefiles-and-updaters) based on your commits.
 4. Generates a `changelog` based on your commits (uses [conventional-changelog](https://github.com/conventional-changelog/conventional-changelog) under the hood).
 5. Creates a new `commit` including your `bumpFiles`[[1]](#bumpfiles-packagefiles-and-updaters) and updated CHANGELOG.
@@ -267,11 +267,24 @@ by adding the following to your package.json:
 
 ### Committing Generated Artifacts in the Release Commit
 
-If you want to commit generated artifacts in the release commit (e.g. [#96](https://github.com/conventional-changelog/standard-version/issues/96)), you can use the `--commit-all` or `-a` flag. You will need to stage the artifacts you want to commit, so your `release` command could look like this:
+If you want to commit generated artifacts in the release commit, you can use the `--commit-all` or `-a` flag. You will need to stage the artifacts you want to commit, so your `release` command could look like this:
 
 ```json
-"prerelease": "webpack -p --bail",
-"release": "git add <file(s) to commit> && standard-version -a"
+{
+  "standard-version": {
+    "scripts": {
+      "prerelease": "webpack -p --bail && git add <file(s) to commit>"
+    }
+  }
+}
+```
+
+```json
+{
+  "scripts": {
+    "release": "standard-version -a"
+  }
+}
 ```
 
 ### Dry Run Mode
@@ -357,9 +370,7 @@ As of version `7.1.0` you can configure multiple `bumpFiles` and `packageFiles`.
 
 1. Specify a custom `bumpFile` "`filename`", this is the path to the file you want to "bump"
 2. Specify the `bumpFile` "`updater`", this is _how_ the file will be bumped.
-
-    a. If your using a common type, you can use one of  `standard-version`'s built-in `updaters` by specifying a `type`.
-
+    a. If you're using a common type, you can use one of  `standard-version`'s built-in `updaters` by specifying a `type`.
     b. If your using an less-common version file, you can create your own `updater`.
 
 ```js
@@ -382,6 +393,21 @@ As of version `7.1.0` you can configure multiple `bumpFiles` and `packageFiles`.
       "updater": "standard-version-updater.js"
     }
   ]
+}
+```
+
+If using `.versionrc.js` as your configuration file, the `updater` may also be set as an object, rather than a path:
+
+```js
+// .versionrc.js
+const tracker = {
+  filename: 'VERSION_TRACKER.json',
+  updater: require('./path/to/custom-version-updater')
+}
+
+module.exports = {
+  bumpFiles: [tracker],
+  packageFiles: [tracker]
 }
 ```
 

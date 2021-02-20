@@ -2,6 +2,65 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [9.1.1](https://www.github.com/conventional-changelog/standard-version/compare/v9.1.0...v9.1.1) (2021-02-06)
+
+
+### Bug Fixes
+
+* **deps:** update dependency conventional-recommended-bump to v6.1.0 ([#695](https://www.github.com/conventional-changelog/standard-version/issues/695)) ([65dd070](https://www.github.com/conventional-changelog/standard-version/commit/65dd070b9f01ffe1764e64ba739bc064b84f4129))
+* **deps:** update dependency yargs to v16 ([#660](https://www.github.com/conventional-changelog/standard-version/issues/660)) ([f6a7430](https://www.github.com/conventional-changelog/standard-version/commit/f6a7430329919874e1e744ac5dca2f83bba355df))
+
+## [9.1.0](https://www.github.com/conventional-changelog/standard-version/compare/v9.0.0...v9.1.0) (2020-12-01)
+
+
+### Features
+
+* support custom updater as object as well as path ([#630](https://www.github.com/conventional-changelog/standard-version/issues/630)) ([55bbde8](https://www.github.com/conventional-changelog/standard-version/commit/55bbde8476013de7a2f24bf29c7c12cb07f96e3f))
+
+
+### Bug Fixes
+
+* **deps:** update dependency conventional-changelog to v3.1.24 ([#677](https://www.github.com/conventional-changelog/standard-version/issues/677)) ([cc45036](https://www.github.com/conventional-changelog/standard-version/commit/cc45036d9960b6d83e0e850ccbbe8e8098d36ae6))
+* **deps:** update dependency conventional-changelog-conventionalcommits to v4.5.0 ([#678](https://www.github.com/conventional-changelog/standard-version/issues/678)) ([6317d36](https://www.github.com/conventional-changelog/standard-version/commit/6317d36130767cfd85114ab9033a6f1ef110388d))
+* **deps:** update dependency conventional-recommended-bump to v6.0.11 ([#679](https://www.github.com/conventional-changelog/standard-version/issues/679)) ([360789a](https://www.github.com/conventional-changelog/standard-version/commit/360789ab84957a67d3919cb28db1882cb68296fc))
+* **deps:** update dependency find-up to v5 ([#651](https://www.github.com/conventional-changelog/standard-version/issues/651)) ([df8db83](https://www.github.com/conventional-changelog/standard-version/commit/df8db832327a751d5c62fe361b6ac2d2b5f66bf6))
+
+## [9.0.0](https://www.github.com/conventional-changelog/standard-version/compare/v8.0.2...v9.0.0) (2020-08-15)
+
+
+### ⚠ BREAKING CHANGES
+
+* NodeJS@8 is no longer supported. (#612)
+
+### Bug Fixes
+
+* **deps:** update dependency conventional-changelog to v3.1.23 ([#652](https://www.github.com/conventional-changelog/standard-version/issues/652)) ([00dd3c0](https://www.github.com/conventional-changelog/standard-version/commit/00dd3c01aab20d28a8bbd1e174e416d6c2b34d90))
+* **deps:** update dependency conventional-changelog-conventionalcommits to v4.4.0 ([#650](https://www.github.com/conventional-changelog/standard-version/issues/650)) ([9f201a6](https://www.github.com/conventional-changelog/standard-version/commit/9f201a61bb50ec12053a04faccfaea20e44d6ff2))
+* **deps:** update dependency conventional-recommended-bump to v6.0.10 ([#653](https://www.github.com/conventional-changelog/standard-version/issues/653)) ([c360d6a](https://www.github.com/conventional-changelog/standard-version/commit/c360d6a307909c6e571b29d4a329fd786b4d4543))
+
+
+### Build System
+
+* NodeJS@8 is no longer supported. ([#612](https://www.github.com/conventional-changelog/standard-version/issues/612)) ([05edef2](https://www.github.com/conventional-changelog/standard-version/commit/05edef2de79d8d4939a6e699ce0979ff8da12de9))
+
+### [8.0.2](https://www.github.com/conventional-changelog/standard-version/compare/v8.0.1...v8.0.2) (2020-07-14)
+
+
+### Bug Fixes
+
+* Commit message and tag name is no longer enclosed in quotes. ([#619](https://www.github.com/conventional-changelog/standard-version/issues/619)) ([ae032bf](https://www.github.com/conventional-changelog/standard-version/commit/ae032bfa9268a0a14351b0d78b6deedee7891e3a)), closes [#621](https://www.github.com/conventional-changelog/standard-version/issues/621) [#620](https://www.github.com/conventional-changelog/standard-version/issues/620)
+
+### [8.0.1](https://www.github.com/conventional-changelog/standard-version/compare/v8.0.0...v8.0.1) (2020-07-12)
+
+
+### Bug Fixes
+
+* **deps:** update dependency conventional-changelog to v3.1.21 ([#586](https://www.github.com/conventional-changelog/standard-version/issues/586)) ([fd456c9](https://www.github.com/conventional-changelog/standard-version/commit/fd456c995f3f88497fbb912fb8aabb8a42d97dbb))
+* **deps:** update dependency conventional-changelog-conventionalcommits to v4.3.0 ([#587](https://www.github.com/conventional-changelog/standard-version/issues/587)) ([b3b5eed](https://www.github.com/conventional-changelog/standard-version/commit/b3b5eedea3eaf062d74d1004a55a0a6b1e3ca6c6))
+* **deps:** update dependency conventional-recommended-bump to v6.0.9 ([#588](https://www.github.com/conventional-changelog/standard-version/issues/588)) ([d4d2ac2](https://www.github.com/conventional-changelog/standard-version/commit/d4d2ac2a99c095227118da795e1c9e19d06c9a0a))
+* **deps:** update dependency git-semver-tags to v4 ([#589](https://www.github.com/conventional-changelog/standard-version/issues/589)) ([a0f0e81](https://www.github.com/conventional-changelog/standard-version/commit/a0f0e813b2be4a2065600a19075fda4d6f331ef8))
+* Vulnerability Report GHSL-2020-11101 ([9d978ac](https://www.github.com/conventional-changelog/standard-version/commit/9d978ac9d4f64be4c7b9d514712ab3757732d561))
+
 ## [8.0.0](https://www.github.com/conventional-changelog/standard-version/compare/v7.1.0...v8.0.0) (2020-05-06)
 
 
