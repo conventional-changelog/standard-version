@@ -309,7 +309,9 @@ standard-version -t @scope/package\@
 
 This will prefix your tags to look something like `@scope/package@2.0.0`
 
-If you do not want to have any tag prefix you can use the `-t` flag without value.
+If you do not want to have any tag prefix you can use the `-t` flag and provide it with an **empty string** as value.
+
+> Note: simply -t or --tag-prefix without any value will fallback to the default 'v'
 
 ### CLI Help
 
@@ -368,9 +370,7 @@ As of version `7.1.0` you can configure multiple `bumpFiles` and `packageFiles`.
 
 1. Specify a custom `bumpFile` "`filename`", this is the path to the file you want to "bump"
 2. Specify the `bumpFile` "`updater`", this is _how_ the file will be bumped.
-  
     a. If you're using a common type, you can use one of  `standard-version`'s built-in `updaters` by specifying a `type`.
-
     b. If your using an less-common version file, you can create your own `updater`.
 
 ```js
