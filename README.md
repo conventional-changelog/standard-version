@@ -267,11 +267,24 @@ by adding the following to your package.json:
 
 ### Committing Generated Artifacts in the Release Commit
 
-If you want to commit generated artifacts in the release commit (e.g. [#96](https://github.com/conventional-changelog/standard-version/issues/96)), you can use the `--commit-all` or `-a` flag. You will need to stage the artifacts you want to commit, so your `release` command could look like this:
+If you want to commit generated artifacts in the release commit, you can use the `--commit-all` or `-a` flag. You will need to stage the artifacts you want to commit, so your `release` command could look like this:
 
 ```json
-"prerelease": "webpack -p --bail",
-"release": "git add <file(s) to commit> && standard-version -a"
+{
+  "standard-version": {
+    "scripts": {
+      "prerelease": "webpack -p --bail && git add <file(s) to commit>"
+    }
+  }
+}
+```
+
+```json
+{
+  "scripts": {
+    "release": "standard-version -a"
+  }
+}
 ```
 
 ### Dry Run Mode
