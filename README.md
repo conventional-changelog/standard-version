@@ -415,13 +415,13 @@ module.exports = {
 
 An `updater` is expected to be a Javascript module with _atleast_ two methods exposed: `readVersion` and `writeVersion`.
 
-##### `readVersion(contents = string): string`
+##### `readVersion(contents = string): string | Promise<string>`
 
 This method is used to read the version from the provided file contents.
 
-The return value is expected to be a semantic version string.
+The return value is expected to resolve to a semantic version string.
 
-##### `writeVersion(contents = string, version: string): string`
+##### `writeVersion(contents = string, version: string): string | Promise<string>`
 
 This method is used to write the version to the provided contents.
 
