@@ -62,7 +62,7 @@ module.exports = async function standardVersion (argv) {
     }
 
     const newVersion = await bump(args, version)
-    await changelog(args, newVersion)
+    await changelog(args, newVersion, version)
     await commit(args, newVersion)
     await tag(newVersion, pkg ? pkg.private : false, args)
   } catch (err) {
