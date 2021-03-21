@@ -4,7 +4,7 @@ A utility for versioning using [semver](https://semver.org/) and CHANGELOG gener
 
 ![ci](https://github.com/conventional-changelog/standard-version/workflows/ci/badge.svg)
 [![NPM version](https://img.shields.io/npm/v/standard-version.svg)](https://www.npmjs.com/package/standard-version)
-[![Coverage Status](https://coveralls.io/repos/conventional-changelog/standard-version/badge.svg?branch=)](https://coveralls.io/r/conventional-changelog/standard-version?branch=master)
+[![codecov](https://codecov.io/gh/conventional-changelog/standard-version/branch/master/graph/badge.svg?token=J7zMN7vTTd)](https://codecov.io/gh/conventional-changelog/standard-version)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 [![Community slack](http://devtoolscommunity.herokuapp.com/badge.svg)](http://devtoolscommunity.herokuapp.com)
 
@@ -267,11 +267,24 @@ by adding the following to your package.json:
 
 ### Committing Generated Artifacts in the Release Commit
 
-If you want to commit generated artifacts in the release commit (e.g. [#96](https://github.com/conventional-changelog/standard-version/issues/96)), you can use the `--commit-all` or `-a` flag. You will need to stage the artifacts you want to commit, so your `release` command could look like this:
+If you want to commit generated artifacts in the release commit, you can use the `--commit-all` or `-a` flag. You will need to stage the artifacts you want to commit, so your `release` command could look like this:
 
 ```json
-"prerelease": "webpack -p --bail",
-"release": "git add <file(s) to commit> && standard-version -a"
+{
+  "standard-version": {
+    "scripts": {
+      "prerelease": "webpack -p --bail && git add <file(s) to commit>"
+    }
+  }
+}
+```
+
+```json
+{
+  "scripts": {
+    "release": "standard-version -a"
+  }
+}
 ```
 
 ### Dry Run Mode
@@ -296,7 +309,9 @@ standard-version -t @scope/package\@
 
 This will prefix your tags to look something like `@scope/package@2.0.0`
 
-If you do not want to have any tag prefix you can use the `-t` flag without value.
+If you do not want to have any tag prefix you can use the `-t` flag and provide it with an **empty string** as value.
+
+> Note: simply -t or --tag-prefix without any value will fallback to the default 'v'
 
 ### CLI Help
 
@@ -355,9 +370,7 @@ As of version `7.1.0` you can configure multiple `bumpFiles` and `packageFiles`.
 
 1. Specify a custom `bumpFile` "`filename`", this is the path to the file you want to "bump"
 2. Specify the `bumpFile` "`updater`", this is _how_ the file will be bumped.
-  
     a. If you're using a common type, you can use one of  `standard-version`'s built-in `updaters` by specifying a `type`.
-
     b. If your using an less-common version file, you can create your own `updater`.
 
 ```js
