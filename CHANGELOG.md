@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [9.1.1](https://www.github.com/conventional-changelog/standard-version/compare/v9.1.0...v9.1.1) (2021-02-06)
+
+
+### Bug Fixes
+
+* **deps:** update dependency conventional-recommended-bump to v6.1.0 ([#695](https://www.github.com/conventional-changelog/standard-version/issues/695)) ([65dd070](https://www.github.com/conventional-changelog/standard-version/commit/65dd070b9f01ffe1764e64ba739bc064b84f4129))
+* **deps:** update dependency yargs to v16 ([#660](https://www.github.com/conventional-changelog/standard-version/issues/660)) ([f6a7430](https://www.github.com/conventional-changelog/standard-version/commit/f6a7430329919874e1e744ac5dca2f83bba355df))
+
 ## [9.1.0](https://www.github.com/conventional-changelog/standard-version/compare/v9.0.0...v9.1.0) (2020-12-01)
 
 
