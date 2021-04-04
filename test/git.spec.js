@@ -66,7 +66,7 @@ function mock ({ bump, changelog, tags }) {
     }
   }))
 
-  mockery.registerMock('git-semver-tags', function (cb) {
+  mockery.registerMock('git-semver-tags', function (_, cb) {
     if (tags instanceof Error) cb(tags)
     else cb(null, tags || [])
   })
