@@ -104,6 +104,7 @@ describe('git', function () {
   })
 
   describe('tagPrefix', () => {
+    //TODO: Use unmocked git-semver-tags and stage a git environment
     it('will add prefix onto tag based on version from package', async function () {
       writePackageJson('1.2.0')
       mock({ bump: 'minor', tags: ['p-v1.2.0'] })
