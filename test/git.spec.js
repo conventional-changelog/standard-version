@@ -111,10 +111,16 @@ describe('git', function () {
       shell.exec('git tag').stdout.should.match(/p-v1\.3\.0/)
     })
 
-    it('will add prefix onto tag via when gitTagFallback is true and no package', async function () {
+    it('will add prefix onto tag via when gitTagFallback is true and no package [cli]', async function () {
       shell.rm('package.json')
       mock({ bump: 'minor', tags: ['android/production/v1.2.0', 'android/production/v1.0.0'] })
       await exec('--tag-prefix android/production/v')
+      shell.exec('git tag').stdout.should.match(/android\/production\/v1\.3\.0/)
+    })
+
+    it('will add prefix onto tag via when gitTagFallback is true and no package [options]', async function () {
+      mock({ bump: 'minor', tags: ['android/production/v1.2.0', 'android/production/v1.0.0'] })
+      await exec({ tagPrefix: 'android/production/v', packageFiles: [] })
       shell.exec('git tag').stdout.should.match(/android\/production\/v1\.3\.0/)
     })
   })
