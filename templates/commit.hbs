@@ -9,16 +9,7 @@
 {{~else}}
   {{~shortHash}}
 {{~/if}}{{~/if}}
-
-{{#if body}}
-
-{{body}}
-
-{{/if}}
-
-{{~!-- commit references --}}
-{{~#if references~}}
-  , closes
+{{~!-- commit references --}}{{~#if references~}}
   {{~#each references}} {{#if @root.linkReferences~}}
     [
     {{~#if this.owner}}
@@ -32,4 +23,14 @@
     {{~this.repository}}{{this.prefix}}{{this.issue}}
   {{~/if}}{{/each}}
 {{~/if}}
+
+{{#if body}}
+
+<div style="padding-left: 3em;">
+
+  {{body}}
+  
+</div>
+
+{{/if}}
 
