@@ -61,6 +61,18 @@ module.exports = async function standardVersion (argv) {
       throw new Error('no package file found')
     }
 
+    let skippedTypes = {}
+    if (args.skip.types) {
+      for (var skipType in args.skip.types) {
+        for (var changelogType of args.types) {
+          if (changelogType.type == skipType)
+          {
+            changelogType.hidden = true;
+          }
+        }
+      }
+    }
+
     const newVersion = await bump(args, version)
     await changelog(args, newVersion)
     await commit(args, newVersion)
