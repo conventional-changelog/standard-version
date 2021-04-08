@@ -265,6 +265,34 @@ by adding the following to your package.json:
 }
 ```
 
+### Skipping Types
+
+You can skip any commit type by adding the following to your package.json:
+
+```json
+{
+  "standard-version": {
+    "skip": {
+      "types": [fix, docs, refactor]
+    }
+  }
+}
+```
+
+or by adding the following argument 
+
+``` batch
+--skip.types.fix
+```
+
+### Generating changlog since tag definition 
+
+Instead of starting from last tag version, we can define a version tag to start with collecting changes.
+
+``` batch
+--from 'v3.0'
+```
+
 ### Committing Generated Artifacts in the Release Commit
 
 If you want to commit generated artifacts in the release commit, you can use the `--commit-all` or `-a` flag. You will need to stage the artifacts you want to commit, so your `release` command could look like this:
