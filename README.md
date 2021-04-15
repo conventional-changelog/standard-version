@@ -324,6 +324,14 @@ npm run release -- --help
 standard-version --help
 ```
 
+### YAML support
+With CLI
+```sh
+# global bin
+standard-version --packageFiles path/to/your/file.yaml --bumpFiles path/to/your/file.yaml
+```
+Or using `.versionrc`, [see below](#can-i-use-standard-version-for-additional-metadata-files-languages-or-version-files)
+
 ## Code Usage
 
 ```js
@@ -390,7 +398,13 @@ As of version `7.1.0` you can configure multiple `bumpFiles` and `packageFiles`.
       "type": "json"
     },
     {
-      "filename": "VERSION_TRACKER.json",
+      "filename": "a/deep/package/dot/yaml/file/MY_VERSION_TRACKER.yaml",
+      // The `yaml` updater assumes the version is available under a `version` key in the provided YAML document.
+      // filename extension: yaml or yml
+      "type": "yaml"
+    },
+    {
+      "filename": "MY_VERSION_TRACKER.json",
       //  See "Custom `updater`s" for more details.
       "updater": "standard-version-updater.js"
     }

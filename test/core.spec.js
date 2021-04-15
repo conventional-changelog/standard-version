@@ -9,6 +9,7 @@ const { Readable } = require('stream')
 const mockFS = require('mock-fs')
 const mockery = require('mockery')
 const stdMocks = require('std-mocks')
+const YAML = require('yaml')
 
 const cli = require('../command')
 const formatCommitMessage = require('../lib/format-commit-message')
@@ -543,6 +544,22 @@ describe('standard-version', function () {
         bumpFiles: [{ filename: 'VERSION_TRACKER.txt', type: 'plain-text' }]
       })
       fs.readFileSync('VERSION_TRACKER.txt', 'utf-8').should.equal('6.4.0')
+    })
+
+    it('reads and writes to a custom `yaml` file', async function () {
+      mock({
+        bump: 'minor',
+        fs: {
+          'Chart.yaml': fs.readFileSync(
+            './test/mocks/Chart-9.2.0.yaml'
+          )
+        }
+      })
+      await exec({
+        packageFiles: [{ filename: 'Chart.yaml', type: 'yaml' }],
+        bumpFiles: [{ filename: 'Chart.yaml', type: 'yaml' }]
+      })
+      YAML.parse(fs.readFileSync('Chart.yaml', 'utf-8')).version.should.equal('9.3.0')
     })
 
     it('allows same object to be used in packageFiles and bumpFiles', async function () {
