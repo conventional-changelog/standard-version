@@ -372,4 +372,16 @@ describe('git', function () {
       stdout.join('').should.not.include('--tag prerelease')
     })
   })
+
+  describe('--detect-release', () => {
+    it('should not release a new tag for unknown/hidden types', async () => {
+      mock({
+        bump: 'minor',
+        tags: ['v1.0.0']
+      })
+      await exec('--detect-release')
+
+      getPackageVersion().should.equal('1.0.0')
+    })
+  })
 })

@@ -7,6 +7,8 @@ const path = require('path')
 const printError = require('./lib/print-error')
 const tag = require('./lib/lifecycles/tag')
 const { resolveUpdaterObjectFromArgument } = require('./lib/updaters')
+const getLatestCommits = require('./lib/latest-commits')
+const chalk = require('chalk')
 
 module.exports = async function standardVersion (argv) {
   const defaults = require('./defaults')
@@ -30,6 +32,23 @@ module.exports = async function standardVersion (argv) {
     argv.header = argv.changelogHeader
     if (!argv.silent) {
       console.warn('[standard-version]: --changelogHeader will be removed in the next major release. Use --header.')
+    }
+  }
+
+  if (argv.detectRelease) {
+    const latestCommits = await getLatestCommits()
+
+    const releaseTypes = argv.types.reduce((acc, current) => (!current.hidden ? [...acc, current.type] : acc), [])
+
+    const commitSubjectTypes = latestCommits.map(c => c.subject.split(' ')[0])
+
+    const releaseAvailable = commitSubjectTypes.some(c => releaseTypes.some(type => c.includes(type)))
+
+    if (!releaseAvailable) {
+      console.info(
+        chalk.green(`No commits found for types: [ ${releaseTypes.join(', ')} ], skipping release stage.`)
+      )
+      process.exit()
     }
   }
 
