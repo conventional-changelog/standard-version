@@ -12,6 +12,7 @@ const defaults = {
   skip: {},
   dryRun: false,
   gitTagFallback: true,
+  detectRelease: false,
   preset: require.resolve('conventional-changelog-conventionalcommits')
 }
 
