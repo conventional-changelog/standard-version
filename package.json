@@ -60,8 +60,6 @@
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^4.2.1",
-    "get-stream": "^6.0.1",
-    "git-log-parser": "^1.2.0",
     "mocha": "^8.2.1",
     "mock-fs": "^4.13.0",
     "mockery": "^2.1.0",
