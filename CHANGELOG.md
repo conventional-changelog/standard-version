@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [9.3.0](https://www.github.com/conventional-changelog/standard-version/compare/v9.2.0...v9.3.0) (2021-05-04)
+
+
+### Features
+
+* add --lerna-package flag used to extract tags in case of lerna repo ([#503](https://www.github.com/conventional-changelog/standard-version/issues/503)) ([f579ff0](https://www.github.com/conventional-changelog/standard-version/commit/f579ff08f386aaae022a395ed0dbec9af77a5d49))
+
 ## [9.2.0](https://www.github.com/conventional-changelog/standard-version/compare/v9.1.1...v9.2.0) (2021-04-06)
 
 
