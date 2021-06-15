@@ -1,8 +1,8 @@
-const spec = require('conventional-changelog-config-spec')
-const { getConfiguration } = require('./lib/configuration')
-const defaults = require('./defaults')
+ spec = require('conventional-changelog-config-spec')
+ { getConfiguration } = require('./lib/configuration')
+ defaults = require('./defaults')
 
-const yargs = require('yargs')
+ yargs = require('yargs')
   .usage('Usage: $0 [options]')
   .option('packageFiles', {
     default: defaults.packageFiles,
@@ -103,13 +103,13 @@ const yargs = require('yargs')
     type: 'string',
     describe: 'Name of the package from which the tags will be extracted'
   })
-  .check((argv) => {
-    if (typeof argv.scripts !== 'object' || Array.isArray(argv.scripts)) {
-      throw Error('scripts must be an object')
-    } else if (typeof argv.skip !== 'object' || Array.isArray(argv.skip)) {
-      throw Error('skip must be an object')
-    } else {
-      return true
+  .check((argv) => 
+     ( argv.scripts !== 'object' || Array.isArray(argv.scripts)) {
+       Error('scripts must be an object')
+      ( argv.skip !== 'object' || Array.isArray(argv.skip)) {
+       Error('skip must be an object')
+    
+      
     }
   })
   .alias('version', 'v')
@@ -121,9 +121,9 @@ const yargs = require('yargs')
   .wrap(97)
 
 Object.keys(spec.properties).forEach(propertyKey => {
-  const property = spec.properties[propertyKey]
+   property = spec.properties[propertyKey]
   yargs.option(propertyKey, {
-    type: property.type,
+        property.type,
     describe: property.description,
     default: defaults[propertyKey] ? defaults[propertyKey] : property.default,
     group: 'Preset Configuration:'
