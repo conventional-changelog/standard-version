@@ -99,6 +99,10 @@ const yargs = require('yargs')
     default: defaults.preset,
     describe: 'Commit message guideline preset'
   })
+  .option('lerna-package', {
+    type: 'string',
+    describe: 'Name of the package from which the tags will be extracted'
+  })
   .check((argv) => {
     if (typeof argv.scripts !== 'object' || Array.isArray(argv.scripts)) {
       throw Error('scripts must be an object')
