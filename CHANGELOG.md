@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [9.3.1](https://www.github.com/conventional-changelog/standard-version/compare/v9.3.0...v9.3.1) (2021-07-14)
+
+
+### Bug Fixes
+
+* **updater:** npm7 package lock's inner version not being updated ([#713](https://www.github.com/conventional-changelog/standard-version/issues/713)) ([a316dd0](https://www.github.com/conventional-changelog/standard-version/commit/a316dd02f5a7d8dee33d99370afda8738985bc10))
+
 ## [9.3.0](https://www.github.com/conventional-changelog/standard-version/compare/v9.2.0...v9.3.0) (2021-05-04)
 
 
