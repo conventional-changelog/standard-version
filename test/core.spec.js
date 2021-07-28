@@ -568,6 +568,21 @@ describe('standard-version', function () {
     })
   })
 
+  it('bumps version in Gradle `build.gradle.kts` file', async function () {
+    const expected = fs.readFileSync('./test/mocks/build-6.4.0.gradle.kts', 'utf-8')
+    mock({
+      bump: 'minor',
+      fs: {
+        'build.gradle.kts': fs.readFileSync('./test/mocks/build-6.3.1.gradle.kts')
+      }
+    })
+    await exec({
+      packageFiles: [{ filename: 'build.gradle.kts', type: 'gradle' }],
+      bumpFiles: [{ filename: 'build.gradle.kts', type: 'gradle' }]
+    })
+    fs.readFileSync('build.gradle.kts', 'utf-8').should.equal(expected)
+  })
+
   it('bumps version # in npm-shrinkwrap.json', async function () {
     mock({
       bump: 'minor',

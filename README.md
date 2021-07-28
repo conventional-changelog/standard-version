@@ -40,6 +40,14 @@ By default, `standard-version` assumes you're working in a NodeJS based project.
 
 That said, if you find your self asking [How can I use standard-version for additional metadata files, languages or version files?](#can-i-use-standard-version-for-additional-metadata-files-languages-or-version-files) – these configuration options will help!
 
+### Gradle Support (Java/Kotlin)
+
+If you are using Gradle, then just point to your `build.gradle` file (or `build.gradle.kts` if using Kotlin DSL).
+
+```sh
+standard-version --packageFiles build.gradle --bumpFiles build.gradle
+```
+
 ## Installing `standard-version`
 
 ### As a local `npm run` script
