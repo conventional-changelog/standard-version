@@ -1,9 +1,0 @@
-{
-  "extends": [
-    "config:base"
-  ],
-  "pinVersions": false,
-  "rebaseStalePrs": true,
-  "gitAuthor": null,
-  "ignoreDeps": ["decamelize"]
-}
