@@ -37,6 +37,15 @@ module.exports = async function standardVersion (argv) {
     throw Error(`custom changelog header must not match ${changelog.START_OF_LAST_RELEASE_PATTERN}`)
   }
 
+  if (typeof argv.parserOpts === 'string') {
+    const parserOptsPath = path.resolve(argv.parserOpts)
+    try {
+      argv.parserOpts = require(parserOptsPath)
+    } catch(err) {
+      argv.parserOpts = null
+    }
+  }
+
   const args = Object.assign({}, defaults, argv)
   let pkg
   for (const packageFile of args.packageFiles) {
