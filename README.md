@@ -324,6 +324,7 @@ standard-version --parser-options ./parser-opts.js
 This can be useful in cases like Azure DevOps that uses custom merge pull request titles. The `parser-opts.js` could look like this:
 
 ```js
+/** @type {import("conventional-commits-parser").Options} */
 module.exports = {
     mergePattern: /^Merged PR (\d+): (\w*)(?:\(([\w\$\.\-\* ]*)\))?\: (.*)$/,
     mergeCorrespondence: ['id', 'type', 'scope', 'subject']
