@@ -45,6 +45,11 @@ const yargs = require('yargs')
     type: 'boolean',
     default: defaults.sign
   })
+  .option('lightweight-tag', {
+    describe: 'Should the git tag be lightweight? \nThis is basically the commit checksum stored in a file, no other information is kept.',
+    type: 'boolean',
+    default: defaults.lightweightTag
+  })
   .option('no-verify', {
     alias: 'n',
     describe: 'Bypass pre-commit or commit-msg git hooks during the commit phase',
