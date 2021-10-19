@@ -645,12 +645,22 @@ describe('standard-version', function () {
     mock({
       bump: 'minor',
       fs: {
-        '.gitignore': 'bower.json',
-        'bower.json': JSON.stringify({ version: '1.0.0' })
+        '.gitignore': 'package-lock.json\nbower.json',
+        // test a defaults.packageFiles
+        'bower.json': JSON.stringify({ version: '1.0.0' }),
+        // test a defaults.bumpFiles
+        'package-lock.json': JSON.stringify({
+          name: '@org/package',
+          version: '1.0.0',
+          lockfileVersion: 1
+        })
       },
       tags: ['v1.0.0']
     })
     await exec()
+    JSON.parse(fs.readFileSync('package-lock.json', 'utf-8')).version.should.equal(
+      '1.0.0'
+    )
     JSON.parse(fs.readFileSync('bower.json', 'utf-8')).version.should.equal(
       '1.0.0'
     )
