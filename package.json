@@ -47,7 +47,6 @@
     "dotgitignore": "^2.1.0",
     "figures": "^3.1.0",
     "find-up": "^5.0.0",
-    "fs-access": "^1.0.1",
     "git-semver-tags": "^4.0.0",
     "semver": "^7.1.1",
     "stringify-package": "^1.0.1",
