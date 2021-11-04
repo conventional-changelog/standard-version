@@ -45,11 +45,19 @@ module.exports = async function standardVersion (argv) {
       argv.parserOpts = null
     }
   }
+  
+  /**
+   * If an argument for `packageFiles` provided, we include it as a "default" `bumpFile`.
+   */
+  if (argv.packageFiles) {
+    defaults.bumpFiles = defaults.bumpFiles.concat(argv.packageFiles)
+  }
 
   const args = Object.assign({}, defaults, argv)
   let pkg
   for (const packageFile of args.packageFiles) {
     const updater = resolveUpdaterObjectFromArgument(packageFile)
+    if (!updater) return
     const pkgPath = path.resolve(process.cwd(), updater.filename)
     try {
       const contents = fs.readFileSync(pkgPath, 'utf8')
