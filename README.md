@@ -318,7 +318,7 @@ If you do not want to have any tag prefix you can use the `-t` flag and provide 
 If you need to include custom parser options to read your commits, you can use the `--parser-opts` to indicate the path to a .js file that exports the options.
 
 ```sh
-standard-version --parser-options ./parser-opts.js
+standard-version --parser-opts ./parser-opts.js
 ```
 
 This can be useful in cases like Azure DevOps that uses custom merge pull request titles. The `parser-opts.js` could look like this:
