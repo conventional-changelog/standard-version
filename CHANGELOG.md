@@ -2,6 +2,42 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [9.3.2](https://www.github.com/conventional-changelog/standard-version/compare/v9.3.1...v9.3.2) (2021-10-17)
+
+
+### Bug Fixes
+
+* **deps:** update dependency conventional-changelog-conventionalcommits to v4.6.1 ([#752](https://www.github.com/conventional-changelog/standard-version/issues/752)) ([bb8869d](https://www.github.com/conventional-changelog/standard-version/commit/bb8869de7d8bcace1ec92f29e389e7fab506d64e))
+
+### [9.3.1](https://www.github.com/conventional-changelog/standard-version/compare/v9.3.0...v9.3.1) (2021-07-14)
+
+
+### Bug Fixes
+
+* **updater:** npm7 package lock's inner version not being updated ([#713](https://www.github.com/conventional-changelog/standard-version/issues/713)) ([a316dd0](https://www.github.com/conventional-changelog/standard-version/commit/a316dd02f5a7d8dee33d99370afda8738985bc10))
+
+## [9.3.0](https://www.github.com/conventional-changelog/standard-version/compare/v9.2.0...v9.3.0) (2021-05-04)
+
+
+### Features
+
+* add --lerna-package flag used to extract tags in case of lerna repo ([#503](https://www.github.com/conventional-changelog/standard-version/issues/503)) ([f579ff0](https://www.github.com/conventional-changelog/standard-version/commit/f579ff08f386aaae022a395ed0dbec9af77a5d49))
+
+## [9.2.0](https://www.github.com/conventional-changelog/standard-version/compare/v9.1.1...v9.2.0) (2021-04-06)
+
+
+### Features
+
+* allows seperate prefixTag version sequences ([#573](https://www.github.com/conventional-changelog/standard-version/issues/573)) ([3bbba02](https://www.github.com/conventional-changelog/standard-version/commit/3bbba025057ba40c3e15880fede2af851841165b))
+
+### [9.1.1](https://www.github.com/conventional-changelog/standard-version/compare/v9.1.0...v9.1.1) (2021-02-06)
+
+
+### Bug Fixes
+
+* **deps:** update dependency conventional-recommended-bump to v6.1.0 ([#695](https://www.github.com/conventional-changelog/standard-version/issues/695)) ([65dd070](https://www.github.com/conventional-changelog/standard-version/commit/65dd070b9f01ffe1764e64ba739bc064b84f4129))
+* **deps:** update dependency yargs to v16 ([#660](https://www.github.com/conventional-changelog/standard-version/issues/660)) ([f6a7430](https://www.github.com/conventional-changelog/standard-version/commit/f6a7430329919874e1e744ac5dca2f83bba355df))
+
 ## [9.1.0](https://www.github.com/conventional-changelog/standard-version/compare/v9.0.0...v9.1.0) (2020-12-01)
 
 

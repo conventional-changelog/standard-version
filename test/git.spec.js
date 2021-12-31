@@ -66,7 +66,7 @@ function mock ({ bump, changelog, tags }) {
     }
   }))
 
-  mockery.registerMock('git-semver-tags', function (cb) {
+  mockery.registerMock('git-semver-tags', function (_, cb) {
     if (tags instanceof Error) cb(tags)
     else cb(null, tags || [])
   })
@@ -101,6 +101,29 @@ describe('git', function () {
     for (const str of stdout) {
       if (str.startsWith(' ')) process.stdout.write(str)
     }
+  })
+
+  describe('tagPrefix', () => {
+    // TODO: Use unmocked git-semver-tags and stage a git environment
+    it('will add prefix onto tag based on version from package', async function () {
+      writePackageJson('1.2.0')
+      mock({ bump: 'minor', tags: ['p-v1.2.0'] })
+      await exec('--tag-prefix p-v')
+      shell.exec('git tag').stdout.should.match(/p-v1\.3\.0/)
+    })
+
+    it('will add prefix onto tag via when gitTagFallback is true and no package [cli]', async function () {
+      shell.rm('package.json')
+      mock({ bump: 'minor', tags: ['android/production/v1.2.0', 'android/production/v1.0.0'] })
+      await exec('--tag-prefix android/production/v')
+      shell.exec('git tag').stdout.should.match(/android\/production\/v1\.3\.0/)
+    })
+
+    it('will add prefix onto tag via when gitTagFallback is true and no package [options]', async function () {
+      mock({ bump: 'minor', tags: ['android/production/v1.2.0', 'android/production/v1.0.0'] })
+      await exec({ tagPrefix: 'android/production/v', packageFiles: [] })
+      shell.exec('git tag').stdout.should.match(/android\/production\/v1\.3\.0/)
+    })
   })
 
   it('formats the commit and tag messages appropriately', async function () {
