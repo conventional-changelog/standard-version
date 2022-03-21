@@ -94,21 +94,6 @@ You can configure `standard-version` either by:
 Any of the command line parameters accepted by `standard-version` can instead
 be provided via configuration. Please refer to the [conventional-changelog-config-spec](https://github.com/conventional-changelog/conventional-changelog-config-spec/) for details on available configuration options.
 
-
-### Customizing CHANGELOG Generation
-
-By default (as of `6.0.0`), `standard-version` uses the [conventionalcommits preset](https://github.com/conventional-changelog/conventional-changelog/tree/master/packages/conventional-changelog-conventionalcommits).
-
-This preset:
-
-* Adheres closely to the [conventionalcommits.org](https://www.conventionalcommits.org)
-  specification.
-* Is highly configurable, following the configuration specification
-  [maintained here](https://github.com/conventional-changelog/conventional-changelog-config-spec).
-  * _We've documented these config settings as a recommendation to other tooling makers._
-
-There are a variety of dials and knobs you can turn related to CHANGELOG generation.
-
 As an example, suppose you're using GitLab, rather than GitHub, you might modify the following variables:
 
 * `commitUrlFormat`: the URL format of commit SHAs detected in commit messages.
@@ -116,6 +101,24 @@ As an example, suppose you're using GitLab, rather than GitHub, you might modify
 * `issueUrlFormat`: the URL format used to link to issues.
 
 Making these URLs match GitLab's format, rather than GitHub's.
+
+### Customizing CHANGELOG Generation further
+
+By default (as of `6.0.0`), `standard-version` uses the [conventionalcommits preset](https://github.com/conventional-changelog/conventional-changelog/tree/master/packages/conventional-changelog-conventionalcommits).
+
+This preset adheres closely to the [conventionalcommits.org](https://www.conventionalcommits.org) specification.
+
+You can override both [parser](https://github.com/conventional-changelog/conventional-changelog/tree/master/packages/conventional-commits-parser) and [writer](https://github.com/conventional-changelog/conventional-changelog/tree/master/packages/conventional-changelog-writer) options (they will be merged into the preset we just mentioned). As an example, to list commits in the order that they were committed:
+
+```json
+{
+  "standard-version": {
+    "writerOpts": {
+      "commitsSort": false
+    }
+  }
+}
+```
 
 ## CLI Usage
 
