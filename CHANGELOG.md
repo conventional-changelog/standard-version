@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [9.4.0](https://github.com/conventional-changelog/standard-version/compare/v9.3.2...v9.4.0) (2021-12-31)
+
+
+### Features
+
+* add .cjs config file ([#717](https://github.com/conventional-changelog/standard-version/issues/717)) ([eceaedf](https://github.com/conventional-changelog/standard-version/commit/eceaedf8b3cdeb282ee06bfa9c65503f42404858))
+
+
+### Bug Fixes
+
+* Ensures provided `packageFiles` arguments are merged with `bumpFiles` when no `bumpFiles` argument is specified (default). ([#534](https://github.com/conventional-changelog/standard-version/issues/534)) ([2785023](https://github.com/conventional-changelog/standard-version/commit/2785023c91668e7300e6a22e55d31b6bd9dae59b)), closes [#533](https://github.com/conventional-changelog/standard-version/issues/533)
+
 ### [9.3.2](https://www.github.com/conventional-changelog/standard-version/compare/v9.3.1...v9.3.2) (2021-10-17)
 
 
