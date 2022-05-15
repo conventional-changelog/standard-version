@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [9.5.0](https://github.com/conventional-changelog/standard-version/compare/v9.4.0...v9.5.0) (2022-05-15)
+
+
+### Features
+
+* **deprecated:** add deprecation message ([#907](https://github.com/conventional-changelog/standard-version/issues/907)) ([61b41fa](https://github.com/conventional-changelog/standard-version/commit/61b41fa47ef690f55b92e2edb82fe554e3c1e13a))
+
+
+### Bug Fixes
+
+* **deps:** update dependency conventional-changelog to v3.1.25 ([#865](https://github.com/conventional-changelog/standard-version/issues/865)) ([4c938a2](https://github.com/conventional-changelog/standard-version/commit/4c938a2baac11385d655144429bc73b2199bb027))
+* **deps:** update dependency conventional-changelog-conventionalcommits to v4.6.3 ([#866](https://github.com/conventional-changelog/standard-version/issues/866)) ([6c75ed0](https://github.com/conventional-changelog/standard-version/commit/6c75ed0b1456913ae7e4d6fe8532fb4106df1bdf))
+
 ## [9.4.0](https://github.com/conventional-changelog/standard-version/compare/v9.3.2...v9.4.0) (2021-12-31)
 
 
