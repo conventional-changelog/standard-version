@@ -775,6 +775,26 @@ describe('with mocked git', function () {
     gitArgs.should.have.lengthOf(0)
   })
 
+  it('--tag-force forces tag replacement', async function () {
+    const gitArgs = [
+      ['add', 'CHANGELOG.md', 'package.json'],
+      ['commit', 'CHANGELOG.md', 'package.json', '-m', 'chore(release): 1.0.1'],
+      ['tag', '-a', '-f', 'v1.0.1', '-m', 'chore(release): 1.0.1'],
+      ['rev-parse', '--abbrev-ref', 'HEAD']
+    ]
+    const execFile = (_args, cmd, cmdArgs) => {
+      cmd.should.equal('git')
+      const expected = gitArgs.shift()
+      cmdArgs.should.deep.equal(expected)
+      if (expected[0] === 'rev-parse') return Promise.resolve('master')
+      return Promise.resolve('')
+    }
+    mock({ bump: 'patch', changelog: 'foo\n', execFile })
+
+    await exec('--tag-force', true)
+    gitArgs.should.have.lengthOf(0)
+  })
+
   it('fails if git add fails', async function () {
     const gitArgs = [['add', 'CHANGELOG.md', 'package.json']]
     const execFile = (_args, cmd, cmdArgs) => {

@@ -73,6 +73,11 @@ const yargs = require('yargs')
     type: 'string',
     default: defaults.tagPrefix
   })
+  .option('tag-force', {
+    describe: 'Allow tag replacement',
+    type: 'boolean',
+    default: defaults.tagForce
+  })
   .option('scripts', {
     describe:
       'Provide scripts to execute for lifecycle events (prebump, precommit, etc.,)',

@@ -193,6 +193,14 @@ describe('git', function () {
     await exec('-n')
   })
 
+  it('replaces tags if version not bumped', async function () {
+    mock({ bump: 'minor', tags: ['v1.0.0'] })
+    await exec({})
+    shell.exec('git describe').stdout.should.match(/v1\.1\.0/)
+    await exec('--tag-force --skip.bump')
+    shell.exec('git describe').stdout.should.match(/v1\.1\.0/)
+  })
+
   it('allows the commit phase to be skipped', async function () {
     const changelogContent = 'legacy header format<a name="1.0.0">\n'
     writePackageJson('1.0.0')

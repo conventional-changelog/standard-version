@@ -324,6 +324,10 @@ If you do not want to have any tag prefix you can use the `-t` flag and provide 
 
 > Note: simply -t or --tag-prefix without any value will fallback to the default 'v'
 
+### Tag replacement
+
+If you've already run `standard-version` when creating your release, you may want to alter the release content and changelog without bumping the version, by using `standard-version --skip.bump`. By default, tagging with an already existing tag make `git` fails. You can add the `--tag-force` flag to make use of `-f` option when calling `git tag`, then the existing version tag will be replaced.
+
 ### CLI Help
 
 ```sh
