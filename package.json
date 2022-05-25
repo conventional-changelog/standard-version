@@ -18,7 +18,7 @@
   },
   "repository": "absolute-version/commit-and-tag-version",
   "engines": {
-    "node": ">=10"
+    "node": ">=14"
   },
   "keywords": [
     "conventional-changelog",
