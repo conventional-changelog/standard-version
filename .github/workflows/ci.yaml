@@ -20,7 +20,7 @@ jobs:
       - run: git fetch --prune --unshallow
       - run: git config --global user.name 'Actions'
       - run: git config --global user.email 'dummy@example.org'
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
       - run: node --version
