@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [10.0.0](https://github.com/absolute-version/commit-and-tag-version/compare/v9.6.0...v10.0.0) (2022-05-25)
+
+
+### ⚠ BREAKING CHANGES
+
+* Drop support for node 10 and 12, support node 16 and 18
+
+### Bug Fixes
+
+* **deps:** update dependency yargs to v17 ([d190c51](https://github.com/absolute-version/commit-and-tag-version/commit/d190c51507026adefe640cdd75f0a643afd81b87))
+
+
+### Build System
+
+* Drop support for node 10 and 12, support node 16 and 18 ([0f75115](https://github.com/absolute-version/commit-and-tag-version/commit/0f751158c2df9cbf7a2c16bef55a5de084f0d17d))
+
 ## [9.6.0](https://github.com/absolute-version/commit-and-tag-version/compare/v9.5.0...v9.6.0) (2022-05-25)
 
 
