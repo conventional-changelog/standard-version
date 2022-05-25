@@ -106,7 +106,7 @@ be provided via configuration. Please refer to the [conventional-changelog-confi
 
 ### Customizing CHANGELOG Generation
 
-By default (as of `6.0.0`), `commit-and-tag-version` uses the [conventionalcommits preset](https://github.com/conventional-changelog/conventional-changelog/tree/master/packages/conventional-changelog-conventionalcommits).
+By default, `commit-and-tag-version` uses the [conventionalcommits preset](https://github.com/conventional-changelog/conventional-changelog/tree/master/packages/conventional-changelog-conventionalcommits).
 
 This preset:
 
@@ -379,7 +379,7 @@ For this reason, we recommend keeping the scope of each PR to one general featur
 
 ### Can I use `commit-and-tag-version` for additional metadata files, languages or version files?
 
-As of version `7.1.0` you can configure multiple `bumpFiles` and `packageFiles`.
+You can configure multiple `bumpFiles` and `packageFiles`:
 
 1. Specify a custom `bumpFile` "`filename`", this is the path to the file you want to "bump"
 2. Specify the `bumpFile` "`updater`", this is _how_ the file will be bumped.
