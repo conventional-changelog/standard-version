@@ -1,4 +1,4 @@
-# Standard Version
+# Commit and Tag Version
 
 > **`commit-and-tag-version` is a fork of `standard-version`**. Because of maintainer availability, `standard-version` was [deprecated on 15th May 2022](https://github.com/conventional-changelog/standard-version/pull/907). The previous maintainer recommends [release-please](https://github.com/googleapis/release-please) as an alternative for those who are using GitHub actions. This fork exists for those who can't switch to `release-please`, or who would like to continue using `standard-version`.
 
