@@ -1,6 +1,6 @@
 {
   "name": "commit-and-tag-version",
-  "version": "10.0.0",
+  "version": "10.0.1",
   "description": "replacement for `npm version` with automatic CHANGELOG generation",
   "bin": "bin/cli.js",
   "scripts": {

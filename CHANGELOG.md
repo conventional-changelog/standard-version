@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+### [10.0.1](https://github.com/absolute-version/commit-and-tag-version/compare/v10.0.0...v10.0.1) (2022-05-28)
+
+
+### Bug Fixes
+
+* No longer warn inappropriately when a custom updater is provided as an object ([5eb8886](https://github.com/absolute-version/commit-and-tag-version/commit/5eb8886a56c6b14c13544192edb3d0e18f91184a))
+
 ## [10.0.0](https://github.com/absolute-version/commit-and-tag-version/compare/v9.6.0...v10.0.0) (2022-05-25)
 
 
