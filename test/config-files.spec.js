@@ -12,7 +12,7 @@ require('chai').should()
 
 function exec () {
   const cli = require('../command')
-  const opt = cli.parse('standard-version')
+  const opt = cli.parse('commit-and-tag-version')
   opt.skip = { commit: true, tag: true }
   return require('../index')(opt)
 }
@@ -90,22 +90,27 @@ describe('config files', () => {
     }
   })
 
-  it('reads config from package.json', async function () {
-    const issueUrlFormat = 'https://standard-version.company.net/browse/{{id}}'
-    mock({
-      bump: 'minor',
-      changelog: ({ preset }) => preset.issueUrlFormat
-    })
-    const pkg = {
-      version: '1.0.0',
-      repository: { url: 'git+https://company@scm.org/office/app.git' },
-      'standard-version': { issueUrlFormat }
-    }
-    fs.writeFileSync('package.json', JSON.stringify(pkg), 'utf-8')
+  const configKeys = ['commit-and-tag-version', 'standard-version']
 
-    await exec()
-    const content = fs.readFileSync('CHANGELOG.md', 'utf-8')
-    content.should.include(issueUrlFormat)
+  configKeys.forEach((configKey) => {
+    it(`reads config from package.json key '${configKey}'`, async function () {
+      const issueUrlFormat =
+        'https://commit-and-tag-version.company.net/browse/{{id}}'
+      mock({
+        bump: 'minor',
+        changelog: ({ preset }) => preset.issueUrlFormat
+      })
+      const pkg = {
+        version: '1.0.0',
+        repository: { url: 'git+https://company@scm.org/office/app.git' },
+        [configKey]: { issueUrlFormat }
+      }
+      fs.writeFileSync('package.json', JSON.stringify(pkg), 'utf-8')
+
+      await exec()
+      const content = fs.readFileSync('CHANGELOG.md', 'utf-8')
+      content.should.include(issueUrlFormat)
+    })
   })
 
   it('reads config from .versionrc', async function () {

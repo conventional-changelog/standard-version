@@ -22,19 +22,28 @@ module.exports = async function standardVersion (argv) {
      */
     argv.releaseCommitMessageFormat = message.replace(/%s/g, '{{currentTag}}')
     if (!argv.silent) {
-      console.warn('[standard-version]: --message (-m) will be removed in the next major release. Use --releaseCommitMessageFormat.')
+      console.warn(
+        '[commit-and-tag-version]: --message (-m) will be removed in the next major release. Use --releaseCommitMessageFormat.'
+      )
     }
   }
 
   if (argv.changelogHeader) {
     argv.header = argv.changelogHeader
     if (!argv.silent) {
-      console.warn('[standard-version]: --changelogHeader will be removed in the next major release. Use --header.')
+      console.warn(
+        '[commit-and-tag-version]: --changelogHeader will be removed in the next major release. Use --header.'
+      )
     }
   }
 
-  if (argv.header && argv.header.search(changelog.START_OF_LAST_RELEASE_PATTERN) !== -1) {
-    throw Error(`custom changelog header must not match ${changelog.START_OF_LAST_RELEASE_PATTERN}`)
+  if (
+    argv.header &&
+    argv.header.search(changelog.START_OF_LAST_RELEASE_PATTERN) !== -1
+  ) {
+    throw Error(
+      `custom changelog header must not match ${changelog.START_OF_LAST_RELEASE_PATTERN}`
+    )
   }
 
   /**
@@ -54,14 +63,17 @@ module.exports = async function standardVersion (argv) {
       const contents = fs.readFileSync(pkgPath, 'utf8')
       pkg = {
         version: updater.updater.readVersion(contents),
-        private: typeof updater.updater.isPrivate === 'function' ? updater.updater.isPrivate(contents) : false
+        private:
+          typeof updater.updater.isPrivate === 'function'
+            ? updater.updater.isPrivate(contents)
+            : false
       }
       break
     } catch (err) {}
   }
   try {
     let version
-    if (pkg) {
+    if (pkg && pkg.version) {
       version = pkg.version
     } else if (args.gitTagFallback) {
       version = await latestSemverTag(args.tagPrefix)

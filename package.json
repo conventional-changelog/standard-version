@@ -1,6 +1,6 @@
 {
-  "name": "standard-version",
-  "version": "9.5.0",
+  "name": "commit-and-tag-version",
+  "version": "10.0.1",
   "description": "replacement for `npm version` with automatic CHANGELOG generation",
   "bin": "bin/cli.js",
   "scripts": {
@@ -16,9 +16,9 @@
       "tmp/**"
     ]
   },
-  "repository": "conventional-changelog/standard-version",
+  "repository": "absolute-version/commit-and-tag-version",
   "engines": {
-    "node": ">=10"
+    "node": ">=14"
   },
   "keywords": [
     "conventional-changelog",
@@ -33,9 +33,9 @@
   "author": "Ben Coe <ben@npmjs.com>",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/conventional-changelog/standard-version/issues"
+    "url": "https://github.com/absolute-version/commit-and-tag-version/issues"
   },
-  "homepage": "https://github.com/conventional-changelog/standard-version#readme",
+  "homepage": "https://github.com/absolute-version/commit-and-tag-version#readme",
   "dependencies": {
     "chalk": "^2.4.2",
     "conventional-changelog": "3.1.25",
@@ -50,20 +50,21 @@
     "git-semver-tags": "^4.0.0",
     "semver": "^7.1.1",
     "stringify-package": "^1.0.1",
-    "yargs": "^16.0.0"
+    "yargs": "^17.0.0"
   },
   "devDependencies": {
     "chai": "^4.2.0",
-    "eslint": "^7.14.0",
-    "eslint-config-standard": "^16.0.2",
-    "eslint-plugin-import": "^2.22.1",
-    "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-promise": "^5.0.0",
-    "mocha": "^8.2.1",
-    "mock-fs": "^4.13.0",
+    "eslint": "^8.16.0",
+    "eslint-config-standard": "^17.0.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-n": "^15.2.0",
+    "eslint-plugin-promise": "^6.0.0",
+    "mocha": "^10.0.0",
+    "mock-fs": "^5.0.0",
     "mockery": "^2.1.0",
     "nyc": "^15.1.0",
     "shelljs": "^0.8.4",
-    "std-mocks": "^1.0.1"
+    "std-mocks": "^1.0.1",
+    "strip-ansi": "^6.0.0"
   }
 }
