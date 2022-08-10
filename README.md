@@ -1,33 +1,36 @@
-# Standard Version
+# Commit and Tag Version
+
+> **`commit-and-tag-version` is a fork of `standard-version`**. Because of maintainer availability, `standard-version` was [deprecated on 15th May 2022](https://github.com/conventional-changelog/standard-version/pull/907). The previous maintainer recommends [release-please](https://github.com/googleapis/release-please) as an alternative for those who are using GitHub actions. This fork exists for those who can't switch to `release-please`, or who would like to continue using `standard-version`.
+
+> **`Why was it renamed commit-and-tag-version?`**. I didn't want to scope the package or name it `standard-version-fork`, and it was a good opportunity to make the purpose of the tool clearer. I also wanted to distinguish it from the other tool in this organisation, [`absolute-version`](https://github.com/absolute-version/absolute-version-js), which just prints version information for pre-releases. To migrate, you can drop in `commit-and-tag-version` in place of `standard-version`. There are no changes in 9.5.0, other than to add the package.json config key `commit-and-tag-version` (the previous configuration key `standard-version` will still work).
+
 
 A utility for versioning using [semver](https://semver.org/) and CHANGELOG generation powered by [Conventional Commits](https://conventionalcommits.org).
 
-![ci](https://github.com/conventional-changelog/standard-version/workflows/ci/badge.svg)
-[![NPM version](https://img.shields.io/npm/v/standard-version.svg)](https://www.npmjs.com/package/standard-version)
-[![codecov](https://codecov.io/gh/conventional-changelog/standard-version/branch/master/graph/badge.svg?token=J7zMN7vTTd)](https://codecov.io/gh/conventional-changelog/standard-version)
+![ci](https://github.com/absolute-version/commit-and-tag-version/workflows/ci/badge.svg)
+[![NPM version](https://img.shields.io/npm/v/commit-and-tag-version.svg)](https://www.npmjs.com/package/commit-and-tag-version)
+[![codecov](https://codecov.io/gh/absolute-version/commit-and-tag-version/branch/master/graph/badge.svg?token=J7zMN7vTTd)](https://codecov.io/gh/absolute-version/commit-and-tag-version)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 [![Community slack](http://devtoolscommunity.herokuapp.com/badge.svg)](http://devtoolscommunity.herokuapp.com)
 
 _Having problems? Want to contribute? Join us on the [node-tooling community Slack](http://devtoolscommunity.herokuapp.com)_.
 
-
 _How It Works:_
 
 1. Follow the [Conventional Commits Specification](https://conventionalcommits.org) in your repository.
-2. When you're ready to release, run `standard-version`.
+2. When you're ready to release, run `commit-and-tag-version`.
 
-`standard-version` will then do the following:
+`commit-and-tag-version` will then do the following:
 
 1. Retrieve the current version of your repository by looking at `packageFiles`[[1]](#bumpfiles-packagefiles-and-updaters), falling back to the last `git tag`.
 2. `bump` the version in `bumpFiles`[[1]](#bumpfiles-packagefiles-and-updaters) based on your commits.
-4. Generates a `changelog` based on your commits (uses [conventional-changelog](https://github.com/conventional-changelog/conventional-changelog) under the hood).
-5. Creates a new `commit` including your `bumpFiles`[[1]](#bumpfiles-packagefiles-and-updaters) and updated CHANGELOG.
-6. Creates a new `tag` with the new version number.
-
+3. Generates a `changelog` based on your commits (uses [conventional-changelog](https://github.com/conventional-changelog/conventional-changelog) under the hood).
+4. Creates a new `commit` including your `bumpFiles`[[1]](#bumpfiles-packagefiles-and-updaters) and updated CHANGELOG.
+5. Creates a new `tag` with the new version number.
 
 ### `bumpFiles`, `packageFiles` and `updaters`
 
-`standard-version` uses a few key concepts for handling version bumping in your project.
+`commit-and-tag-version` uses a few key concepts for handling version bumping in your project.
 
 - **`packageFiles`** – User-defined files where versions can be read from _and_ be "bumped".
   - Examples: `package.json`, `manifest.json`
@@ -36,18 +39,18 @@ _How It Works:_
   - Examples: `package-lock.json`, `npm-shrinkwrap.json`
 - **`updaters`** – Simple modules used for reading `packageFiles` and writing to `bumpFiles`.
 
-By default, `standard-version` assumes you're working in a NodeJS based project... because of this, for the majority of projects you might never need to interact with these options.
+By default, `commit-and-tag-version` assumes you're working in a NodeJS based project... because of this, for the majority of projects you might never need to interact with these options.
 
-That said, if you find your self asking [How can I use standard-version for additional metadata files, languages or version files?](#can-i-use-standard-version-for-additional-metadata-files-languages-or-version-files) – these configuration options will help!
+That said, if you find your self asking [How can I use commit-and-tag-version for additional metadata files, languages or version files?](#can-i-use-commit-and-tag-version-for-additional-metadata-files-languages-or-version-files) – these configuration options will help!
 
-## Installing `standard-version`
+## Installing `commit-and-tag-version`
 
 ### As a local `npm run` script
 
 Install and add to `devDependencies`:
 
 ```
-npm i --save-dev standard-version
+npm i --save-dev commit-and-tag-version
 ```
 
 Add an [`npm run` script](https://docs.npmjs.com/cli/run-script) to your `package.json`:
@@ -55,56 +58,61 @@ Add an [`npm run` script](https://docs.npmjs.com/cli/run-script) to your `packag
 ```json
 {
   "scripts": {
-    "release": "standard-version"
+    "release": "commit-and-tag-version"
   }
 }
 ```
 
 Now you can use `npm run release` in place of `npm version`.
 
-This has the benefit of making your repo/package more portable, so that other developers can cut releases without having to globally install `standard-version` on their machine.
+This has the benefit of making your repo/package more portable, so that other developers can cut releases without having to globally install `commit-and-tag-version` on their machine.
 
 ### As global `bin`
 
 Install globally (add to your `PATH`):
 
 ```
-npm i -g standard-version
+npm i -g commit-and-tag-version
 ```
 
-Now you can use `standard-version` in place of `npm version`.
+Now you can use `commit-and-tag-version` in place of `npm version`.
 
-This has the benefit of allowing you to use `standard-version` on any repo/package without adding a dev dependency to each one.
+This has the benefit of allowing you to use `commit-and-tag-version` on any repo/package without adding a dev dependency to each one.
 
 ### Using `npx`
 
-As of `npm@5.2.0`, `npx` is installed alongside `npm`. Using `npx` you can use `standard-version` without having to keep a `package.json` file by running: `npx standard-version`.
+As of `npm@5.2.0`, `npx` is installed alongside `npm`. Using `npx` you can use `commit-and-tag-version` without having to keep a `package.json` file by running: `npx commit-and-tag-version`.
 
-This method is especially useful when using `standard-version` in non-JavaScript projects.
+This method is especially useful when using `commit-and-tag-version` in non-JavaScript projects.
 
 ## Configuration
 
-You can configure `standard-version` either by:
+You can configure `commit-and-tag-version` either by:
 
-1. Placing a `standard-version` stanza in your `package.json` (assuming
+1. Placing a `commit-and-tag-version` stanza in your `package.json` (assuming
    your project is JavaScript).
-2. Creating a `.versionrc`, `.versionrc.json` or `.versionrc.js`.
-  - If you are using a `.versionrc.js` your default export must be a configuration object, or a function returning a configuration object.
 
-Any of the command line parameters accepted by `standard-version` can instead
+   > Note for users who have migrated to 
+   `commit-and-tag-version` from `standard-version`: the previous package.json configuration key of `standard-version` will still work.
+
+2. Creating a `.versionrc`, `.versionrc.json` or `.versionrc.js`.
+
+- If you are using a `.versionrc.js` your default export must be a configuration object, or a function returning a configuration object.
+
+Any of the command line parameters accepted by `commit-and-tag-version` can instead
 be provided via configuration. Please refer to the [conventional-changelog-config-spec](https://github.com/conventional-changelog/conventional-changelog-config-spec/) for details on available configuration options.
 
 ### Customizing CHANGELOG Generation
 
-By default (as of `6.0.0`), `standard-version` uses the [conventionalcommits preset](https://github.com/conventional-changelog/conventional-changelog/tree/master/packages/conventional-changelog-conventionalcommits).
+By default, `commit-and-tag-version` uses the [conventionalcommits preset](https://github.com/conventional-changelog/conventional-changelog/tree/master/packages/conventional-changelog-conventionalcommits).
 
 This preset adheres closely to the [conventionalcommits.org](https://www.conventionalcommits.org) specification.
 
 Suppose you're using GitLab, rather than GitHub, you might modify the following variables:
 
-* `commitUrlFormat`: the URL format of commit SHAs detected in commit messages.
-* `compareUrlFormat`: the URL format used to compare two tags.
-* `issueUrlFormat`: the URL format used to link to issues.
+- `commitUrlFormat`: the URL format of commit SHAs detected in commit messages.
+- `compareUrlFormat`: the URL format used to compare two tags.
+- `issueUrlFormat`: the URL format used to link to issues.
 
 Making these URLs match GitLab's format, rather than GitHub's.
 
@@ -134,9 +142,9 @@ To generate your changelog for your first release, simply do:
 # npm run script
 npm run release -- --first-release
 # global bin
-standard-version --first-release
+commit-and-tag-version --first-release
 # npx
-npx standard-version --first-release
+npx commit-and-tag-version --first-release
 ```
 
 This will tag a release **without bumping the version `bumpFiles`[1]()**.
@@ -151,7 +159,7 @@ If you typically use `npm version` to cut a new release, do this instead:
 # npm run script
 npm run release
 # or global bin
-standard-version
+commit-and-tag-version
 ```
 
 As long as your git commit messages are conventional and accurate, you no longer need to specify the semver type - and you get CHANGELOG generation for free! \o/
@@ -168,6 +176,7 @@ Suppose the last version of your code is `1.0.0`, and your code to be committed 
 # npm run script
 npm run release -- --prerelease
 ```
+
 This will tag your version as: `1.0.1-0`.
 
 If you want to name the pre-release, you specify the name via `--prerelease <name>`.
@@ -207,34 +216,34 @@ If you use git hooks, like pre-commit, to test your code before committing, you 
 # npm run script
 npm run release -- --no-verify
 # or global bin
-standard-version --no-verify
+commit-and-tag-version --no-verify
 ```
 
 ### Signing Commits and Tags
 
-If you have your GPG key set up, add the `--sign` or `-s` flag to your `standard-version` command.
+If you have your GPG key set up, add the `--sign` or `-s` flag to your `commit-and-tag-version` command.
 
 ### Lifecycle Scripts
 
-`standard-version` supports lifecycle scripts. These allow you to execute your
+`commit-and-tag-version` supports lifecycle scripts. These allow you to execute your
 own supplementary commands during the release. The following
 hooks are available and execute in the order documented:
 
-* `prerelease`: executed before anything happens. If the `prerelease` script returns a
+- `prerelease`: executed before anything happens. If the `prerelease` script returns a
   non-zero exit code, versioning will be aborted, but it has no other effect on the
   process.
-* `prebump`/`postbump`: executed before and after the version is bumped. If the `prebump`
+- `prebump`/`postbump`: executed before and after the version is bumped. If the `prebump`
   script returns a version #, it will be used rather than
-  the version calculated by `standard-version`.
-* `prechangelog`/`postchangelog`: executes before and after the CHANGELOG is generated.
-* `precommit`/`postcommit`: called before and after the commit step.
-* `pretag`/`posttag`: called before and after the tagging step.
+  the version calculated by `commit-and-tag-version`.
+- `prechangelog`/`postchangelog`: executes before and after the CHANGELOG is generated.
+- `precommit`/`postcommit`: called before and after the commit step.
+- `pretag`/`posttag`: called before and after the tagging step.
 
 Simply add the following to your package.json to configure lifecycle scripts:
 
 ```json
 {
-  "standard-version": {
+  "commit-and-tag-version": {
     "scripts": {
       "prebump": "echo 9.9.9"
     }
@@ -245,9 +254,10 @@ Simply add the following to your package.json to configure lifecycle scripts:
 As an example to change from using GitHub to track your items to using your projects Jira use a
 `postchangelog` script to replace the url fragment containing 'https://github.com/`myproject`/issues/'
 with a link to your Jira - assuming you have already installed [replace](https://www.npmjs.com/package/replace)
+
 ```json
 {
-  "standard-version": {
+  "commit-and-tag-version": {
     "scripts": {
       "postchangelog": "replace 'https://github.com/myproject/issues/' 'https://myjira/browse/' CHANGELOG.md"
     }
@@ -262,7 +272,7 @@ by adding the following to your package.json:
 
 ```json
 {
-  "standard-version": {
+  "commit-and-tag-version": {
     "skip": {
       "changelog": true
     }
@@ -276,7 +286,7 @@ If you want to commit generated artifacts in the release commit, you can use the
 
 ```json
 {
-  "standard-version": {
+  "commit-and-tag-version": {
     "scripts": {
       "prerelease": "webpack -p --bail && git add <file(s) to commit>"
     }
@@ -287,21 +297,21 @@ If you want to commit generated artifacts in the release commit, you can use the
 ```json
 {
   "scripts": {
-    "release": "standard-version -a"
+    "release": "commit-and-tag-version -a"
   }
 }
 ```
 
 ### Dry Run Mode
 
-running `standard-version` with the flag `--dry-run` allows you to see what
+running `commit-and-tag-version` with the flag `--dry-run` allows you to see what
 commands would be run, without committing to git or updating files.
 
 ```sh
 # npm run script
 npm run release -- --dry-run
 # or global bin
-standard-version --dry-run
+commit-and-tag-version --dry-run
 ```
 
 ### Prefix Tags
@@ -309,7 +319,7 @@ standard-version --dry-run
 Tags are prefixed with `v` by default. If you would like to prefix your tags with something else, you can do so with the `-t` flag.
 
 ```sh
-standard-version -t @scope/package\@
+commit-and-tag-version -t @scope/package\@
 ```
 
 This will prefix your tags to look something like `@scope/package@2.0.0`
@@ -318,46 +328,52 @@ If you do not want to have any tag prefix you can use the `-t` flag and provide 
 
 > Note: simply -t or --tag-prefix without any value will fallback to the default 'v'
 
+### Tag replacement
+
+If you've already run `standard-version` when creating your release, you may want to alter the release content and changelog without bumping the version, by using `standard-version --skip.bump`. By default, tagging with an already existing tag make `git` fails. You can add the `--tag-force` flag to make use of `-f` option when calling `git tag`, then the existing version tag will be replaced.
+
 ### CLI Help
 
 ```sh
 # npm run script
 npm run release -- --help
 # or global bin
-standard-version --help
+commit-and-tag-version --help
 ```
 
 ## Code Usage
 
 ```js
-const standardVersion = require('standard-version')
+const standardVersion = require("commit-and-tag-version");
 
 // Options are the same as command line, except camelCase
 // standardVersion returns a Promise
 standardVersion({
   noVerify: true,
-  infile: 'docs/CHANGELOG.md',
-  silent: true
-}).then(() => {
-  // standard-version is done
-}).catch(err => {
-    console.error(`standard-version failed with message: ${err.message}`)
+  infile: "docs/CHANGELOG.md",
+  silent: true,
 })
+  .then(() => {
+    // commit-and-tag-version is done
+  })
+  .catch((err) => {
+    console.error(`commit-and-tag-version failed with message: ${err.message}`);
+  });
 ```
 
-_TIP: Use the `silent` option to prevent `standard-version` from printing to the `console`._
+_TIP: Use the `silent` option to prevent `commit-and-tag-version` from printing to the `console`._
 
 ## FAQ
 
-### How is `standard-version` different from `semantic-release`?
+### How is `commit-and-tag-version` different from `semantic-release`?
 
 [`semantic-release`](https://github.com/semantic-release/semantic-release) is described as:
 
 > semantic-release automates the whole package release workflow including: determining the next version number, generating the release notes and publishing the package.
 
-While both are based on the same foundation of structured commit messages, `standard-version`  takes a different approach by handling versioning, changelog generation, and git tagging for you **without** automatic pushing (to GitHub) or publishing (to an npm registry). Use of `standard-version` only affects your local git repo - it doesn't affect remote resources at all. After you run `standard-version`, you can review your release state, correct mistakes and follow the release strategy that makes the most sense for your codebase.
+While both are based on the same foundation of structured commit messages, `commit-and-tag-version` takes a different approach by handling versioning, changelog generation, and git tagging for you **without** automatic pushing (to GitHub) or publishing (to an npm registry). Use of `commit-and-tag-version` only affects your local git repo - it doesn't affect remote resources at all. After you run `commit-and-tag-version`, you can review your release state, correct mistakes and follow the release strategy that makes the most sense for your codebase.
 
-We think they are both fantastic tools, and we encourage folks to use `semantic-release` instead of `standard-version` if it makes sense for their use-case.
+We think they are both fantastic tools, and we encourage folks to use `semantic-release` instead of `commit-and-tag-version` if it makes sense for their use-case.
 
 ### Should I always squash commits when merging PRs?
 
@@ -369,14 +385,14 @@ Although this will allow each commit to be included as separate entries in your 
 
 For this reason, we recommend keeping the scope of each PR to one general feature or fix. In practice, this allows you to use unstructured commit messages when committing each little change and then squash them into a single commit with a structured message (referencing the PR number) once they have been reviewed and accepted.
 
-### Can I use `standard-version` for additional metadata files, languages or version files?
+### Can I use `commit-and-tag-version` for additional metadata files, languages or version files?
 
-As of version `7.1.0` you can configure multiple `bumpFiles` and `packageFiles`.
+You can configure multiple `bumpFiles` and `packageFiles`:
 
 1. Specify a custom `bumpFile` "`filename`", this is the path to the file you want to "bump"
 2. Specify the `bumpFile` "`updater`", this is _how_ the file will be bumped.
-    a. If you're using a common type, you can use one of  `standard-version`'s built-in `updaters` by specifying a `type`.
-    b. If your using an less-common version file, you can create your own `updater`.
+   a. If you're using a common type, you can use one of `commit-and-tag-version`'s built-in `updaters` by specifying a `type`.
+   b. If your using an less-common version file, you can create your own `updater`.
 
 ```js
 // .versionrc
@@ -395,7 +411,7 @@ As of version `7.1.0` you can configure multiple `bumpFiles` and `packageFiles`.
     {
       "filename": "VERSION_TRACKER.json",
       //  See "Custom `updater`s" for more details.
-      "updater": "standard-version-updater.js"
+      "updater": "commit-and-tag-version-updater.js"
     }
   ]
 }
@@ -406,14 +422,14 @@ If using `.versionrc.js` as your configuration file, the `updater` may also be s
 ```js
 // .versionrc.js
 const tracker = {
-  filename: 'VERSION_TRACKER.json',
-  updater: require('./path/to/custom-version-updater')
-}
+  filename: "VERSION_TRACKER.json",
+  updater: require("./path/to/custom-version-updater"),
+};
 
 module.exports = {
   bumpFiles: [tracker],
-  packageFiles: [tracker]
-}
+  packageFiles: [tracker],
+};
 ```
 
 #### Custom `updater`s
@@ -444,28 +460,27 @@ Let's assume our `VERSION_TRACKER.json` has the following contents:
     }
   }
 }
-
 ```
 
-An acceptable `standard-version-updater.js` would be:
+An acceptable `commit-and-tag-version-updater.js` would be:
 
 ```js
-// standard-version-updater.js
-const stringifyPackage = require('stringify-package')
-const detectIndent = require('detect-indent')
-const detectNewline = require('detect-newline')
+// commit-and-tag-version-updater.js
+const stringifyPackage = require("stringify-package");
+const detectIndent = require("detect-indent");
+const detectNewline = require("detect-newline");
 
 module.exports.readVersion = function (contents) {
   return JSON.parse(contents).tracker.package.version;
-}
+};
 
 module.exports.writeVersion = function (contents, version) {
-  const json = JSON.parse(contents)
-  let indent = detectIndent(contents).indent
-  let newline = detectNewline(contents)
-  json.tracker.package.version = version
-  return stringifyPackage(json, indent, newline)
-}
+  const json = JSON.parse(contents);
+  let indent = detectIndent(contents).indent;
+  let newline = detectNewline(contents);
+  json.tracker.package.version = version;
+  return stringifyPackage(json, indent, newline);
+};
 ```
 
 ## License

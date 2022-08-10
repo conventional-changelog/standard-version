@@ -1,6 +1,58 @@
 # Changelog
 
-All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
+
+### [10.0.1](https://github.com/absolute-version/commit-and-tag-version/compare/v10.0.0...v10.0.1) (2022-05-28)
+
+
+### Bug Fixes
+
+* No longer warn inappropriately when a custom updater is provided as an object ([5eb8886](https://github.com/absolute-version/commit-and-tag-version/commit/5eb8886a56c6b14c13544192edb3d0e18f91184a))
+
+## [10.0.0](https://github.com/absolute-version/commit-and-tag-version/compare/v9.6.0...v10.0.0) (2022-05-25)
+
+
+### ⚠ BREAKING CHANGES
+
+* Drop support for node 10 and 12, support node 16 and 18
+
+### Bug Fixes
+
+* **deps:** update dependency yargs to v17 ([d190c51](https://github.com/absolute-version/commit-and-tag-version/commit/d190c51507026adefe640cdd75f0a643afd81b87))
+
+
+### Build System
+
+* Drop support for node 10 and 12, support node 16 and 18 ([0f75115](https://github.com/absolute-version/commit-and-tag-version/commit/0f751158c2df9cbf7a2c16bef55a5de084f0d17d))
+
+## [9.6.0](https://github.com/absolute-version/commit-and-tag-version/compare/v9.5.0...v9.6.0) (2022-05-25)
+
+
+### Features
+
+* **tag:** add an option to force tag replacement ([df5a94a](https://github.com/absolute-version/commit-and-tag-version/commit/df5a94a978c6966e334ec0e4c9f082fae8deb4f9))
+
+
+### Bug Fixes
+
+* Combining both release-as and prerelease now doesn't break package ([5ecfa2e](https://github.com/absolute-version/commit-and-tag-version/commit/5ecfa2e250e134dbfd3ce8d3c6e9d3be28f6f2b8))
+* Fallback to git tag if no version in package file ([57e7091](https://github.com/absolute-version/commit-and-tag-version/commit/57e70916c8afbce16347ed1f710984f5a483152a))
+* No longer skips the commit if changelog and bump are both skipped but `commitAll` is set ([08a0121](https://github.com/absolute-version/commit-and-tag-version/commit/08a01212f0eea7ee5e454adf560755df67234d2f))
+* Use relative path from .gitignore to avoid files matching inappropriately ([d2491bc](https://github.com/absolute-version/commit-and-tag-version/commit/d2491bc8b61a60cd438045ac409278f5b84621dd))
+* When a custom updater reports a version other than the new computed semver, that version is now correctly reported in log output ([f2e83bf](https://github.com/absolute-version/commit-and-tag-version/commit/f2e83bfac711ac5ba4de940d654269af69fc7312))
+
+## [9.5.0](https://github.com/conventional-changelog/standard-version/compare/v9.4.0...v9.5.0) (2022-05-15)
+
+
+### Features
+
+* **deprecated:** add deprecation message ([#907](https://github.com/conventional-changelog/standard-version/issues/907)) ([61b41fa](https://github.com/conventional-changelog/standard-version/commit/61b41fa47ef690f55b92e2edb82fe554e3c1e13a))
+
+
+### Bug Fixes
+
+* **deps:** update dependency conventional-changelog to v3.1.25 ([#865](https://github.com/conventional-changelog/standard-version/issues/865)) ([4c938a2](https://github.com/conventional-changelog/standard-version/commit/4c938a2baac11385d655144429bc73b2199bb027))
+* **deps:** update dependency conventional-changelog-conventionalcommits to v4.6.3 ([#866](https://github.com/conventional-changelog/standard-version/issues/866)) ([6c75ed0](https://github.com/conventional-changelog/standard-version/commit/6c75ed0b1456913ae7e4d6fe8532fb4106df1bdf))
 
 ## [9.4.0](https://github.com/conventional-changelog/standard-version/compare/v9.3.2...v9.4.0) (2021-12-31)
 

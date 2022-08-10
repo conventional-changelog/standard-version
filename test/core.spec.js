@@ -9,18 +9,19 @@ const { Readable } = require('stream')
 const mockFS = require('mock-fs')
 const mockery = require('mockery')
 const stdMocks = require('std-mocks')
+const stripAnsi = require('strip-ansi')
 
 const cli = require('../command')
 const formatCommitMessage = require('../lib/format-commit-message')
 
-require('chai').should()
+const should = require('chai').should()
 
 // set by mock()
 let standardVersion
 
 function exec (opt = '', git) {
   if (typeof opt === 'string') {
-    opt = cli.parse(`standard-version ${opt}`)
+    opt = cli.parse(`commit-and-tag-version ${opt}`)
   }
   if (!git) opt.skip = Object.assign({}, opt.skip, { commit: true, tag: true })
   return standardVersion(opt)
@@ -121,10 +122,10 @@ describe('format-commit-message', function () {
   })
   it('works for two {{currentTag}}', function () {
     formatCommitMessage(
-      'chore(release): {{currentTag}} \n\n* CHANGELOG: https://github.com/conventional-changelog/standard-version/blob/v{{currentTag}}/CHANGELOG.md',
+      'chore(release): {{currentTag}} \n\n* CHANGELOG: https://github.com/absolute-version/commit-and-tag-version/blob/v{{currentTag}}/CHANGELOG.md',
       '1.0.0'
     ).should.equal(
-      'chore(release): 1.0.0 \n\n* CHANGELOG: https://github.com/conventional-changelog/standard-version/blob/v1.0.0/CHANGELOG.md'
+      'chore(release): 1.0.0 \n\n* CHANGELOG: https://github.com/absolute-version/commit-and-tag-version/blob/v1.0.0/CHANGELOG.md'
     )
   })
 })
@@ -234,7 +235,9 @@ describe('cli', function () {
         })
 
         await exec({
-          scripts: { prerelease: 'node -e "console.error(\'prerelease\' + \' ran\')"' }
+          scripts: {
+            prerelease: "node -e \"console.error('prerelease' + ' ran')\""
+          }
         })
         const { stderr } = flush()
         stderr.join('\n').should.match(/prerelease ran/)
@@ -249,7 +252,7 @@ describe('cli', function () {
         try {
           await exec({
             scripts: {
-              prerelease: 'node -e "throw new Error(\'prerelease\' + \' fail\')"'
+              prerelease: "node -e \"throw new Error('prerelease' + ' fail')\""
             }
           })
           /* istanbul ignore next */
@@ -267,7 +270,11 @@ describe('cli', function () {
           fs: { 'CHANGELOG.md': 'legacy header format<a name="1.0.0">\n' }
         })
 
-        await exec({ scripts: { prebump: 'node -e "console.log(Array.of(9, 9, 9).join(\'.\'))"' } })
+        await exec({
+          scripts: {
+            prebump: "node -e \"console.log(Array.of(9, 9, 9).join('.'))\""
+          }
+        })
         const { stdout } = flush()
         stdout.join('').should.match(/9\.9\.9/)
       })
@@ -281,7 +288,9 @@ describe('cli', function () {
         })
 
         await exec({
-          scripts: { postbump: 'node -e "console.error(\'postbump\' + \' ran\')"' }
+          scripts: {
+            postbump: "node -e \"console.error('postbump' + ' ran')\""
+          }
         })
         const { stderr } = flush()
         stderr.join('\n').should.match(/postbump ran/)
@@ -295,7 +304,9 @@ describe('cli', function () {
 
         try {
           await exec({
-            scripts: { postbump: 'node -e "throw new Error(\'postbump\' + \' fail\')"' }
+            scripts: {
+              postbump: "node -e \"throw new Error('postbump' + ' fail')\""
+            }
           })
           await exec('--patch')
           /* istanbul ignore next */
@@ -353,6 +364,42 @@ describe('cli', function () {
         })
         await exec('--release-as 200.0.0-amazing')
         getPackageVersion().should.equal('200.0.0-amazing')
+      })
+
+      it('releases as 100.0.0 with prerelease amazing', async function () {
+        mock({
+          bump: 'patch',
+          fs: { 'CHANGELOG.md': 'legacy header format<a name="1.0.0">\n' },
+          pkg: {
+            version: '1.0.0'
+          }
+        })
+        await exec('--release-as 100.0.0 --prerelease amazing')
+        should.equal(getPackageVersion(), '100.0.0-amazing.0')
+      })
+
+      it('release 100.0.0 with prerelease amazing bumps build', async function () {
+        mock({
+          bump: 'patch',
+          fs: { 'CHANGELOG.md': 'legacy header format<a name="100.0.0-amazing.0">\n' },
+          pkg: {
+            version: '100.0.0-amazing.0'
+          }
+        })
+        await exec('--release-as 100.0.0 --prerelease amazing')
+        should.equal(getPackageVersion(), '100.0.0-amazing.1')
+      })
+
+      it('release 100.0.0-amazing.0 with prerelease amazing bumps build', async function () {
+        mock({
+          bump: 'patch',
+          fs: { 'CHANGELOG.md': 'legacy header format<a name="100.0.0-amazing.0">\n' },
+          pkg: {
+            version: '100.0.0-amazing.0'
+          }
+        })
+        await exec('--release-as 100.0.0-amazing.0 --prerelease amazing')
+        should.equal(getPackageVersion(), '100.0.0-amazing.1')
       })
     })
 
@@ -426,7 +473,7 @@ describe('cli', function () {
   })
 })
 
-describe('standard-version', function () {
+describe('commit-and-tag-version', function () {
   afterEach(unmock)
 
   it('should exit on bump error', async function () {
@@ -526,6 +573,37 @@ describe('standard-version', function () {
       })
       fs.readFileSync('VERSION_TRACKER.txt', 'utf-8').should.equal('1.1.0')
     })
+
+    it('displays the new version from custom bumper with --dry-run', async function () {
+      const updater = 'increment-updater.js'
+      const updaterModule = require('./mocks/updater/increment-updater')
+      mock({
+        bump: 'minor',
+        fs: {
+          'increment-version.txt': fs.readFileSync(
+            './test/mocks/increment-version.txt'
+          )
+        }
+      })
+      mockery.registerMock(resolve(process.cwd(), updater), updaterModule)
+
+      const origInfo = console.info
+      const capturedOutput = []
+      console.info = (...args) => {
+        capturedOutput.push(...args)
+        origInfo(...args)
+      }
+      try {
+        await exec({
+          bumpFiles: [{ filename: 'increment-version.txt', updater: 'increment-updater.js' }],
+          dryRun: true
+        })
+        const logOutput = capturedOutput.join(' ')
+        stripAnsi(logOutput).should.include('bumping version in increment-version.txt from 1 to 2')
+      } finally {
+        console.info = origInfo
+      }
+    })
   })
 
   describe('custom `packageFiles` support', function () {
@@ -568,7 +646,7 @@ describe('standard-version', function () {
     })
   })
 
-  it('`packageFiles` are bumped along with `bumpFiles` defaults [standard-version#533]', async function () {
+  it('`packageFiles` are bumped along with `bumpFiles` defaults [commit-and-tag-version#533]', async function () {
     mock({
       bump: 'minor',
       fs: {
@@ -589,9 +667,15 @@ describe('standard-version', function () {
       ]
     })
 
-    JSON.parse(fs.readFileSync('manifest.json', 'utf-8')).version.should.equal('6.4.0')
-    JSON.parse(fs.readFileSync('package.json', 'utf-8')).version.should.equal('6.4.0')
-    JSON.parse(fs.readFileSync('package-lock.json', 'utf-8')).version.should.equal('6.4.0')
+    JSON.parse(fs.readFileSync('manifest.json', 'utf-8')).version.should.equal(
+      '6.4.0'
+    )
+    JSON.parse(fs.readFileSync('package.json', 'utf-8')).version.should.equal(
+      '6.4.0'
+    )
+    JSON.parse(
+      fs.readFileSync('package-lock.json', 'utf-8')
+    ).version.should.equal('6.4.0')
   })
 
   it('bumps version # in npm-shrinkwrap.json', async function () {
@@ -658,9 +742,9 @@ describe('standard-version', function () {
       tags: ['v1.0.0']
     })
     await exec()
-    JSON.parse(fs.readFileSync('package-lock.json', 'utf-8')).version.should.equal(
-      '1.0.0'
-    )
+    JSON.parse(
+      fs.readFileSync('package-lock.json', 'utf-8')
+    ).version.should.equal('1.0.0')
     JSON.parse(fs.readFileSync('bower.json', 'utf-8')).version.should.equal(
       '1.0.0'
     )
@@ -735,7 +819,14 @@ describe('with mocked git', function () {
   it('--sign signs the commit and tag', async function () {
     const gitArgs = [
       ['add', 'CHANGELOG.md', 'package.json'],
-      ['commit', '-S', 'CHANGELOG.md', 'package.json', '-m', 'chore(release): 1.0.1'],
+      [
+        'commit',
+        '-S',
+        'CHANGELOG.md',
+        'package.json',
+        '-m',
+        'chore(release): 1.0.1'
+      ],
       ['tag', '-s', 'v1.0.1', '-m', 'chore(release): 1.0.1'],
       ['rev-parse', '--abbrev-ref', 'HEAD']
     ]
@@ -752,10 +843,28 @@ describe('with mocked git', function () {
     gitArgs.should.have.lengthOf(0)
   })
 
-  it('fails if git add fails', async function () {
+  it('--tag-force forces tag replacement', async function () {
     const gitArgs = [
-      ['add', 'CHANGELOG.md', 'package.json']
+      ['add', 'CHANGELOG.md', 'package.json'],
+      ['commit', 'CHANGELOG.md', 'package.json', '-m', 'chore(release): 1.0.1'],
+      ['tag', '-a', '-f', 'v1.0.1', '-m', 'chore(release): 1.0.1'],
+      ['rev-parse', '--abbrev-ref', 'HEAD']
     ]
+    const execFile = (_args, cmd, cmdArgs) => {
+      cmd.should.equal('git')
+      const expected = gitArgs.shift()
+      cmdArgs.should.deep.equal(expected)
+      if (expected[0] === 'rev-parse') return Promise.resolve('master')
+      return Promise.resolve('')
+    }
+    mock({ bump: 'patch', changelog: 'foo\n', execFile })
+
+    await exec('--tag-force', true)
+    gitArgs.should.have.lengthOf(0)
+  })
+
+  it('fails if git add fails', async function () {
+    const gitArgs = [['add', 'CHANGELOG.md', 'package.json']]
     const execFile = (_args, cmd, cmdArgs) => {
       cmd.should.equal('git')
       const expected = gitArgs.shift()
