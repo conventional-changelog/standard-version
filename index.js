@@ -37,10 +37,18 @@ module.exports = async function standardVersion (argv) {
     throw Error(`custom changelog header must not match ${changelog.START_OF_LAST_RELEASE_PATTERN}`)
   }
 
+  /**
+   * If an argument for `packageFiles` provided, we include it as a "default" `bumpFile`.
+   */
+  if (argv.packageFiles) {
+    defaults.bumpFiles = defaults.bumpFiles.concat(argv.packageFiles)
+  }
+
   const args = Object.assign({}, defaults, argv)
   let pkg
   for (const packageFile of args.packageFiles) {
     const updater = resolveUpdaterObjectFromArgument(packageFile)
+    if (!updater) return
     const pkgPath = path.resolve(process.cwd(), updater.filename)
     try {
       const contents = fs.readFileSync(pkgPath, 'utf8')

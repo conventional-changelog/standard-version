@@ -2,6 +2,45 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [9.5.0](https://github.com/conventional-changelog/standard-version/compare/v9.4.0...v9.5.0) (2022-05-15)
+
+
+### Features
+
+* **deprecated:** add deprecation message ([#907](https://github.com/conventional-changelog/standard-version/issues/907)) ([61b41fa](https://github.com/conventional-changelog/standard-version/commit/61b41fa47ef690f55b92e2edb82fe554e3c1e13a))
+
+
+### Bug Fixes
+
+* **deps:** update dependency conventional-changelog to v3.1.25 ([#865](https://github.com/conventional-changelog/standard-version/issues/865)) ([4c938a2](https://github.com/conventional-changelog/standard-version/commit/4c938a2baac11385d655144429bc73b2199bb027))
+* **deps:** update dependency conventional-changelog-conventionalcommits to v4.6.3 ([#866](https://github.com/conventional-changelog/standard-version/issues/866)) ([6c75ed0](https://github.com/conventional-changelog/standard-version/commit/6c75ed0b1456913ae7e4d6fe8532fb4106df1bdf))
+
+## [9.4.0](https://github.com/conventional-changelog/standard-version/compare/v9.3.2...v9.4.0) (2021-12-31)
+
+
+### Features
+
+* add .cjs config file ([#717](https://github.com/conventional-changelog/standard-version/issues/717)) ([eceaedf](https://github.com/conventional-changelog/standard-version/commit/eceaedf8b3cdeb282ee06bfa9c65503f42404858))
+
+
+### Bug Fixes
+
+* Ensures provided `packageFiles` arguments are merged with `bumpFiles` when no `bumpFiles` argument is specified (default). ([#534](https://github.com/conventional-changelog/standard-version/issues/534)) ([2785023](https://github.com/conventional-changelog/standard-version/commit/2785023c91668e7300e6a22e55d31b6bd9dae59b)), closes [#533](https://github.com/conventional-changelog/standard-version/issues/533)
+
+### [9.3.2](https://www.github.com/conventional-changelog/standard-version/compare/v9.3.1...v9.3.2) (2021-10-17)
+
+
+### Bug Fixes
+
+* **deps:** update dependency conventional-changelog-conventionalcommits to v4.6.1 ([#752](https://www.github.com/conventional-changelog/standard-version/issues/752)) ([bb8869d](https://www.github.com/conventional-changelog/standard-version/commit/bb8869de7d8bcace1ec92f29e389e7fab506d64e))
+
+### [9.3.1](https://www.github.com/conventional-changelog/standard-version/compare/v9.3.0...v9.3.1) (2021-07-14)
+
+
+### Bug Fixes
+
+* **updater:** npm7 package lock's inner version not being updated ([#713](https://www.github.com/conventional-changelog/standard-version/issues/713)) ([a316dd0](https://www.github.com/conventional-changelog/standard-version/commit/a316dd02f5a7d8dee33d99370afda8738985bc10))
+
 ## [9.3.0](https://www.github.com/conventional-changelog/standard-version/compare/v9.2.0...v9.3.0) (2021-05-04)
 
 
