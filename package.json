@@ -1,8 +1,10 @@
 {
-  "name": "standard-version",
+  "name": "@finotta/standard-version",
   "version": "9.5.0",
   "description": "replacement for `npm version` with automatic CHANGELOG generation",
-  "bin": "bin/cli.js",
+  "bin": {
+    "standard-version": "bin/cli.js"
+  },
   "scripts": {
     "fix": "eslint . --fix",
     "posttest": "eslint .",
@@ -16,7 +18,10 @@
       "tmp/**"
     ]
   },
-  "repository": "conventional-changelog/standard-version",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/conventional-changelog/standard-version.git"
+  },
   "engines": {
     "node": ">=10"
   },
@@ -59,11 +64,15 @@
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^5.0.0",
-    "mocha": "^8.2.1",
+    "mocha": "^10.2.0",
     "mock-fs": "^4.13.0",
-    "mockery": "^2.1.0",
     "nyc": "^15.1.0",
     "shelljs": "^0.8.4",
     "std-mocks": "^1.0.1"
+  },
+  "main": "index.js",
+  "directories": {
+    "lib": "lib",
+    "test": "test"
   }
 }
