@@ -1,6 +1,6 @@
 # Standard Version
 
-> **`standard-version` is deprecated**. If you're a GitHub user, I recommend [release-please](https://github.com/googleapis/release-please) as an alternative. I encourage folks to fork this repository and, if a fork gets popular, I will link to it in this README.
+> **`standard-version` is deprecated**. If you're a GitHub user, I recommend [release-please](https://github.com/googleapis/release-please) as an alternative. If you're unable to use GitHub Actions, or if you need to stick with `standard-version` for some other reason, you can use the [commit-and-tag-version]( https://github.com/absolute-version/commit-and-tag-version) fork of `standard-version`.
 
 A utility for versioning using [semver](https://semver.org/) and CHANGELOG generation powered by [Conventional Commits](https://conventionalcommits.org).
 
