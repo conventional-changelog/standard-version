@@ -58,7 +58,7 @@
     "eslint-config-standard": "^16.0.2",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-promise": "^5.0.0",
+    "eslint-plugin-promise": "^6.0.0",
     "mocha": "^8.2.1",
     "mock-fs": "^4.13.0",
     "mockery": "^2.1.0",
