@@ -38,7 +38,7 @@
   "homepage": "https://github.com/conventional-changelog/standard-version#readme",
   "dependencies": {
     "chalk": "^2.4.2",
-    "conventional-changelog": "3.1.25",
+    "conventional-changelog": "5.1.0",
     "conventional-changelog-config-spec": "2.1.0",
     "conventional-changelog-conventionalcommits": "4.6.3",
     "conventional-recommended-bump": "6.1.0",
