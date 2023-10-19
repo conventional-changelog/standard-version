@@ -12,6 +12,9 @@ const defaults = {
   skip: {},
   dryRun: false,
   gitTagFallback: true,
+  template_commit: 'templates/commit.hbs',
+  template_header: 'templates/header.hbs',
+  template_footer: 'templates/footer.hbs',
   preset: require.resolve('conventional-changelog-conventionalcommits')
 }
 
