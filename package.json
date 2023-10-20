@@ -50,6 +50,7 @@
     "git-semver-tags": "^4.0.0",
     "semver": "^7.1.1",
     "stringify-package": "^1.0.1",
+    "yaml": "^1.10.2",
     "yargs": "^16.0.0"
   },
   "devDependencies": {
