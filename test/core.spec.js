@@ -13,7 +13,7 @@ const stdMocks = require('std-mocks')
 const cli = require('../command')
 const formatCommitMessage = require('../lib/format-commit-message')
 
-require('chai').should()
+const should = require('chai').should()
 
 // set by mock()
 let standardVersion
@@ -353,6 +353,42 @@ describe('cli', function () {
         })
         await exec('--release-as 200.0.0-amazing')
         getPackageVersion().should.equal('200.0.0-amazing')
+      })
+
+      it('releases as 100.0.0 with prerelease amazing', async function () {
+        mock({
+          bump: 'patch',
+          fs: { 'CHANGELOG.md': 'legacy header format<a name="1.0.0">\n' },
+          pkg: {
+            version: '1.0.0'
+          }
+        })
+        await exec('--release-as 100.0.0 --prerelease amazing')
+        should.equal(getPackageVersion(), '100.0.0-amazing.0')
+      })
+
+      it('release 100.0.0 with prerelease amazing bumps build', async function () {
+        mock({
+          bump: 'patch',
+          fs: { 'CHANGELOG.md': 'legacy header format<a name="100.0.0-amazing.0">\n' },
+          pkg: {
+            version: '100.0.0-amazing.0'
+          }
+        })
+        await exec('--release-as 100.0.0 --prerelease amazing')
+        should.equal(getPackageVersion(), '100.0.0-amazing.1')
+      })
+
+      it('release 100.0.0-amazing.0 with prerelease amazing bumps build', async function () {
+        mock({
+          bump: 'patch',
+          fs: { 'CHANGELOG.md': 'legacy header format<a name="100.0.0-amazing.0">\n' },
+          pkg: {
+            version: '100.0.0-amazing.0'
+          }
+        })
+        await exec('--release-as 100.0.0-amazing.0 --prerelease amazing')
+        should.equal(getPackageVersion(), '100.0.0-amazing.1')
       })
     })
 
