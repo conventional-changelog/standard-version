@@ -99,6 +99,10 @@ const yargs = require('yargs')
     default: defaults.preset,
     describe: 'Commit message guideline preset'
   })
+  .option('parser-opts', {
+    type: 'string',
+    describe: 'Path to file with Conventional Commits Parser Options'
+  })
   .option('lerna-package', {
     type: 'string',
     describe: 'Name of the package from which the tags will be extracted'

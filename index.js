@@ -37,6 +37,15 @@ module.exports = async function standardVersion (argv) {
     throw Error(`custom changelog header must not match ${changelog.START_OF_LAST_RELEASE_PATTERN}`)
   }
 
+  if (typeof argv.parserOpts === 'string') {
+    const parserOptsPath = path.resolve(argv.parserOpts)
+    try {
+      argv.parserOpts = require(parserOptsPath)
+    } catch(err) {
+      argv.parserOpts = null
+    }
+  }
+  
   /**
    * If an argument for `packageFiles` provided, we include it as a "default" `bumpFile`.
    */
