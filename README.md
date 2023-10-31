@@ -211,6 +211,13 @@ standard-version --no-verify
 
 If you have your GPG key set up, add the `--sign` or `-s` flag to your `standard-version` command.
 
+### Using Lightweight Tags
+
+This is basically the commit checksum stored in a file -- no other information is kept.
+It's useful for tagging beta, alpha etc. versions without increasing your git repository size.
+Add the `--lightweight-tag` to your `standard-version` command.
+See [lightweight tags](https://git-scm.com/book/en/v2/Git-Basics-Tagging#_lightweight_tags) for more information.
+
 ### Lifecycle Scripts
 
 `standard-version` supports lifecycle scripts. These allow you to execute your
