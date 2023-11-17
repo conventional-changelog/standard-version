@@ -69,9 +69,10 @@ function mock ({ bump, changelog, execFile, fs, pkg, tags } = {}) {
       })
   )
 
-  mockery.registerMock('git-semver-tags', function (cb) {
+  mockery.registerMock('git-semver-tags', function (cbOrOpts, callback) {
+    const cb = typeof cbOrOpts === 'function' ? cbOrOpts : callback
     if (tags instanceof Error) cb(tags)
-    else cb(null, tags | [])
+    else cb(null, tags || [])
   })
 
   if (typeof execFile === 'function') {
