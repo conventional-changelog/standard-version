@@ -297,7 +297,7 @@ describe('cli', function () {
           await exec({
             scripts: { postbump: 'node -e "throw new Error(\'postbump\' + \' fail\')"' }
           })
-          await exec('--patch')
+          await exec()
           /* istanbul ignore next */
           throw new Error('Unexpected success')
         } catch (error) {

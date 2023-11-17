@@ -270,7 +270,7 @@ describe('git', function () {
       fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
 
       const flush = mock({ bump: 'minor' })
-      await exec('--patch')
+      await exec()
       const { stderr } = flush()
       stderr[0].should.match(/precommit ran/)
     })
@@ -286,7 +286,7 @@ describe('git', function () {
 
       mock({ bump: 'minor' })
       try {
-        await exec('--patch')
+        await exec()
         /* istanbul ignore next */
         throw new Error('Unexpected success')
       } catch (error) {
@@ -304,7 +304,7 @@ describe('git', function () {
       fs.writeFileSync('CHANGELOG.md', 'legacy header format<a name="1.0.0">\n', 'utf-8')
 
       mock({ bump: 'minor' })
-      await exec('--patch')
+      await exec()
       shell.exec('git log --oneline -n1').should.match(/delivers #222/)
     })
   })

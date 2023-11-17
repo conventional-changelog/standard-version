@@ -112,6 +112,8 @@ const yargs = require('yargs')
       return true
     }
   })
+  .strict()
+  .showHelpOnFail(false, 'Use --help for available options.')
   .alias('version', 'v')
   .alias('help', 'h')
   .example('$0', 'Update changelog and tag release')
