@@ -103,6 +103,10 @@ const yargs = require('yargs')
     type: 'string',
     describe: 'Name of the package from which the tags will be extracted'
   })
+  .option('skip-unstable', {
+    type: 'boolean',
+    describe: 'If true, unstable tags will be skipped for determining the most recent tag, e.g., x.x.x-alpha.1, x.x.x-rc.2'
+  })
   .check((argv) => {
     if (typeof argv.scripts !== 'object' || Array.isArray(argv.scripts)) {
       throw Error('scripts must be an object')
