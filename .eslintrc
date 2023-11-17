@@ -1,6 +1,11 @@
 {
   "extends": "standard",
   "rules": {
-    "no-var": "error"
+    "no-var": "error",
+    "no-tabs": "error",
+    "indent": [
+      "error",
+      2
+    ]
   }
 }

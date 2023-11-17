@@ -129,6 +129,61 @@ describe('format-commit-message', function () {
   })
 })
 
+describe('api', function () {
+  afterEach(unmock)
+
+  describe('lifecycle hooks', function () {
+    it('should provide own hookName', async function () {
+      const flush = mock({
+        bump: 'minor',
+        fs: { 'CHANGELOG.md': 'legacy header format<a name="1.0.0">\n' }
+      })
+      let hookNameIsString = false
+      await exec({
+        scripts: {
+          prerelease: ({ hookName }) => {
+            hookNameIsString = hookName === 'prerelease'
+          }
+        }
+      })
+      flush()
+      hookNameIsString.should.equal(true)
+    })
+    it('should provide args', async function () {
+      const flush = mock({
+        bump: 'minor',
+        fs: { 'CHANGELOG.md': 'legacy header format<a name="1.0.0">\n' }
+      })
+      let argsIsObject = false
+      await exec({
+        scripts: {
+          prerelease: ({ args }) => {
+            argsIsObject = typeof args === 'object'
+          }
+        }
+      })
+      flush()
+      argsIsObject.should.equal(true)
+    })
+    it('should provide context', async function () {
+      const flush = mock({
+        bump: 'minor',
+        fs: { 'CHANGELOG.md': 'legacy header format<a name="1.0.0">\n' }
+      })
+      let contextIsObject = false
+      await exec({
+        scripts: {
+          prerelease: ({ context }) => {
+            contextIsObject = typeof context === 'object'
+          }
+        }
+      })
+      flush()
+      contextIsObject.should.equal(true)
+    })
+  })
+})
+
 describe('cli', function () {
   afterEach(unmock)
 
