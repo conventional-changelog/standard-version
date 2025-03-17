@@ -1,0 +1,86 @@
+name: CI/CD Pipeline for React App with Standard-Version (PR & Official)
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+    paths:
+      - "**"
+      - "!CHANGELOG.md"
+  pull_request:
+    branches:
+      - feature/standard-version
+    paths:
+      - "**"
+      - "!CHANGELOG.md"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '12'
+      - name: Install dependencies
+        run: npm install --engine-strict
+      - name: Run tests
+        run: npm test
+      - name: Run code coverage
+        run: npm run coverage 
+      - name: Build React App
+        run: npm run build
+
+  pr-release:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR branch with full history
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+      - name: Setup Node.js for PR
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+      - name: Bump version and update changelog for PR (pre-release)
+        # using flag --prerelease=pr fort adding prefix "pr" to the version commit when created PR
+        run: npx standard-version --prerelease=pr --skip.commit=true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Commit and push pre-release changes to PR branch
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add package.json CHANGELOG.md
+          git commit -m "chore(release): temporary prerelease version update"
+          git push origin HEAD:${{ github.head_ref }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  official-release:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main with full history
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Setup Node.js for Official Release
+        uses: actions/setup-node@v3
+        with:
+          node-version: '12'
+      - name: Bump version and update changelog officially
+        run: npx standard-version
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Push changes and tags to main
+        run: git push --follow-tags origin main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
