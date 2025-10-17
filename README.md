@@ -4,7 +4,7 @@
 
 A utility for versioning using [semver](https://semver.org/) and CHANGELOG generation powered by [Conventional Commits](https://conventionalcommits.org).
 
-![ci](https://github.com/conventional-changelog/standard-version/workflows/ci/badge.svg)
+[![ci](https://github.com/conventional-changelog/standard-version/workflows/ci/badge.svg)](https://github.com/conventional-changelog/standard-version/actions/workflows/ci.yaml)
 [![NPM version](https://img.shields.io/npm/v/standard-version.svg)](https://www.npmjs.com/package/standard-version)
 [![codecov](https://codecov.io/gh/conventional-changelog/standard-version/branch/master/graph/badge.svg?token=J7zMN7vTTd)](https://codecov.io/gh/conventional-changelog/standard-version)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
