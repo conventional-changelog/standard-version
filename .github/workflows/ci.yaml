@@ -27,7 +27,9 @@ jobs:
       - run: npm install --engine-strict
       - run: npm test
       - run: npm run coverage
-      - name: Codecov
-        uses: codecov/codecov-action@v2
+      - name: Upload coverage to Qlty
+        uses: qltysh/qlty-action/coverage@v2
         with:
-          env_vars: OS, NODE_VERSION
+          token: ${{ secrets.QLTY_COVERAGE_TOKEN }}
+          files: coverage/lcov.info
+          total-parts-count: 6
